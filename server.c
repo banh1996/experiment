@@ -1,258 +1,207 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <unistd.h> 
+#include <stdio.h> 
 #include <stdbool.h>
+#include <sys/socket.h> 
+#include <stdlib.h> 
+#include <netinet/in.h> 
+#include <string.h>
+#include <ctype.h>
+#include <errno.h>
+#include <sys/stat.h> 
 #include <fcntl.h>
-#include <sys/socket.h>
-#include <sys/types.h>
 #include <arpa/inet.h>
-#include <unistd.h>
 #include <pthread.h>
-#include <sys/stat.h>
 
-#define AF_FAMILY 	AF_INET
-#define BUFFER_SIZE 1024
-#define PORT     	8080 
-#define FILENAME 	"in.bin"
-#define NUM_THREAD	20
-#define FILE_SIZE   FileSize(FILENAME)
+#define SOCKET_TYPE	AF_INET
+#define BUFFER_SIZE	1024
 
-typedef struct
+struct sockaddr_in address; 
+socklen_t addrlen = sizeof(address);
+static int server_fd; 
+static uint16_t port = 0;
+static uint32_t max_client = 0;
+static uint32_t current_client = 0;
+static char ip[20];
+static char folder_path[100];
+
+static bool get_info_socket(const char *file_name)
 {
-	char name[50];
-}small_file_t;
-
-static pthread_t    		tid[NUM_THREAD];
-static small_file_t			smallFileName[NUM_THREAD];
-static uint16_t				g_current_port = PORT;
-pthread_mutex_t 			mutex = PTHREAD_MUTEX_INITIALIZER;
-
-/*function to get size of the file.*/
-size_t FileSize(const char *file_name)
-{
-    struct stat st;
-    if(stat(file_name,&st)==0)
-        return (st.st_size);
-    else
-        return -1;
-}
-
-static void init_socket_udp(int *soc_fd, uint16_t temp_port)
-{
-	/*Create a UDP server socket*/
-	*soc_fd = socket(AF_FAMILY, SOCK_DGRAM, 0);
-	if(*soc_fd == -1)
-	{
-		perror("Create socket fail !\n");
-		exit(EXIT_FAILURE); 
-	}
-	else
-		printf("Create socket successful %d %d\n", *soc_fd, temp_port);
-	/*Server address*/
-	struct sockaddr_in server_add;
-	bzero(&server_add, sizeof(server_add));
-	server_add.sin_family = AF_FAMILY;
-	server_add.sin_port = htons(temp_port);
-	server_add.sin_addr.s_addr = htonl(INADDR_ANY);
-	/*Bind server socket to address*/
-	if(bind(*soc_fd, (struct sockaddr *)&server_add, sizeof(server_add))== -1)
-	{
-		perror("Bind fail");
-		exit(EXIT_FAILURE); 
-	}
-	else
-		printf("Bind successful\n");
-}
-
-static void split_file(const char *filename)
-{
-    int segments = 0, i, accum, readfile_len = 1;
-    int fp1, fp2;
-    size_t sizeFile = FileSize(FILENAME);
-	size_t smallsizefile = sizeFile/NUM_THREAD;
-    segments = NUM_THREAD + 1;//ensure end of file
-    
-    char line[BUFFER_SIZE];
-
-    fp1 = open(filename, O_RDONLY);
-    if(fp1)
+    char str[5];
+    memset(ip, 0, sizeof(ip));
+    memset(str, 0, sizeof(str));
+    memset(folder_path, 0, sizeof(folder_path));
+    FILE * file;
+    file = fopen(file_name, "r");
+    if (file) 
     {
-        for(i = 0; i < segments; i++)
-        {
-            accum = 0;
-            sprintf(smallFileName[i].name, "%s%d", filename, i);
-            fp2 = open(smallFileName[i].name, O_WRONLY  | O_CREAT | O_TRUNC, 0777);
-            if(fp2)
-            {
-                while(readfile_len && accum <= smallsizefile)
-                {
-					readfile_len = read(fp1, line, BUFFER_SIZE);
-                    accum += readfile_len;//track size of growing file
-                    write(fp2, line, readfile_len);
-                }
-                close(fp2);
-            }
-        }
-        close(fp1);
+        fscanf(file, "%s", ip);
+        printf("ip: %s\n",ip);
+
+        fscanf(file, "%s", str);
+        port = atoi(str);
+        printf("port: %d\n", port);
+
+        memset(str, 0, sizeof(str));
+        fscanf(file, "%s", str);
+        max_client = atoi(str);
+        printf("max client: %d\n", max_client);
+
+        fscanf(file, "%s", folder_path);
+        printf("folder path: %s\n", folder_path);
+        fclose(file);
+        return true;
+    }
+    else
+    {
+        printf("cannot find config file\n");
+        return false;
     }
 }
 
-static bool send_text_file_data(int skt, const char *filename,
-								struct sockaddr_in client_add, int addr_len)
+static void init_socket(void)
+{
+    int opt = 1; 
+    if ((server_fd = socket(SOCKET_TYPE, SOCK_STREAM, 0)) == 0) 
+    { 
+        perror("socket failed"); 
+        exit(EXIT_FAILURE); 
+    }  
+
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) 
+    { 
+        perror("setsockopt"); 
+        exit(EXIT_FAILURE); 
+    } 
+    address.sin_family = SOCKET_TYPE; 
+    address.sin_addr.s_addr = INADDR_ANY; 
+    address.sin_port = htons(port);
+
+    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address))<0) 
+    {
+        perror("bind failed");
+        exit(EXIT_FAILURE);
+    }
+
+    if (listen(server_fd, 0) < 0) 
+    { 
+        perror("listen"); 
+        exit(EXIT_FAILURE); 
+    } 
+}
+
+static int accept_new_connection(void)
+{
+    int new_conn = 0;
+    if ((new_conn = accept(server_fd, (struct sockaddr *)&address,(socklen_t*)&addrlen))<0) 
+    { 
+        perror("accept error"); 
+        exit(EXIT_FAILURE); 
+    }
+    return new_conn;
+}
+
+static bool send_text_file_data(int skt, const char *filename)
 {
 	char buf[BUFFER_SIZE];
   	int send_len, read_len, sourse_fd;
-	printf("name send: %s %s %d %d\n", filename, inet_ntoa(client_add.sin_addr), ntohs(client_add.sin_port), addr_len);
-	if(sendto(skt, filename, strlen(filename), MSG_CONFIRM, (struct sockaddr*)&client_add, addr_len) < 0)
-	{
-		perror("Error send name: ");
-		return false;
-	}
+	
 	sourse_fd = open(filename, O_RDONLY);
 	if(sourse_fd == -1)
 	{
-		memset(buf, 0x00, BUFFER_SIZE);
-		sprintf(buf, "no found file %s", filename);
-		printf("%s\n", buf);
-		if(sendto(skt, buf, strlen(buf), MSG_CONFIRM,  (struct sockaddr*)&client_add, addr_len) < 0)
-			perror("Error send: ");
 		close(sourse_fd);
+        close(skt);
 		return false;
 	}
 
-	printf("sending file: %s\n", filename);
-	//int cnt = 0;
+	printf("sending file from: %s\n", filename);
+
 	while(1) 
 	{
-		//cnt++;
 		memset(buf, 0x00, BUFFER_SIZE);
 		read_len = read(sourse_fd, buf, BUFFER_SIZE);
-		send_len = sendto(skt, buf, read_len, MSG_CONFIRM,  (struct sockaddr*)&client_add, addr_len);
-		//printf("here: %d %d %d\n", read_len, send_len, cnt);
-		usleep(4);
+		send_len = write(skt, buf, read_len);
 		if(send_len <= 0 || read_len <=0) 
 		{
 			break;
 		}
 	}
 	close(sourse_fd);
+    close(skt);
 	return true;
 }
 
+
 void *threadFunc(void *argv)
 {
-	int sock_fd, n;
-	socklen_t len_recv = sizeof(struct sockaddr_in);
-	char buf[BUFFER_SIZE];
-	pthread_mutex_lock(&mutex);
-	g_current_port++;
-	init_socket_udp(&sock_fd, g_current_port);
-	pthread_mutex_unlock(&mutex);
+    int new_conn = *(int*)argv;
+    int n = 0;
+    char file_request[100];
 
-	if(pthread_detach(pthread_self()))
+    if(pthread_detach(pthread_self()))
 	{
-		printf("pthread detach error\n");
+        current_client--;
+		perror("pthread detach error ");
+        pthread_exit(NULL);
 	}
+
 	printf("Thread %ld has started\n", pthread_self());
-	struct sockaddr_in client_add;
-	memset(buf, 0x00, BUFFER_SIZE);
-	n = recvfrom(sock_fd, buf, BUFFER_SIZE, MSG_WAITALL, (struct sockaddr*)&client_add, &len_recv);
-	if(n > 0)
-	{
-		if(memcmp(buf, "start", 5) == 0)
-		{
-			usleep(100);
-			send_text_file_data(sock_fd, (char*)(argv), client_add, sizeof(client_add));
-		}
-		else
-		{
-			printf("wrong key\n");
-		}
-	}
-	else
-	{
-		perror("no no no\n");
-	}
+
+    memset(file_request, 0, sizeof(file_request));
+    memcpy(file_request, folder_path, strlen(folder_path));
+	n = read(new_conn, &file_request[strlen(file_request)], sizeof(file_request) - strlen(file_request));
+
+    printf("read request file: %s\n", file_request);
+
+    if(access(file_request, F_OK) != -1 )
+    {
+        printf("File %s existed\n", file_request);
+        write(new_conn, "ok", 2);
+    }
+    else
+    {
+        printf("File %s is not exist\n", file_request);
+        write(new_conn, "no", 2);
+        current_client--;
+        pthread_exit(NULL);
+    }
+
+    send_text_file_data(new_conn, file_request);
 	
 	printf("Thread %ld has finished\n", pthread_self());
+    current_client--;
 	pthread_exit(NULL);
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char const *argv[])
 {
-	bool continu = false;
-	int ret = 0, i = 0, n, sock_fd;
-	socklen_t len_recv = sizeof(struct sockaddr_in);
-	struct sockaddr_in client_add;
-	char buf[BUFFER_SIZE];
-	
-	if ((argc > 1) && (atoi(argv[1]) > 0))
-	{
-		g_current_port = atoi(argv[1]);
-		init_socket_udp(&sock_fd, g_current_port);
-	}
-	else
-		init_socket_udp(&sock_fd, PORT);
-    split_file(FILENAME);
+    bool b_result = false;
 
-    bzero(&client_add, sizeof(client_add));
-	
-	memset(buf, 0, BUFFER_SIZE);
-    n = recvfrom(sock_fd, buf, BUFFER_SIZE, MSG_WAITALL, (struct sockaddr*)&client_add, &len_recv);
-    if(n > 0)
-    {
-    	printf("From address: %s\n", inet_ntoa(client_add.sin_addr));
-	  	printf("From Port: %d\n",ntohs(client_add.sin_port));
-	  	printf("Receive from client: %s\n", buf);
+    if (argc > 1)
+	{
+		b_result = get_info_socket(argv[1]);
 	}
     else
-		perror("no receive anything");
+    {
+        b_result = get_info_socket("config.cfg");
+    }
+    
+    if(!b_result)
+        return 0;
 
-	memset(buf, 0, BUFFER_SIZE);
-	sprintf(buf, "%d", NUM_THREAD);
+    init_socket();
 
-	//send thread num back
-	while(true)
-	{
-		if(sendto(sock_fd, buf, strlen(buf) + 1, MSG_CONFIRM,  (struct sockaddr*)&client_add, sizeof(client_add)) < 0)
-			perror("Error send: ");
+    while(true)
+    {
+        pthread_t id_thread;
+        if(current_client >= max_client)
+            continue;
+        current_client++;
+        int new_conn = accept_new_connection();
+        if (pthread_create(&id_thread, NULL, threadFunc, &new_conn) != 0)
+        {
+            printf("Thread created error\n");
+        }
+    }
 
-		//wait client reply
-		memset(buf, 0, BUFFER_SIZE);
-		n = recvfrom(sock_fd, buf, BUFFER_SIZE, MSG_WAITALL, (struct sockaddr*)&client_add, &len_recv);
-		if(n > 0)
-		{
-			if(memcmp(buf, "ok", 2) == 0)
-			{
-				printf("ok\n");
-				break;
-			}
-		}
-		else
-			perror("no receive ok\n");
-	}
-
-	for(i = 0; i < NUM_THREAD; i++)
-	{
-		memset(smallFileName[i].name, 0, BUFFER_SIZE);
-		sprintf(smallFileName[i].name, "%s%d", FILENAME, i);
-		ret = pthread_create(&(tid[i]), NULL, threadFunc, (void*)smallFileName[i].name);
-		if (ret != 0)
-		{
-			printf("Thread [%d] created error\n", i);
-		}
-	}
-
-	/*Wait for receive from client*/
-	while(!continu)
-	{
-	  /*Send file to client*/
-	//   if(!send_text_file_data(serverfd, FILENAME))
-	//   {
-	// 	  printf("Closed socket\n");
-	// 	  close(serverfd); 
-	// 	  continu = false;
-	//   }
-	}
-	return 0;
+    return 1;
 }
