@@ -14,26 +14,13 @@
 
 static file_struct_t g_info[BUF_SIZE];
 static char line[LINELEN];
-
 static void wordsInFile(int fd)
 {
     int count_line = 0;
-    char arr;
-#if 0
     while (read(fd, &g_info[1], sizeof(file_struct_t)*(BUF_SIZE-1)) > 0) {
         count_line++;
     }
     printf("hungtn16 %d\n", count_line);
-#endif
-    while (read(fd, &arr, 1))
-    {
-        if (arr != '\n')
-        {
-            lseek(fd, 1, SEEK_CUR);
-            printf("%c", arr);
-        }
-    } 
-    printf("\n");
 }
 
 static void write_output(int fd)
@@ -92,7 +79,6 @@ static void write_output(int fd)
 
 int main(int argc, char *argv[])
 {
-    char check_if_have_input = 0;
     int opt = 0;
     int fd;
     memset(g_info, 0, sizeof(g_info));
@@ -105,11 +91,10 @@ int main(int argc, char *argv[])
                 return -1;
             }
             else {
-                // fprintf(stdout, "file input --> %s\n", optarg);
+                fprintf(stdout, "file input --> %s\n", optarg);
                 wordsInFile(fd);
                 close(fd);
             }
-            check_if_have_input = 1;
             break;
         case 'o':
             fd = open(optarg, O_WRONLY|O_CREAT|O_TRUNC,  S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
@@ -126,17 +111,17 @@ int main(int argc, char *argv[])
         case 'h':
             fprintf(stdout, " [-i <input file>] [-o <output file>] [-h] [-v]\n");
             break;
+        case 'v':
+            fprintf(stdout, "verbose: verbose enabled: 1\n");
+            // fprintf(stdout, "verbose: using out as input 63\n");
+            // fprintf(stdout, "verbose: using sample as output 78\n");
+            // fprintf(stdout, "verbose: exiting read loop: 100\n");
+            break;
         default:
             fprintf(stderr, "Usage: %s [-d delim] -f file1 [[-f file2] ... [-f fileN]]\n"
                     , argv[0]);
             exit(EXIT_FAILURE);
         }
-    }
-
-    if (check_if_have_input == 0)
-    {
-        printf("error: no -i\n");
-        exit(3);
     }
 
     return EXIT_SUCCESS;
