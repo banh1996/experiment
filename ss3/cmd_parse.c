@@ -24,6 +24,113 @@
 // This is one.
 unsigned short isVerbose = 0;
 
+static int execute_command_line(char *s)
+{
+    int pipe1[2] = {-1, -1}, pipe2[2] = {-1, -1}, pipe3[2] = {-1, -1};
+    pid_t pid1 = -1, pid2 = -1, pid3 = -1;
+
+    pipe(pipe1);
+    pid1 = fork();
+    if (pid1 == 0)
+    {
+        //child process handle ls
+        // close(STDOUT_FILENO);
+        if(dup2(pipe1[STDOUT_FILENO],STDOUT_FILENO) < 0)
+        {
+            perror("child 1 barf");
+            _exit(1);
+        }
+        close(pipe1[STDIN_FILENO]);
+        close(pipe1[STDOUT_FILENO]);
+        
+        if (execlp("ls", "ls", NULL) < 0)
+        {
+            perror("sad panda 1");
+            _exit(3);
+        }
+    }
+    else
+    {
+        pipe(pipe2);
+        pid2 = fork();
+        if (pid2 == 0)
+        {
+            //child process handle xargs
+            if(dup2(pipe1[STDIN_FILENO], STDIN_FILENO) < 0)
+            {
+                perror("child 2-1 barf");
+                _exit(1);
+            }
+            if(dup2(pipe2[STDOUT_FILENO], STDOUT_FILENO) < 0)
+            {
+                perror("child 2-2 barf");
+                _exit(1);
+            }
+            close(pipe1[STDIN_FILENO]);
+            close(pipe1[STDOUT_FILENO]);
+            close(pipe2[STDIN_FILENO]);
+            close(pipe2[STDOUT_FILENO]);
+            if (execlp("xargs", "xargs", "du", "-s", NULL) < 0)
+            {
+                perror("sad panda 2");
+                _exit(3);
+            }
+        }
+        else
+        {
+            close(pipe1[STDIN_FILENO]);
+            close(pipe1[STDOUT_FILENO]);
+            pipe(pipe3);
+            pid3 = fork();
+            if (pid3 == 0)
+            {
+                //child process handle sort
+                if(dup2(pipe2[STDIN_FILENO],STDIN_FILENO) < 0)
+                {
+                    perror("child 3-1 barf");
+                    _exit(1);
+                }
+                if(dup2(pipe3[STDOUT_FILENO],STDOUT_FILENO) < 0)
+                {
+                    perror("child 3-2 barf");
+                    _exit(1);
+                }
+                close(pipe2[STDIN_FILENO]);
+                close(pipe2[STDOUT_FILENO]);
+                close(pipe3[STDIN_FILENO]);
+                close(pipe3[STDOUT_FILENO]);
+                if (execlp("sort", "sort", "-nr", NULL) < 0)
+                {
+                    perror("sad panda 3");
+                    _exit(3);
+                }
+            }
+            else
+            {
+                //parent process
+                
+                close(pipe2[STDIN_FILENO]);
+                close(pipe2[STDOUT_FILENO]);
+
+                if(dup2(pipe3[STDIN_FILENO],STDIN_FILENO) < 0)
+                {
+                    perror("parent barf");
+                    _exit(4);
+                }
+                close(pipe3[STDIN_FILENO]);
+                close(pipe3[STDOUT_FILENO]);
+                if (execlp("head", "head", NULL) < 0)
+                {
+                    perror("sad panda 4");
+                    _exit(3);
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
 //int main( int argc, char *argv[] )
 int process_user_input_simple(void)
 {
@@ -214,7 +321,7 @@ void exec_commands( cmd_list_t *cmds )
             }   
         }
         else {
-            // printf("check: 1 %s 2 %s 3 count %d\n", cmd->raw_cmd, cmd->cmd,  cmd->param_count);
+            //printf("check: 1 %s 2 %s 3 %s count %d\n", cmd->raw_cmd, cmd->cmd, cmd->param_list->param, cmd->param_count);
             // a single command to create and exec
             // if you really do things correctly, you don't need a special
             // for a single command, as distinguished from multiple commands.
@@ -240,15 +347,16 @@ void exec_commands( cmd_list_t *cmds )
                 {
                     if (temp_param != NULL)
                     {
-                        args[i] = alloca(strlen(temp_param->param));
+                        args[i] = alloca(strlen(temp_param->param) + 1);
                         memcpy(args[i], temp_param->param, strlen(temp_param->param));
+                        args[i][strlen(temp_param->param)] = '\0';
                     }
                     temp_param = temp_param->next;
                 }
                 args[cmd->param_count+1] = NULL;
                 if (cmd->output_dest == REDIRECT_FILE)
                 {
-                    fd_output = open(cmd->output_file_name, O_WRONLY|O_CREAT|O_TRUNC,  S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+                    fd_output = open(cmd->output_file_name, O_WRONLY|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
                     if(fd_output==-1)
                     {
                         printf("file cannot create.\n");

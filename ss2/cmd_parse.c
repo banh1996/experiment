@@ -240,8 +240,9 @@ void exec_commands( cmd_list_t *cmds )
                 {
                     if (temp_param != NULL)
                     {
-                        args[i] = alloca(strlen(temp_param->param));
+                        args[i] = alloca(strlen(temp_param->param) + 1);
                         memcpy(args[i], temp_param->param, strlen(temp_param->param));
+                        args[i][strlen(temp_param->param)] = '\0';
                     }
                     temp_param = temp_param->next;
                 }

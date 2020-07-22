@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     int opt = 0;
     int pipe1[2] = {-1, -1}, pipe2[2] = {-1, -1}, pipe3[2] = {-1, -1};
     pid_t pid1 = -1, pid2 = -1, pid3 = -1;
-    char *count;
+    char *count = NULL;
 
     while ((opt = getopt(argc, argv, "n:")) != -1) {
         switch (opt) {
@@ -115,10 +115,21 @@ int main(int argc, char *argv[])
                 }
                 close(pipe3[STDIN_FILENO]);
                 close(pipe3[STDOUT_FILENO]);
-                if (execlp("head", "head", "-n", count, NULL) < 0)
+                if (count != NULL)
                 {
-                    perror("sad panda 4");
-                    _exit(3);
+                    if (execlp("head", "head", "-n", count, NULL) < 0)
+                    {
+                        perror("sad panda 4");
+                        _exit(3);
+                    }
+                }
+                else
+                {
+                    if (execlp("head", "head", NULL) < 0)
+                    {
+                        perror("sad panda 4");
+                        _exit(3);
+                    }
                 }
             }
         }
