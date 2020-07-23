@@ -26,10 +26,13 @@ unsigned short isVerbose = 0;
 
 static int execute_command_line(char *s)
 {
+    int *pipes;
     int pipe1[2] = {-1, -1}, pipe2[2] = {-1, -1}, pipe3[2] = {-1, -1};
     pid_t pid1 = -1, pid2 = -1, pid3 = -1;
 
     pipe(pipe1);
+            pipes = alloca(sizeof(int*)*2);
+            pipe(pipes);
     pid1 = fork();
     if (pid1 == 0)
     {
@@ -256,7 +259,8 @@ void exec_commands( cmd_list_t *cmds )
     pid_t pid = -1;
     cmd_t *cmd = cmds->head;
 
-    if (1 == cmds->count) {
+    if (1 == cmds->count)
+    {
         if (!cmd->cmd) {
             // if it is an empty command, bail.
             return;
@@ -400,7 +404,71 @@ void exec_commands( cmd_list_t *cmds )
             }
         }
     }
-    else {        
+    else
+    {
+        if (!cmd->cmd) {
+            // if it is an empty command, bail.
+            return;
+        } else {
+            int fd_output, fd_input, i;
+            char **args;
+            param_t *temp_param = NULL;
+
+            args = alloca(sizeof(char*)*(cmd->param_count+2));
+            args[0] = alloca(strlen(cmd->cmd));
+            memcpy(args[0], cmd->cmd, strlen(cmd->cmd));
+            temp_param = cmd->param_list;
+
+            for (i = 1; i < cmd->param_count+1; i++)
+            {
+                if (temp_param != NULL)
+                {
+                    args[i] = alloca(strlen(temp_param->param) + 1);
+                    memcpy(args[i], temp_param->param, strlen(temp_param->param));
+                    args[i][strlen(temp_param->param)] = '\0';
+                }
+                temp_param = temp_param->next;
+            }
+            args[cmd->param_count+1] = NULL;
+            if (cmd->output_dest == REDIRECT_FILE)
+            {
+                fd_output = open(cmd->output_file_name, O_WRONLY|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+                if(fd_output==-1)
+                {
+                    printf("file cannot create.\n");
+                    _exit(1);
+                }
+                else
+                {
+                    if(dup2(fd_output, STDOUT_FILENO) < 0)
+                    {
+                        perror("dup2 barf");
+                        _exit(1);
+                    }
+                }
+                close(fd_output);
+            }
+            if (cmd->input_src == REDIRECT_FILE)
+            {
+                fd_input = open(cmd->input_file_name, O_RDONLY);
+                if(fd_input==-1)
+                {
+                    printf("file cannot open.\n");
+                    _exit(1);
+                }
+                else
+                {
+                    if(dup2(fd_input, STDIN_FILENO) < 0)
+                    {
+                        perror("dup2 barf");
+                        _exit(1);
+                    }
+                }
+                close(fd_input);
+            }
+            execvp(cmd->cmd, args);
+            exit(1);
+        }
         // Other things???
         // More than one command on the command line. Who'da thunk it!
         // This really falls into Stage 2.
