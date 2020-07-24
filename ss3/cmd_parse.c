@@ -29,21 +29,20 @@ unsigned short isVerbose = 0;
 
 static int _execute_command_lines(cmd_list_t *cmds)
 {
-    int j, p_trail;
+    int j;
     cmd_t *cmd = cmds->head;
+    int *pipes = alloca(sizeof(int*)*2*(cmds->count - 1));
 
     while (cmd != NULL)
     {
         int fd_output = STDOUT_FILENO, fd_input = STDIN_FILENO, i;
-        int *pipes;
         char **args;
         param_t *temp_param = NULL;
         pid_t pid = -1;
 
         if (cmd != cmds->tail) //if last and jump to parent process
         {
-            pipes = alloca(sizeof(int)*2);
-            pipe(pipes);
+            pipe(pipes + (2*cmd->list_location));
         }
         pid = fork();
         if (pid == 0)
@@ -78,7 +77,11 @@ static int _execute_command_lines(cmd_list_t *cmds)
                     }
                     else
                     {
-                        fd_output = STDOUT_FILENO;
+                        if(dup2(fd_output, STDOUT_FILENO) < 0)
+                        {
+                            perror("dup2 barf");
+                            _exit(1);
+                        }
                     }
                 }
                 else
@@ -98,7 +101,11 @@ static int _execute_command_lines(cmd_list_t *cmds)
                     }
                     else
                     {
-                        fd_input = STDIN_FILENO;
+                        if(dup2(fd_input, STDIN_FILENO) < 0)
+                        {
+                            perror("dup2 barf");
+                            _exit(1);
+                        }
                     }
                 }
                 else
@@ -109,26 +116,27 @@ static int _execute_command_lines(cmd_list_t *cmds)
 
             if (cmd != cmds->tail) //if !last
             {
-                if(dup2(pipes[STDOUT_FILENO], fd_output) < 0)
+                if(dup2(pipes[cmd->list_location*2 + STDOUT_FILENO], fd_output) < 0)
                 {
                     perror("dup2 STDOUT_FILENO barf");
                     _exit(1);
                 }
+                close(pipes[cmd->list_location*2 + STDIN_FILENO]);
+                close(pipes[cmd->list_location*2 + STDOUT_FILENO]);
                 // close(fd_output);
             }
-printf("child %d %d\n", cmd->list_location, p_trail);
+
             if (cmd != cmds->head) //if !first
             {
-                if(dup2(p_trail, fd_input) < 0)
+                if(dup2(pipes[cmd->list_location*2 - 2 + STDIN_FILENO], fd_input) < 0)
                 {
                     perror("dup2 STDIN_FILENO barf");
                     _exit(1);
                 }
+                close(pipes[cmd->list_location*2 - 2 + STDIN_FILENO]);
+                close(pipes[cmd->list_location*2 - 2 + STDOUT_FILENO]);
                 // close(fd_input);
             }
-
-            close(pipes[STDIN_FILENO]);
-            close(pipes[STDOUT_FILENO]);
 
             if (execvp(cmd->cmd, args) < 0)
             {
@@ -139,28 +147,21 @@ printf("child %d %d\n", cmd->list_location, p_trail);
         else
         {
             //parent process
-            printf("parent %d %d\n", cmd->list_location, p_trail);
             if (cmd != cmds->tail) //if !last
             {
-                close(pipes[STDOUT_FILENO]);
-                p_trail = pipes[STDIN_FILENO];
-                if(dup2(p_trail, pipes[STDIN_FILENO]) < 0)
-                {
-                    perror("parent barf");
-                    _exit(4);
-                }
+                //close(pipes[cmd->list_location*2 + STDIN_FILENO]);
             }
 
             if (cmd != cmds->head) //if !first
             {
-                close(p_trail);
+                close(pipes[cmd->list_location*2 - 2]);
+                close(pipes[cmd->list_location*2 - 2 + STDOUT_FILENO]);
             }
         }
         cmd = cmd->next;
     }
     for (j = 0; j < cmds->count; j++)
         wait(NULL);
-    printf("end parent %d\n", p_trail);
 
     return 0;
 }
