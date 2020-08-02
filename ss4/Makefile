@@ -1,16 +1,15 @@
 CC=gcc
-CFLAGS= -Wall -Wshadow -Wunreachable-code -Wredundant-decls -Wmissing-declarations -Wold-style-definition -Wmissing-prototypes -Wdeclaration-after-statement -Wno-return-local-addr -Wuninitialized -Wunused -Wextra -pthread -g
+CFLAGS= -Wall -Wshadow -Wunreachable-code -Wredundant-decls -Wmissing-declarations -Wold-style-definition -Wmissing-prototypes -Wdeclaration-after-statement -Wuninitialized -Wno-return-local-addr -Wunused -Wextra -pthread -g
 
 all:
-	$(CC) $(CFLAGS) -o primeMT.o primeMT.c
+	$(CC) $(CFLAGS) -o primesMT primesMT.c
 
-primeMT:
-	$(CC) $(CFLAGS) -o primeMT.o primeMT.c
-	./testPrimes.bash
+primesMT:
+	$(CC) $(CFLAGS) -o primesMT primesMT.c
 
-primeMT.o:
-	$(CC) $(CFLAGS) -o primeMT.o primeMT.c
+primesMT.o:
+	$(CC) $(CFLAGS) -o primesMT primesMT.c
 
 clean:
-	rm -rf primeMT.o
+	rm -rf primesMT
 	rm -rf valgrind-out.txt
