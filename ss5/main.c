@@ -30,6 +30,7 @@ pthread_cond_t empty = PTHREAD_COND_INITIALIZER;
 /*
  Produce an item. Produces a random integer between [0, 1000] unless it is the last item to be produced in which case the value -1 is returned.
 */
+#if 0
 int produce(int i)
 {
     int value;
@@ -43,20 +44,33 @@ int produce(int i)
     count++;
     return value;
 }
+#endif
 
 /*
  Function that the producer thread will run. Produce an item and put in the buffer only if there is space in the buffer. If the buffer is full, then wait until there is space in the buffer.
 */
 void *producer(void *args)
 {
-    for (int i = 0; i < num_iterations; i++)
+    //for (int i = 0; i < num_iterations; i++)
+    int i = 0;
+    while(memcmp(line, "DONE", 4))
     {
-      // Lock the mutex before checking where there is space in the buffer
-      pthread_mutex_lock(&mutex);
+      memset(line, 0, sizeof(line));
+      i = 0;
       while (count == SIZE)
         // Buffer is full. Wait for the consumer to signal that the buffer has space
         pthread_cond_wait(&empty, &mutex);
-      printf("PROD %d\n", produce(i));
+      //do
+      {
+        // Lock the mutex before checking where there is space in the buffer
+        pthread_mutex_lock(&mutex);
+        //printf("PROD %d\n", produce(i));
+        c = getchar();
+        line[i] = c;
+        i++;
+      }
+      //while(c != '\n');
+      i--;
       // Signal to the consumer that the buffer is no longer empty
       pthread_cond_signal(&full);
       // Unlock the mutex
@@ -68,6 +82,7 @@ void *producer(void *args)
 /*
  Get the next item from the buffer
 */
+#if 0
 int consume()
 {
     int value = buffer[con_idx];
@@ -76,6 +91,7 @@ int consume()
     count--;
     return value;
 }
+#endif
 
 /*
  Function that the consumer thread will run. Get  an item from the buffer if the buffer is not empty. If the buffer is empty then wait until there is data in the buffer.
@@ -84,15 +100,23 @@ void *consumer(void *args)
 {
     int value = 0;
     // Continue consuming until the END_MARKER is seen    
-    while (value != END_MARKER)
+    //while (value != END_MARKER)
     {
       // Lock the mutex before checking if the buffer has data      
       pthread_mutex_lock(&mutex);
       while (count == 0)
         // Buffer is empty. Wait for the producer to signal that the buffer has data
         pthread_cond_wait(&full, &mutex);
-      value = consume();
-      printf("CONS %d\n", value);
+      //value = consume();
+      //printf("CONS %d\n", value);
+      if (line[i] == '\n')
+        line[i] = ' ';
+      else if (i > 1 && line[i] == '+' && line[i-1] == '+')
+      {
+        line[i] = '\0';
+        line[i-1] = '^';
+        i--;
+      }
       // Signal to the producer that the buffer has space
       pthread_cond_signal(&empty);
       // Unlock the mutex
@@ -103,19 +127,20 @@ void *consumer(void *args)
 
 int main(int argc, char *argv[])
 {
+    int pipe1[2], pipe2[2], pipe3[2];
     if (argc != 2)
     {
       printf("Usage: ./main num_iterations\n");
       printf("\tProvide number of iterations for the program as an integer greater than 0\n");
       exit(1);
     }
-    srand(time(0));
+    //srand(time(0));
     num_iterations = atoi(argv[1]);
     // Create the producer and consumer threads
     pthread_t p, c;
     pthread_create(&p, NULL, producer, NULL);
     // Sleep for a few seconds to allow the producer to fill up the buffer. This has been put in to demonstrate the the producer blocks when the buffer is full. Real-world systems won't have this sleep    
-    sleep(5);
+    // sleep(5);
     pthread_create(&c, NULL, consumer, NULL);
     pthread_join(p, NULL);
     pthread_join(c, NULL);
