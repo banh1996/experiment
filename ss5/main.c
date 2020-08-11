@@ -11,8 +11,8 @@
 // Special marker used to indicate end of the producer data
 char end_string[6] = "\nDONE\n";
 
-//#define log printf
-#define log
+#define log printf
+//#define log
 
 char line1[CHARACTER_MAX*2];
 char line2[CHARACTER_MAX*2];
@@ -20,6 +20,8 @@ char line3[CHARACTER_MAX];
 
 static int g_count_line1 = 0;
 static int g_count_line2 = 0;
+static int g_count_line3 = 0;
+static int real_line_count = 0;
 static char g_is_end = 0;
 
 // Initialize the mutex
@@ -31,21 +33,18 @@ pthread_mutex_t mutex3 = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t cond1 = PTHREAD_COND_INITIALIZER;
 pthread_cond_t cond2 = PTHREAD_COND_INITIALIZER;
 pthread_cond_t cond3 = PTHREAD_COND_INITIALIZER;
+pthread_cond_t cond4 = PTHREAD_COND_INITIALIZER;
 
 void *input_thread(void *args)
 {
     char c, end_count = 0;
     while(1)
     {
-        log("%s %d\n", __func__, __LINE__);
         pthread_mutex_lock(&mutex1);
-        log("%s %d\n", __func__, __LINE__);
         if (g_count_line1 != g_count_line2)
         {
-            log("%s %d\n", __func__, __LINE__);
             pthread_cond_wait(&cond1, &mutex1);
         }
-        log("%s %d\n", __func__, __LINE__);
         c = getchar();
         line1[g_count_line1] = c;
         g_count_line1++;
@@ -75,17 +74,34 @@ void *line_separator_thread(void *args)
 {
     while(!g_is_end)
     {
+        log("%s %d\n", __func__, __LINE__);
         pthread_mutex_lock(&mutex1);
+    /////
+        pthread_mutex_lock(&mutex2);
+    /////
         if (g_count_line1 == g_count_line2)
         {
+            log("%s %d\n", __func__, __LINE__);
             pthread_cond_wait(&cond2, &mutex1);
         }
+        log("%s %d\n", __func__, __LINE__);
         if (line1[g_count_line2] != '\0')
         {
             line2[g_count_line2] = line1[g_count_line2];
             if (line2[g_count_line2] == '\n')
-                line2[g_count_line2] = ' ';   
+                line2[g_count_line2] = ' ';
+    /////
+            if (g_count_line2 != g_count_line3)
+            {
+                log("%s %d %d %d\n", __func__, __LINE__, g_count_line2, g_count_line3);
+                pthread_cond_wait(&cond3, &mutex2);
+            }
+            pthread_cond_signal(&cond4);
+            pthread_mutex_unlock(&mutex2);
+    /////
             g_count_line2++;
+            pthread_cond_signal(&cond1);
+            #if 0
             if (g_count_line2 == CHARACTER_MAX && !g_is_end)
             {
                 printf("%s\n", line2);
@@ -94,9 +110,23 @@ void *line_separator_thread(void *args)
                 g_count_line1 = 0;
                 g_count_line2 = 0;
             }
-            pthread_cond_signal(&cond1);
+            
+            log("%s %d\n", __func__, __LINE__);
+            pthread_mutex_lock(&mutex2);
+            g_count_line2--;
+            if (g_count_line2 != g_count_line3)
+            {
+                log("%s %d %d %d\n", __func__, __LINE__, g_count_line2, g_count_line3);
+                pthread_cond_wait(&cond3, &mutex2);
+            }
+            log("%s %d\n", __func__, __LINE__);
+            g_count_line2++;
+            pthread_cond_signal(&cond4);
+            pthread_mutex_unlock(&mutex2);
+            #endif
         }
         pthread_mutex_unlock(&mutex1);
+        //g_count_line2++;
     }
     return NULL;
 }
@@ -105,28 +135,39 @@ void *plus_sign_thread(void *args)
 {
     while(!g_is_end)
     {
-        pthread_mutex_lock(&mutex1);
-        if (g_count_line1 == g_count_line2)
+        log("%s %d\n", __func__, __LINE__);
+        pthread_mutex_lock(&mutex2);
+        if (g_count_line2 == g_count_line3)
         {
-            pthread_cond_wait(&cond2, &mutex1);
+            log("%s %d\n", __func__, __LINE__);
+            pthread_cond_wait(&cond4, &mutex2);
         }
-        if (line1[g_count_line2] != '\0')
+        log("%s %d\n", __func__, __LINE__);
+        if (line2[g_count_line3] != '\0')
         {
-            line2[g_count_line2] = line1[g_count_line2];
-            if (line2[g_count_line2] == '\n')
-                line2[g_count_line2] = ' ';   
-            g_count_line2++;
-            if (g_count_line2 == CHARACTER_MAX && !g_is_end)
+            line3[real_line_count] = line2[g_count_line3];
+            if (g_count_line3 > 1 && line3[g_count_line3] == '+' && line3[g_count_line3-1] == '+')
             {
-                printf("%s\n", line2);
+                line3[real_line_count] = '^';
+                real_line_count--;
+            }
+            g_count_line3++;
+            real_line_count++;
+            
+            if (real_line_count == CHARACTER_MAX && !g_is_end)
+            {
+                printf("%s\n", line3);
                 memset(line1, 0, sizeof(line1));
                 memset(line2, 0, sizeof(line2));
+                memset(line3, 0, sizeof(line3));
                 g_count_line1 = 0;
                 g_count_line2 = 0;
+                g_count_line3 = 0;
+                real_line_count = 0;
             }
-            pthread_cond_signal(&cond1);
+            pthread_cond_signal(&cond3);
         }
-        pthread_mutex_unlock(&mutex1);
+        pthread_mutex_unlock(&mutex2);
     }
     return NULL;
 }
