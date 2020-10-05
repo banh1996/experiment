@@ -25,7 +25,6 @@ class Graph {
             for (int i = 0; i < q; i++) {
                 check_path(i, archeologist_paths[i].get(0), archeologist_paths[i].get(1), archeologist_paths[i].get(2));
                 if (result[i]) {
-                    // System.out.println("Yes");
                     myWriter.write("Yes\n");
                 }
                 else {
@@ -42,7 +41,7 @@ class Graph {
     private void init_graph()
     {
         try {
-            File input_file = new File("extra_input.txt.bak");
+            File input_file = new File("extra_input.txt");
             Scanner reader = new Scanner(input_file);
             String line;
             String[] splited;
@@ -54,7 +53,6 @@ class Graph {
                 splited = line.split("\\s+");
                 n = Integer.parseInt(splited[0]);
                 m = Integer.parseInt(splited[1]);
-                // System.out.println("m, n are " + m + " & " + n);
             }
 
             // init null array for graph
@@ -81,7 +79,6 @@ class Graph {
             if (reader.hasNextLine()) {
                 line = reader.nextLine();
                 q = Integer.parseInt(line);
-                // System.out.println("q is " + q);
             }
 
             // init null array for archeologist_paths
@@ -115,42 +112,18 @@ class Graph {
     public void check_path(int index, int s, int e, int w)
     {
         boolean[] isVisited = new boolean[n];
-        //ArrayList<Integer> pathList = new ArrayList<>();
-        //pathList.add(s);
-        is_path_valid(index, s, e, w, isVisited);
-    }
-
-    private void is_path_valid(int index, Integer s, Integer e, Integer w,
-                               boolean[] isVisited)
-                               //List<Integer> localPathList)
-    {
-        if (s.equals(e)) {
-            result[index] = true;
-            return;
-        }
-
-        isVisited[s] = true;
-
-        for (int i = 0; i < graph_data[s].size(); i++) {
-            if (!isVisited[graph_data[s].get(i)] && weigths[s].get(i) >= w) {
-                //localPathList.add(graph_data[s].get(i));
-                is_path_valid(index, graph_data[s].get(i), e, w, isVisited);
-                //localPathList.remove(graph_data[s].get(i));
-            }
-        }
-        isVisited[s] = false;
+        bfs(index, s, e, w, isVisited);
     }
 
     private void bfs(int index, Integer s, Integer e, Integer w,
-                     boolean[] isVisited,
-                     List<Integer> localPathList)
+                     boolean[] isVisited)
     {
         int que[] = new int[n];
         Arrays.fill(que, 0); 
 
         int front = -1, rear = -1;
         Arrays.fill(isVisited, false);
-        isVisited = true;
+        isVisited[s] = true;
 
         // To add any non isVisited node we will increment the rear
         // and add that vertex to the end of the array (enqueuing)
@@ -159,20 +132,21 @@ class Graph {
         int k;
         // The loop will continue till the rear and front are equal
         while (front != rear) {
-            // Here Dequeuing is nothing but to increment the front iny
+            // Here Dequeuing is nothing but to increment the front
             k = que[++front];
-            List<Integer> list = adjList.get(k);
-            for (int i = 0; i < list.size(); i++) {
-                int j = list.get(i);
-                if (visited[j] == 0) {
+            for (int i = 0; i < graph_data[k].size(); i++) {
+                int j = graph_data[k].get(i);
+                if (!isVisited[j] && weigths[k].get(i) >= w) {
+                    // Exit when visit pedestal 'e'
+                    if (j == e) {
+                        result[index] = true;
+                        return;
+                    }
                     que[++rear] = j;
-                    visited[j] = 1;
+                    isVisited[j] = true;
                 }
             }
         }
-        // Print the path from source to every other node
-        for (k = 0; k < n; k++)
-            print(parent, source, k);
     }
 
     public static void main(String[] args)
