@@ -10,32 +10,41 @@ void map_init(struct map_st *map)
 
 void map_add(struct map_st *map, char *key, char *value)
 {
-    memcpy(map->table[map->count].key, key);
-    memcpy(map->table[map->count].value, value);
+    strcpy(map->table[map->count].key, key);
+    strcpy(map->table[map->count].value, value);
     map->count++;
 }
 
-char * map_lookup(struct map_st *map, char ch)
+char * map_lookup(struct map_st *map, char *s)
 {
-    for (int i = 0; i < map->count; i++)
+    static char buffer[MAP_VALUE_LEN+1];
+    char is_match = 0;
+    if (s[0] == '\0')
+        return NULL;
+
+    int i, j = 0;
+    while (*s != '\0')
     {
-        if (map->table[i].key[map->ch_match_num[i]] == ch)
+        for (i = 0; i < map->count; i++)
         {
-            map->ch_match_num[i]++;
-            if (map->ch_match_num[i] == 1)
-                map->curent_match_count++;
-            if (map->ch_match_num[i] == sizeof(map->table[i].key))
-                return map->table[i].key;
+            // compare the substring with the key
+            if (strstr(s, map->table[i].key) == s)
+            {
+                strcpy(&buffer[j], map->table[i].value);
+                j += strlen(map->table[i].value);
+                s += strlen(map->table[i].key);
+                is_match = 1;
+                break;
+            }
         }
-        else
-        {
-            if (map->table[i].key[0] == ch)
-                map->ch_match_num[i] = 1;
-            else
-                map->ch_match_num[i] = 0;    
-        }
+
+        if (!is_match)
+            buffer[j++] = *s++;
+        is_match = 0;
     }
-    return NULL;
+
+    buffer[j] = '\0';
+    return buffer;
 }
 
 int main(int argc, char **argv)
@@ -43,38 +52,50 @@ int main(int argc, char **argv)
     FILE *input_file, *output_file;
     struct map_st map;
     char *value;
-    char *key;
-    char str[MAP_KEY_LEN], ch;
-    if (argc < 4)
+    char str[MAP_KEY_LEN+1], ch, index = 0;
+    if (argc < 5)
     {
-        printf("lack of arguments\n");
+        printf("too few arguments\n");
         return -1;
     }
 
     map_init(&map);
 
-    for (int i = 2; i < argc; i=i+2)
+    for (int i = 3; i < argc - 1; i=i+2)
     {
         map_add(&map, argv[i], argv[i+1]);
     }
-    key = "year";
-    value = map_lookup(&map, key);
 
-    if ((input_file = fopen(argv[0], "r")) == NULL)
+    if ((input_file = fopen(argv[1], "r")) == NULL)
     {
         printf("not found input file\n");
         return -1;
     }
 
-    if ((output_file = fopen(argv[1], "wb")) == NULL)
+    if ((output_file = fopen(argv[2], "wb")) == NULL)
     {
         printf("cannot create output file\n");
         return -1;
     }
 
+    memset(str, 0, sizeof(str));
     while((ch = fgetc(input_file)) != EOF)
     {
-        key = 
+        if (ch == ' ' || ch == '\n')
+        {
+            if ((value = map_lookup(&map, str)) != NULL)
+            {
+                fputs(value, output_file);
+            }
+            fputc(ch, output_file);
+            index = 0;
+        }
+        else
+        {
+            str[index] = ch;
+            index++;
+            str[index] = '\0';
+        }
     }
 
     fclose(input_file);
