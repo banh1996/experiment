@@ -5,7 +5,10 @@
  *   Points: 5
  */
 int bitAnd(int x, int y) {
-  return ~((~x)|(~y));
+    /* Applied DeMorgan's Law
+     * x&y = not ( not x | not y)
+     */
+    return ~((~x)|(~y));
 }
 
 /* 
@@ -16,7 +19,11 @@ int bitAnd(int x, int y) {
  *   Points: 10
  */
 int getByte(int x, int n) {
-  return (x >> (n<<3)) & 0xFF;
+    /* n<<3 = n*8 (8 bits per byte)
+     * x is arithmetically shifted right to n*8
+     * Then and with mask 0xFF to return only the least significant byte, byte n.
+     */
+    return (x >> (n<<3)) & 0xFF;
 }
 
 /* 
@@ -28,12 +35,15 @@ int getByte(int x, int n) {
  *  Points: 10
  */
 int byteSwap(int x, int n, int m) {
-    int n_mask = 0xFF << (n<<3);
-    int m_mask = 0xFF << (m<<3);
-    int n_temp = ((x >> (n<<3)) & 0xFF) << (m<<3);
-    int m_temp = ((x >> (m<<3)) & 0xFF) << (n<<3);
-    int x_temp = (~(n_mask | m_mask)) & x;
-    return n_temp | m_temp | x_temp;
+    /*
+     * example: x=0x12345678, n=1, m=3
+     */
+    int n_mask = 0xFF << (n<<3); //set mask at byte n, n_mask=0x0000FF00
+    int m_mask = 0xFF << (m<<3); //set mask at byte mn m_mask=0xFF000000
+    int n_temp = ((x >> (n<<3)) & 0xFF) << (m<<3); //move byte n to the least significant byte position, and with mask 0xFF, then move back to the byte m position, n_temp=0x56000000
+    int m_temp = ((x >> (m<<3)) & 0xFF) << (n<<3); //move byte m to the least significant byte position, and with mask 0xFF, then move back to the byte n position, m_temp=0x00001200
+    int x_temp = (~(n_mask | m_mask)) & x; //keep the remaining byte other than m and n, x_temp=0x00340078
+    return n_temp | m_temp | x_temp; // 0x56000000|0x00001200|0x00340078=0x56341278
 }
 
 /* 
@@ -44,6 +54,12 @@ int byteSwap(int x, int n, int m) {
  *   Points: 15
  */
 int logicalShift(int x, int n) {
+    /* with x=0x87654321, the most significant bit is 1, then x>>4 is 0xf8765432, we need a mask to remove the f.
+     * x >> 31 = 1111 1111 1111 1111 1111 1111 1111 1111
+     * x >> 31 << 31 = 1000 0000 0000 0000 0000 0000 0000 0000
+     * mask = x >> 31 << 31 >> 4 << 1 = 1111 0000 0000 0000 0000 0000 0000 0000
+     * then result is (x>>n)&(~mask) = (x>>n)^mask
+     */
     int mask = x >> 31 << 31 >> n << 1;
     return ((x >> n) ^ mask);
 }
@@ -55,16 +71,17 @@ int logicalShift(int x, int n) {
  *   Points: 20
  */
 int bitCount(int x) {
-    int mask1 = 0x11 | (0x11 << 8);
-    int mask2 = mask1 | (mask1 << 16);
-    int sum = x & mask2;
+    int mask1 = 0x11 | (0x11 << 8); //to set mask1 = 0001 0001 0001 0001
+    int mask2 = mask1 | (mask1 << 16); //to set mask2 = 0001 0001 0001 0001 0001 0001 0001 0001  
+    int sum = x & mask2; //compute the number of bit 1 within the first four bits
     sum = sum + ((x >> 1) & mask2);
     sum = sum + ((x >> 2) & mask2);
-    sum = sum + ((x >> 3) & mask2);
+    sum = sum + ((x >> 3) & mask2);//now, each nibble(4 bit) of sum represents the total number of bit 1 per nibble of x
+    //supposed sum = byte3_byte2_byte1_byte0, set least word of sum = (byte3+byte1)_(byte2+byte0)
     sum = sum + (sum >> 16);
-    mask1 = 0xF | (0xF << 8);
-    sum = (sum & mask1) + ((sum >> 4) & mask1);
-    return((sum + (sum >> 8)) & 0x3F);
+    mask1 = 0xF | (0xF << 8);//to set mask1 = 0x0F0F
+    sum = (sum & mask1) + ((sum >> 4) & mask1);//now, supposed sum=nibble3_nibble2_nibble1_nibble0, set sum = 0_(nibble3+nibble1)_0_(nibble2+nibble0)_0, remember sum of 2 nibble is a byte
+    return((sum + (sum >> 8)) & 0x3F);//sum = byte2+byte0
 }
 
 /* 
@@ -74,8 +91,13 @@ int bitCount(int x) {
  *   Points: 20
  */
 int bang(int x) {
+    // set the logical negative value of x
 	int neg_x = ~x + 1;
-	return((((x >> 31) & 0x01) | ((neg_x >> 31) & 0x01)) ^ 0x01);
+
+    /* if x!=0, then the most significant bit of either x or -x will be 1
+     * XOR the sign bit of x/-x with mask 0x01 = !
+     */
+	return((((x>>31) & 0x01) | ((neg_x>>31) & 0x01)) ^ 0x01);
 }
 
 /*
@@ -85,10 +107,14 @@ int bang(int x) {
  *   Points: 20
  */
 int bitParity(int x) {
-	x = x ^ (x >> 16);
-	x = x ^ (x >> 8);
-	x = x ^ (x >> 4);
-	x = x ^ (x >> 2);
-	x = x ^ (x >> 1);
+    /* XOR all the bits of the input number and putting it at the LSB,
+     * hence gives 1 if there are odd number of bit 1
+     */
+	x = x ^ (x>>16);
+	x = x ^ (x>>8);//let take example at here, x = x7 x6 x5 x4 x3 x2 x1 x0
+	x = x ^ (x>>4);
+	x = x ^ (x>>2);
+	x = x ^ (x>>1);//now, at the LSB of x = x6^x2^x4^x0^x7^x3^x5^x1
+
 	return (x&1);
 }
