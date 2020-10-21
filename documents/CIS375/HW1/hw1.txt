@@ -1,0 +1,8 @@
+Due: 28/08/2020
+
+Work individually [or in pairs?] to complete the Hands-on Activities from Chapter 1 and Chapter 2.
+
+Chapter 1 – Hands-On Activity 1B, pages 22-24.
+
+Download and install Wireshark on your computer. Follow the steps on page 23 to capture packets from your computer. 
+Answer the three questions on page 24 in the Deliverables section.

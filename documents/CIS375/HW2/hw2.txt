@@ -1,0 +1,70 @@
+Due: 29/08/2020
+
+Chapter 2 – Hands-on Activity 2B, pages 53-56.
+
+Again, using Wireshark, initiate an email message from an email client application and capture the packets. 
+Answer the three questions in the Deliverables on page 55 and the two questions on page 56.
+
+Work individually [or in pairs?] to complete the Hands-on Activities from Chapter 2.
+
+ 
+
+Chapter 2 – Hands-on Activity 2B, pages 53-56.
+
+ 
+
+Again, using Wireshark, initiate an email message from an email client application and capture the packets. Answer the three questions in the Deliverables on page 55 and the two questions on page 56.
+
+ 
+
+Seeing SMTP and POP PDUs
+
+We have discussed about how messages are transferred using layers and the different protocol data units (PDUs) used at each layer. The objective of this Activity is for you to see the different PDUs in the messages that you send. To do this, we will use Wireshark, which is one of the world’s foremost network protocol analyzers, and is the de facto standard that most professional and education institutions use today. It is used for network troubleshooting, network analysis, software and communications protocol development, and general education about how network work. Wireshark enables you to see all messages sent by your computer and may also let you see the messages sent by other users on your LAN (depending on how your LAN is configured).
+
+ 
+
+For this activity, you can capture your own SMTP and POP packets using Wireshark, or use two files that we have created by capturing SMPT and POP packets. We will assume you are going to use our files. If you would like to capture your own packets, read Hands-On Activity 1B in Chapter 1 and use your two-tier email client to create and send an email message instead of your Web browser. If you would like to use our files, go to the website for this book and download the two files: SMTP_Capture.pcap and POP3_Capture.pcap.
+
+ 
+
+Part 1: SMTP
+
+1.   Start Wireshark and either capture your SMTP packets or open the file called SMTP_Capture.pcap.
+
+2.   We used the email software on our client computer to send an email message to our email server. Figure 2-21 shows the packets we captured that were sent to and from the client computer (called 192.168.1.100) and the server (128.196.40.4) to send this message from the client to the server. The first few packets are called the handshake, as the client connects to the server and the server acknowledges it is ready to receive a new email message.
+
+3.   Packet 8 is the start of the email message that identifies the sender. The next packet from the client (packet 10) provides the recipient address and then the email message starts with the DATA command (packet 12) and is spread over several packets (14, 15, and 17) because it is too large to fit in one Ether net frame. (Remember that the sender’s transport layer breaks up large messages into several smaller TCP segments for transmission and the receiver’s transport layer reassembles the segments back into the one SMTP message.)
+
+4.   Packet 14 contains the first part of the message that the user wrote. It is not that easy to read, but by looking in the bottom window, you can see what the sender wrote.
+
+ 
+
+Deliverables
+
+1.   List the information in the SMTP header (to, from, date, subject, message ID#)
+
+2.   Look through the packets to read the user’s message. List the user’s actual name (not his or her email address), his or her birth date, and his or her SSN.
+
+3.   Some experts believe that sending an email message is like sending a postcard. Why? How secure is SMTP email? How could security be improved?
+
+ 
+
+Part 2: POP
+
+1.   Start Wireshark and either capture your SMTP packets or open the file called POP3_Capture.pcap. (Note: Depending on the version of Wireshark you are using, the file extension may be pkt or pcap.)
+
+2.   We used the email software on our client computer to read an email message that was on our email server. Figure 2-22 shows the packets we captured that were sent to and from the client computer (called 128.196.239.91) and the server (128.192.40.4) to send an email message from the server to the client. The first few packets are called the handshake, as the client logs in to the server and the server accepts the log-in.
+
+3.   Packet 12 is the POP STAT command (status) that asks the server to show the number of email messages in the user’s mailbox. The server responds in packet 13 and tells the client there is one message.
+
+4.   Packet 16 is the POP LIST command that asks the server to send the client a summary of email messages, which it does in packet 17.
+
+5.   Packet 18 is the POP RETR command (retrieve) that asks the server to send message 1 to the client. Packets 20, 22, and 23 contain the email message. It is not that easy to read, but by looking in the bottom window for packet 20, you can see what the sender wrote. You can also expand the POP packet in the middle packet detail window (by clicking on the +box in front of it), which is easier to read.
+
+ 
+
+Deliverables
+
+1.   Packets 5 through 11 are the log-in process. Can you read the user ID and passwords? Why or why not?
+
+2.   Look through the packets to read the user’s message. List the user’s actual name, his or her date of birth, and his or her SSN.
