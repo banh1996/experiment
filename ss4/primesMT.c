@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
         p_thread_id = (pthread_t *)calloc(g_num_thread, sizeof(pthread_t));
         for (i = 0; i < g_num_thread; i++)
         {
-            p_block = (BitBlock_t*)calloc(1, sizeof(BitBlock_t));;
+            p_block = (BitBlock_t*)calloc(1, sizeof(BitBlock_t));
             p_block->first_num = i*n/g_num_thread + 2;
             if (i != g_num_thread - 1)
                 p_block->last_num = (i + 1)*n/g_num_thread + 1;
