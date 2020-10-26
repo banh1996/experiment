@@ -1,0 +1,33 @@
+I created a map.h file with the functions:
+
+/* @brief
+ * function to set 0 struct map_st
+ * @params
+ * input: *map: pointer to struct map_st
+ */
+void map_init(struct map_st *map);
+
+/* @brief
+ * function add a couple key-value (to replace value to key in text) to struct map
+ * @params
+ * input: *map: pointer to struct map_st
+ *        *key: pointer to key
+ *        *value: pointer to value
+ */
+void map_add(struct map_st *map, char *key, char *value);
+
+/* @brief
+ * function to replace all key in *s string by value that can be lookup in map
+ * @params
+ * input: *map: pointer to struct map_st
+ *        *s: string between whitespaces or newline character
+ * @return
+ * pointer to the replaced string
+ */
+char * map_lookup(struct map_st *map, char *s);
+
+1. Read 2 input&output file name and key-value couples in argv.
+2. Init a map
+3. Add all key-value couples to the map
+4. Read the input file by string between whitespace or newline character, Search&Replace all key with value in string
+5. Write original/replaced string to output file
