@@ -1,0 +1,4 @@
+https://www.cisco.com/c/dam/global/en_ca/assets/pdf/sc-01_fw-ips-cvd_designguide_en.pdf
+https://www.speaknetworks.com/cisco-asa-dmz-configuration-example/
+http://cs.lewisu.edu/mathcs/msis/projects/msis595_KevinKeay.pdf
+https://perpetuastudents.wordpress.com/2007/12/05/firewall/
