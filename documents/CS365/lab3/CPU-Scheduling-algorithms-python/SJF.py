@@ -17,6 +17,7 @@ class SJF:
         self.av_process_wait = 0
 
     def create_processes(self, p):
+        #sort start time
         p.sort(key=lambda words: words[2])
 
         for x in p:

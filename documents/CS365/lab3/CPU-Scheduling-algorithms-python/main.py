@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 from Process import Process
 from FCFS import FCFS
 from SJF import SJF
