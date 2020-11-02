@@ -1,4 +1,4 @@
-
+import random
 
 class Process:
     def __init__(self, p_name, b_t, a_t, p_p):
@@ -10,9 +10,6 @@ class Process:
         self.s_time = 0
         self.e_time = 0
 
-    def hi(self):
-        print('Hi. My name is {}'.format(self.name))
-
     def burst(self):
         return int(self.burst_time)
 
@@ -21,6 +18,16 @@ class Process:
 
     def get_name(self):
         return str(self.name)
+
+    def io_request(self):
+        if random.randint(0,10) == 5:
+            return 1
+        return 0
+
+    def io_complete(self):
+        if random.randint(0,10) == 5:
+            return 1
+        return 0
 
     def print(self):
         # print(self.name + "\t" + '|   ' * (self.arrival_time - 1) + "| - "
