@@ -62,7 +62,7 @@ Vertex
    *   true if and only if there is a cycle
    */
   boolean
-  hasCycle(Vertex from);
+  hasCycle(Vertex from, int index);
 
   /**
    * {@inheritDoc}

@@ -265,7 +265,7 @@ CodeGenerator
   begin(PrintStream ps, String access, String className)
   {
     // TODO
-    ps.println(access + className);
+    ps.println(access + " class " + className + " {");
   }
 
   /**
@@ -285,6 +285,16 @@ CodeGenerator
   array(PrintStream ps, String[] data, String access, String varName)
   {
     // TODO
+    ps.println(access + " String[] " + varName + " = { ");
+    for (int i = 0; i < data.length; i++)
+    {
+      ps.print("\"" + data[i] + "\"");
+      if (i != data.length-1)
+        ps.println(",");
+      else
+        ps.println("");
+    }
+    ps.println("};");
   }
 
   /**
@@ -304,6 +314,12 @@ CodeGenerator
   array(PrintStream ps, int[] data, String access, String varName)
   {
     // TODO
+    ps.print(access + " int[] " + varName + " = { ");
+    for (int i = 0; i < data.length - 1; i++)
+    {
+      ps.print(data[i] + ", ");
+    }
+    ps.println(data[data.length-1] + " };");
   }
 
   /**
@@ -323,6 +339,22 @@ CodeGenerator
   table(PrintStream ps, int[][] data, String access, String varName)
   {
     // TODO
+    int count = 0;
+    ps.println(access + " int[][] " + varName + " = { ");
+    for (int i = 0; i < data.length; i++)
+    {
+      ps.print("{");
+      for (int j = 0; j < data[0].length; j++)
+      {
+        ps.print(data[i][j]);
+        if (j != data[0].length-1)
+          ps.print(", ");
+      }
+      if (i != data.length-1)
+        ps.println("},");
+    }
+    ps.println("}");
+    ps.println("};");
   }
 
   /**
@@ -423,7 +455,7 @@ CodeGenerator
     final int indentLevel = 1;
 
     ps.print(INDENT[indentLevel]);
-    ps.println("/*");
+    //ps.println("/*");
 
     ps.print(INDENT[indentLevel]);
     ps.println("public static void main(String[] args) {");
@@ -456,7 +488,7 @@ CodeGenerator
     ps.println("}");
 
     ps.print(INDENT[indentLevel]);
-    ps.println("*/");
+    //ps.println("*/");
   }
 
   /**
@@ -470,6 +502,7 @@ CodeGenerator
   end(PrintStream ps)
   {
     // TODO
+    ps.print("}");
   }
 
   /**

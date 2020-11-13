@@ -113,10 +113,10 @@ Graph
   {
     // TODO
     System.out.println("addEdge " + fromIdx + " " + toIdx + " " + index + " " + word);
-    // GraphVertex from = new GraphVertex(fromIdx);
-    // GraphVertex to = new GraphVertex(toIdx);
-    GraphEdge edge = new GraphEdge(index, word, this.vertices[fromIdx], this.vertices[toIdx]);
-    this.vertices[index].setedge(edge);
+    GraphEdge edge1 = new GraphEdge(index, word, this.vertices[fromIdx], this.vertices[toIdx]);
+    this.vertices[fromIdx].setedge(edge1);
+    GraphEdge edge2 = new GraphEdge(index, word, this.vertices[toIdx], this.vertices[fromIdx]);
+    this.vertices[toIdx].setedge(edge2);
   }
 
   /**
@@ -127,6 +127,10 @@ Graph
   unvisitAll()
   {
     // TODO
+    for (Vertex v : vertices)
+    {
+      v.unvisit();
+    }
   }
 
   /**
@@ -156,7 +160,7 @@ Graph
 
     return toRet;
   }
-
+  
   /**
    * Returns true if and only if this graph contains a cycle.
    *
@@ -168,6 +172,15 @@ Graph
   hasCycle()
   {
     // TODO
+    unvisitAll();
+    // Call the recursive helper function to detect cycle in different DFS trees
+    for (Vertex v : vertices)
+    {
+      // Don't recur for v if already visited
+      if (!v.isVisited())
+        if (v.hasCycle(v, -1))
+          return true;
+    }
     return false;
   }
 
@@ -265,6 +278,7 @@ Graph
     setVisited(boolean visited)
     {
       // TODO
+      this.visited = visited;
 
       /*
        * Don't forget to handle the special false case.
@@ -327,9 +341,28 @@ Graph
     @Override
     public
     boolean
-    hasCycle(Vertex from)
+    hasCycle(Vertex from, int parent)
     {
       // TODO
+      // Mark the current node as visited
+      if (!from.edges().isEmpty())
+        vertices[from.index()].setVisited(true);
+
+      // Recur for all the vertices adjacent to this vertex
+      for (Edge edge : from.edges())
+      {
+        // If an adjacent is not visited, then recur for that adjacent
+        //System.out.println("hhh " + from.index() + " " + edge.getTo().index());
+        if (!edge.getTo().isVisited())
+        {
+          //System.out.println("hunnnnnn " + from.index() + " " + edge.getTo().index());
+          if (hasCycle(edge.getTo(), from.index()))
+              return true;
+        }
+        // If an adjacent is visited and not parent of current vertex, then there is a cycle.
+        else if (edge.getTo().index() != parent)
+          return true;
+      }
       return false;
     }
 
