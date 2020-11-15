@@ -1,39 +1,39 @@
-08:25:43  p1 started after waiting for 0 seconds
-08:25:43  p1 is running
-08:25:44  p1 is running
-08:25:45  p4 is waiting
-08:25:45  p2 is waiting
-08:25:45  p1 is running
-08:25:46  p6 is waiting
-08:25:46  p1 is running
-08:25:47  p5 is waiting
-08:25:47  p3 is waiting
-08:25:47  p1 is running
-08:25:48  p1 is running
-08:25:49  p1 is running
-08:25:50  p6 started after waiting for 4 seconds
-08:25:50  p6 is running
-08:25:51  p6 is running
-08:25:52  p4 started after waiting for 7 seconds
-08:25:52  p4 is running
-08:25:53  p4 is running
-08:25:54  p4 is running
-08:25:55  p5 started after waiting for 8 seconds
-08:25:55  p5 is running
-08:25:56  p5 is running
-08:25:57  p5 is running
-08:25:58  p3 started after waiting for 11 seconds
-08:25:58  p3 is running
-08:25:59  p3 is running
-08:26:00  p3 is running
-08:26:01  p3 is running
-08:26:02  p3 is running
-08:26:03  p2 started after waiting for 18 seconds
-08:26:03  p2 is running
-08:26:04  p2 is running
-08:26:05  p2 is running
-08:26:06  p2 is running
-08:26:07  p2 is running
-08:26:08  p2 is running
+17:41:10  p1 started after waiting for 0 seconds
+17:41:10  p1 is running
+17:41:11  p1 is running
+17:41:12  p4 is waiting
+17:41:12  p2 is waiting
+17:41:12  p1 is running
+17:41:13  p6 is waiting
+17:41:13  p1 is running
+17:41:14  p5 is waiting
+17:41:14  p3 is waiting
+17:41:14  p1 is running
+17:41:15  p1 is running
+17:41:16  p1 is running
+17:41:17  p6 started after waiting for 4 seconds
+17:41:17  p6 is running
+17:41:18  p6 is running
+17:41:19  p4 started after waiting for 7 seconds
+17:41:19  p4 is running
+17:41:20  p4 is running
+17:41:21  p4 is running
+17:41:22  p5 started after waiting for 8 seconds
+17:41:22  p5 is running
+17:41:23  p5 is running
+17:41:24  p5 is running
+17:41:25  p3 started after waiting for 11 seconds
+17:41:25  p3 is running
+17:41:26  p3 is running
+17:41:27  p3 is running
+17:41:28  p3 is running
+17:41:29  p3 is running
+17:41:30  p2 started after waiting for 18 seconds
+17:41:30  p2 is running
+17:41:31  p2 is running
+17:41:32  p2 is running
+17:41:33  p2 is running
+17:41:34  p2 is running
+17:41:35  p2 is running
 Total wait time: 48
 Average process wait time: 8.0
