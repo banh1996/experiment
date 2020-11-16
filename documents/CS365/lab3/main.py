@@ -1,64 +1,83 @@
 #!/usr/bin/python3
 from Process import Process
-#from MLSQF import MLSQF
+from MLFQS import MLFQS
 from SJF import SJF
-import getopt
-import sys
+import getopt, sys
 
 words = []
+scheduling_algorithm = 'MLAS'
+seed = 1
+io_request_chance = 10
+io_completed_chance = 4
+time_slice = [1, 2, 4, 8, 16, 32, 64, 128]
+input_file = []
 # processes = list()
 # processesSJF = list()
 
-options = getopt.getopt(sys.argv[1:], 'v:s:r:c:A:N:S:0:1:2:3:4:5:6:7')
+options, args = getopt.getopt(sys.argv[1:], 's:r:c:0:1:2:3:4:5:6:7:vANS', ['s=', 
+                                                                        'r=',
+                                                                        'c=',
+                                                                        '0=',
+                                                                        '1=',
+                                                                        '2=',
+                                                                        '3=',
+                                                                        '4=',
+                                                                        '5=',
+                                                                        '6=',
+                                                                        '7=',
+                                                                        'verbose',
+                                                                        'A',
+                                                                        'N',
+                                                                        'S'])
 #check option arguments
-time_slice = [1, 2, 4, 8, 16, 32, 64, 128]
 for opt, arg in options:
-    if opt in ('-v', '--verbose'):
+    if opt == '-v':
         verbose = True
-    elif opt in ('-s'):
+    elif opt == '-s':
         seed = int(arg)
-    elif opt in ('-r'):
+    elif opt == '-r':
         io_request_chance = int(arg)
-    elif opt in ('-c'):
+    elif opt == '-c':
         io_completed_chance = int(arg)
-    elif opt in ('-A'):
-        scheduling_algorithm = 'MLAS'
-    elif opt in ('-N'):
-        scheduling_algorithm = 'MLNAS'
-    elif opt in ('-S'):
+    elif opt == '-A':
+        scheduling_algorithm = 'MLFQS aggr'
+    elif opt == '-N':
+        scheduling_algorithm = 'MLFQS non-aggr'
+    elif opt == '-S':
         scheduling_algorithm = 'SJF'
     #get time slice argument
-    elif opt in ('-0'):
-        time_slice[0] = (int(arg))
-    elif opt in ('-1'):
-        time_slice[1] = (int(arg))
-    elif opt in ('-2'):
-        time_slice[2] = (int(arg))
-    elif opt in ('-3'):
-        time_slice[3] = (int(arg))
-    elif opt in ('-4'):
-        time_slice[4] = (int(arg))
-    elif opt in ('-5'):
-        time_slice[5] = (int(arg))
-    elif opt in ('-6'):
-        time_slice[6] = (int(arg))
-    elif opt in ('-7'):
-        time_slice[7] = (int(arg))
+    elif opt == '-0':
+        time_slice[0] = int(arg)
+    elif opt == '-1':
+        time_slice[1] = int(arg)
+    elif opt == '-2':
+        time_slice[2] = int(arg)
+    elif opt == '-3':
+        time_slice[3] = int(arg)
+    elif opt == '-4':
+        time_slice[4] = int(arg)
+    elif opt == '-5':
+        time_slice[5] = int(arg)
+    elif opt == '-6':
+        time_slice[6] = int(arg)
+    elif opt == '-7':
+        time_slice[7] = int(arg)
+
+input_file = sys.argv[len(sys.argv) - 1]
 
 #open process input file
-with open('process', 'r') as file:
+with open(input_file, 'r') as file:
     for line in file:
         words.append(line.split(":"))
 
-def menu():
-    #z = int(input('(1-4):'))
-    #multi level aggressive scheduling
-    if scheduling_algorithm == 'SJF':
-       sjf = SJF(words, seed, io_request_chance, io_completed_chance)
-       sjf.run()
-    # elif scheduling_algorithm == 'MLAS':
-    #     pr = MulitlevedFeedbackQueue(words, queue_list)
-    #     pr.run()
+if scheduling_algorithm == 'SJF':
+    #print("run SJF")
+    sjf = SJF(words, seed, io_request_chance, io_completed_chance)
+    sjf.run()
+elif scheduling_algorithm == 'MLFQS non-aggr':
+    print("run MLFQS non-aggr")
+    ml = MLFQS(words, seed, io_request_chance, io_completed_chance, time_slice)
+    ml.run()
     #multi level non-aggressive scheduling
     # elif scheduling_algorithm == 'MLNAS':
     #     pr = MulitlevedFeedbackQueue(words,
@@ -69,9 +88,5 @@ def menu():
     #                scheduling_algorithm)
     #     pr.run()
     #Preemtive shortest job first
-    else:
-        print("Wrong input")
-        menu()
-
-while(True):
-    menu()
+else:
+    print("Wrong input")
