@@ -61,6 +61,7 @@ static void *read_input_t(void *args)
             pthread_mutex_unlock(&mutex1);
             continue;
         }
+        usleep(200);
 
         read(fd_in, &c, 1);
         
