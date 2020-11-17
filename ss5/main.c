@@ -2,188 +2,235 @@
 #include <stdio.h>
 #include <string.h>
 #include <pthread.h>
+#include <fcntl.h> 
+#include <errno.h> 
 #include <unistd.h>
 
-// Size of the buffer
-#define SIZE 100
-#define CHARACTER_MAX 10
+#define MAX_CHARACTER_NUMBER 80
+#define UNUSED(x) (void)(x)
 
-// Special marker used to indicate end of the producer data
-char end_string[6] = "\nDONE\n";
+// stop character
+static char stop_str[6] = "\nSTOP\n";
 
-#define log printf
-//#define log
+// need init buffer 1&2 in case the input characters are all "+"
+static char buffer1[2 * MAX_CHARACTER_NUMBER];
+static char buffer2[2 * MAX_CHARACTER_NUMBER];
+// buffer3 is the output array
+static char buffer3[MAX_CHARACTER_NUMBER];
 
-char line1[CHARACTER_MAX*2];
-char line2[CHARACTER_MAX*2];
-char line3[CHARACTER_MAX];
+static int fd_in = STDIN_FILENO;
+static int fd_out = STDOUT_FILENO;
 
-static int g_count_line1 = 0;
-static int g_count_line2 = 0;
-static int g_count_line3 = 0;
-static int real_line_count = 0;
-static char g_is_end = 0;
+static int buffer1_index = 0;
+static int buffer2_index = 0;
+static int buffer3_index = 0;
+static int output_line_index = 0;
+// static char first_cha;
+
+//the variable to check input is stop
+static char is_stop_input = 0;
 
 // Initialize the mutex
-pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t mutex3 = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t mutex3 = PTHREAD_MUTEX_INITIALIZER;
 
 // Initialize the condition variables
-pthread_cond_t cond1 = PTHREAD_COND_INITIALIZER;
-pthread_cond_t cond2 = PTHREAD_COND_INITIALIZER;
-pthread_cond_t cond3 = PTHREAD_COND_INITIALIZER;
-pthread_cond_t cond4 = PTHREAD_COND_INITIALIZER;
+static pthread_cond_t cond1 = PTHREAD_COND_INITIALIZER;
+static pthread_cond_t cond2 = PTHREAD_COND_INITIALIZER;
+static pthread_cond_t cond3 = PTHREAD_COND_INITIALIZER;
+static pthread_cond_t cond4 = PTHREAD_COND_INITIALIZER;
+static pthread_cond_t cond5 = PTHREAD_COND_INITIALIZER;
+static pthread_cond_t cond6 = PTHREAD_COND_INITIALIZER;
 
-void *input_thread(void *args)
+static void *read_input_t(void *args)
 {
-    char c, end_count = 0;
+    char c;
+    int stop_index = 0;
+    UNUSED(args);
     while(1)
     {
         pthread_mutex_lock(&mutex1);
-        if (g_count_line1 != g_count_line2)
+        if (buffer1_index != buffer2_index)
         {
             pthread_cond_wait(&cond1, &mutex1);
         }
-        c = getchar();
-        line1[g_count_line1] = c;
-        g_count_line1++;
 
-        if(end_string[end_count] == c)
+        // if (output_line_index == MAX_CHARACTER_NUMBER - 1)
+        //     c = buffer1[strlen(buffer1) - 1];
+        // else
+        read(fd_in, &c, 1);
+        
+        buffer1[buffer1_index] = c;
+        buffer1_index++;
+
+        if(stop_str[stop_index] == c)
         {
-            end_count++;
-            if (end_count >= 6)
+            stop_index++;
+            if (stop_index >= 6)
                 break;
         }
         else
         {
-            end_count = 0;
+            stop_index = 0;
         }
-
+        usleep(100);
         pthread_cond_signal(&cond2);
         pthread_mutex_unlock(&mutex1);
     }
-    printf("end\n");
-    g_is_end = 1;
+
+    is_stop_input = 1;
+    // send signal release to cond2,3,4,5,6
     pthread_cond_signal(&cond2);
+    pthread_cond_signal(&cond3);
+    pthread_cond_signal(&cond4);
+    pthread_cond_signal(&cond5);
+    pthread_cond_signal(&cond6);
     pthread_mutex_unlock(&mutex1);
     return NULL;
 }
 
-void *line_separator_thread(void *args)
+static void *line_separator_t(void *args)
 {
-    while(!g_is_end)
+    UNUSED(args);
+    while(!is_stop_input)
     {
-        log("%s %d\n", __func__, __LINE__);
         pthread_mutex_lock(&mutex1);
-    /////
-        pthread_mutex_lock(&mutex2);
-    /////
-        if (g_count_line1 == g_count_line2)
+
+        if (buffer1_index == buffer2_index)
         {
-            log("%s %d\n", __func__, __LINE__);
             pthread_cond_wait(&cond2, &mutex1);
         }
-        log("%s %d\n", __func__, __LINE__);
-        if (line1[g_count_line2] != '\0')
+        if (buffer1[buffer2_index] != '\0')
         {
-            line2[g_count_line2] = line1[g_count_line2];
-            if (line2[g_count_line2] == '\n')
-                line2[g_count_line2] = ' ';
-    /////
-            if (g_count_line2 != g_count_line3)
-            {
-                log("%s %d %d %d\n", __func__, __LINE__, g_count_line2, g_count_line3);
-                pthread_cond_wait(&cond3, &mutex2);
-            }
-            pthread_cond_signal(&cond4);
-            pthread_mutex_unlock(&mutex2);
-    /////
-            g_count_line2++;
+            buffer2[buffer2_index] = buffer1[buffer2_index];
+            if (buffer2[buffer2_index] == '\n')
+                buffer2[buffer2_index] = ' ';
+            buffer2_index++;
+            usleep(50);
             pthread_cond_signal(&cond1);
-            #if 0
-            if (g_count_line2 == CHARACTER_MAX && !g_is_end)
-            {
-                printf("%s\n", line2);
-                memset(line1, 0, sizeof(line1));
-                memset(line2, 0, sizeof(line2));
-                g_count_line1 = 0;
-                g_count_line2 = 0;
-            }
-            
-            log("%s %d\n", __func__, __LINE__);
+            pthread_mutex_unlock(&mutex1);
+
             pthread_mutex_lock(&mutex2);
-            g_count_line2--;
-            if (g_count_line2 != g_count_line3)
+            if (buffer2_index != buffer3_index && buffer1_index != buffer2_index)
             {
-                log("%s %d %d %d\n", __func__, __LINE__, g_count_line2, g_count_line3);
                 pthread_cond_wait(&cond3, &mutex2);
             }
-            log("%s %d\n", __func__, __LINE__);
-            g_count_line2++;
             pthread_cond_signal(&cond4);
             pthread_mutex_unlock(&mutex2);
-            #endif
         }
-        pthread_mutex_unlock(&mutex1);
-        //g_count_line2++;
     }
     return NULL;
 }
 
-void *plus_sign_thread(void *args)
+static void *convert_plus_t(void *args)
 {
-    while(!g_is_end)
+    UNUSED(args);
+    while(!is_stop_input)
     {
-        log("%s %d\n", __func__, __LINE__);
         pthread_mutex_lock(&mutex2);
-        if (g_count_line2 == g_count_line3)
+        if (buffer2_index == buffer3_index)
         {
-            log("%s %d\n", __func__, __LINE__);
             pthread_cond_wait(&cond4, &mutex2);
         }
-        log("%s %d\n", __func__, __LINE__);
-        if (line2[g_count_line3] != '\0')
+
+        if (buffer2[buffer3_index] != '\0')
         {
-            line3[real_line_count] = line2[g_count_line3];
-            if (g_count_line3 > 1 && line3[g_count_line3] == '+' && line3[g_count_line3-1] == '+')
+            buffer3[output_line_index] = buffer2[buffer3_index];
+            if (output_line_index > 1 && buffer3[output_line_index] == '+' &&
+                buffer3[output_line_index-1] == '+')
             {
-                line3[real_line_count] = '^';
-                real_line_count--;
+                buffer3[output_line_index] = '\0';
+                buffer3[--output_line_index] = '^';
             }
-            g_count_line3++;
-            real_line_count++;
-            
-            if (real_line_count == CHARACTER_MAX && !g_is_end)
-            {
-                printf("%s\n", line3);
-                memset(line1, 0, sizeof(line1));
-                memset(line2, 0, sizeof(line2));
-                memset(line3, 0, sizeof(line3));
-                g_count_line1 = 0;
-                g_count_line2 = 0;
-                g_count_line3 = 0;
-                real_line_count = 0;
-            }
+            buffer3_index++;
+            output_line_index++;
+
             pthread_cond_signal(&cond3);
         }
         pthread_mutex_unlock(&mutex2);
+
+        pthread_mutex_lock(&mutex3);
+        if (output_line_index == MAX_CHARACTER_NUMBER && !is_stop_input)
+        {
+            pthread_cond_signal(&cond6);
+            pthread_cond_wait(&cond5, &mutex3);
+        }
+        pthread_mutex_unlock(&mutex3);
+    }
+    return NULL;
+}
+static void *write_output_t(void *args)
+{
+    UNUSED(args);
+    while(!is_stop_input)
+    {
+        pthread_mutex_lock(&mutex3);
+        if (output_line_index != MAX_CHARACTER_NUMBER && !is_stop_input)
+        {
+            pthread_cond_wait(&cond6, &mutex3);
+        }
+        if (is_stop_input)
+            break;
+        write(fd_out, buffer3, strlen(buffer3));
+        write(fd_out, "\n", 1);
+        buffer1_index = 0;
+        buffer2_index = 0;
+        buffer3_index = 0;
+        buffer1[0] = buffer2[0] = buffer3[0] = buffer1[strlen(buffer1) - 1];
+        memset(buffer1, 0, sizeof(buffer1));
+        memset(buffer2, 0, sizeof(buffer2));
+        memset(buffer3, 0, sizeof(buffer3));
+        output_line_index = 0;
+        pthread_cond_signal(&cond5);
+        pthread_mutex_unlock(&mutex3);
     }
     return NULL;
 }
 
-int main(void)
+int main(int argc, char *argv[])
 {
+    int opt;
     pthread_t p1, p2, p3, p4;
-    g_is_end = 0;
-    memset(line1, 0, sizeof(line1));
-    memset(line2, 0, sizeof(line2));
-    memset(line3, 0, sizeof(line3));
-    pthread_create(&p3, NULL, plus_sign_thread, NULL);
-    pthread_create(&p2, NULL, line_separator_thread, NULL);
-    pthread_create(&p1, NULL, input_thread, NULL);
+
+    while ((opt = getopt(argc, argv, ">:<:")) != -1)
+    {
+        switch (opt)
+        {
+        case '<': //input file
+            fd_in = open(optarg, O_RDONLY);
+            if(fd_in == -1)
+            {
+                perror("file not found.\n");
+                return -1;
+            }
+            break;
+        case '>': //output file
+            fd_out = open(optarg, O_WRONLY|O_CREAT|O_TRUNC,  S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+            if(fd_out == -1)
+            {
+                perror("file cannot create.\n");
+                return -1;
+            }
+            break;
+        default:
+            break;
+        }
+    }
+
+    is_stop_input = 0;
+    memset(buffer1, 0, sizeof(buffer1));
+    memset(buffer2, 0, sizeof(buffer2));
+    memset(buffer3, 0, sizeof(buffer3));
+    pthread_create(&p4, NULL, write_output_t, NULL);
+    pthread_create(&p3, NULL, convert_plus_t, NULL);
+    pthread_create(&p2, NULL, line_separator_t, NULL);
+    pthread_create(&p1, NULL, read_input_t, NULL);
     pthread_join(p1, NULL);
     pthread_join(p2, NULL);
     pthread_join(p3, NULL);
+    pthread_join(p4, NULL);
+
+    while(1);
     return 0;
 }

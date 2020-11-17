@@ -1,4 +1,6 @@
 use std::env; // to get arugments passed to the program
+use std::thread;
+use std::collections::LinkedList;
 
 /*
 * Print the number of partitions and the size of each partition
@@ -25,32 +27,6 @@ fn generate_data(num_elements: usize) -> Vec<usize>{
 }
 
 /*
-* Partition the data in v into a 2 vectors
-* @param num_partitions
-* @param v 
-* @return A vector that contains vectors of integers
-
-*/
-fn partition_data_in_two(v: &Vec<usize>) -> Vec<Vec<usize>>{
-    let partition_size = v.len() / 2;
-    let mut xs: Vec<Vec<usize>> = Vec::new();
-
-    let mut x1 : Vec<usize> = Vec::new();
-    for i in 0..partition_size{
-        x1.push(v[i]);
-    }
-    xs.push(x1);
-
-    let mut x2 : Vec<usize> = Vec::new();
-    for i in partition_size..v.len(){
-        x2.push(v[i]);
-    }
-    xs.push(x2);
-
-    xs
-}
-
-/*
 * Sum up the all the integers in the given vector
 * @param v Vector of integers
 * @return Sum of integers in v
@@ -67,15 +43,29 @@ fn map_data(v: &Vec<usize>) -> usize{
 
 /*
 * Sum up the all the integers in the given vector
-* @param v Vector of integers
+* @param v LinkedList of integers
 * @return Sum of integers in v
 */
-fn reduce_data(v: &Vec<usize>) -> usize{
+fn reduce_data(v: &LinkedList<usize>) -> usize{
     let mut sum = 0;
     for i in v{
         sum += i;
     }
     sum
+}
+
+fn calculate_from_list(list: &LinkedList<Vec<usize>>) -> LinkedList<usize> {
+    let mut result: LinkedList<usize> = LinkedList::new();
+    let mut join_handles = LinkedList::new();
+    for v in list {
+        let v_clone = v.clone();
+        // spawn thread
+        join_handles.push_back(thread::spawn(move || map_data(&v_clone)));
+    }
+    for j in join_handles {
+        result.push_back(j.join().unwrap());
+    }
+    return result;
 }
 
 /*
@@ -99,42 +89,28 @@ fn main() {
     // Generate data.
     let v = generate_data(num_elements);
 
-    // PARTITION STEP: partition the data into 2 partitions
-    let xs = partition_data_in_two(&v);
-
-    // Print info about the partitions
-    print_partition_info(&xs);
-
-    let mut intermediate_sums : Vec<usize> = Vec::new();
-
-    // MAP STEP: Process each partition
-
-    // CHANGE CODE START: Don't change any code above this line
-
-    // Change the following code to create 2 threads each of which must use map_data()
-    // function to process one of the two partition
-
-    intermediate_sums.push(map_data(&xs[0]));
-    intermediate_sums.push(map_data(&xs[1]));
-
-    // CHANGE CODE END: Don't change any code below this line until the next CHANGE CODE comment
-
-    // Print the vector with the intermediate sums
-    println!("Intermediate sums = {:?}", intermediate_sums);
-
-    // REDUCE STEP: Process the intermediate result to produce the final result
-    let sum = reduce_data(&intermediate_sums);
-    println!("Sum = {}", sum);
-
     // CHANGE CODE: Add code that does the following:
     // 1. Calls partition_data to partition the data into equal partitions
+    let xs = partition_data(num_partitions, &v);
     // 2. Calls print_partiion_info to print info on the partitions that have been created
+    print_partition_info(&xs);
     // 3. Creates one thread per partition and uses each thread to process one partition
-    // 4. Collects the intermediate sums from all the threads
-    // 5. Prints information about the intermediate sums
-    // 5. Calls reduce_data to process the intermediate sums
-    // 6. Prints the final sum computed by reduce_data
+    let mut list: LinkedList<Vec<usize>> = LinkedList::new();
+    //let mut intermediate_sums : Vec<usize> = Vec::new();
 
+    for items in 0..num_partitions{
+        list.push_back(xs[items].clone());
+    }
+
+    //create thread in calculate_from_list
+    let result = calculate_from_list(&list);
+
+    // 4. Prints information about the intermediate sums
+    println!("Intermediate sums = {:?}", result);
+    // 5. Calls reduce_data to process the intermediate sums
+    let sum = reduce_data(&result);
+    // 6. Prints the final sum computed by reduce_data
+    println!("Sum = {}", sum);
 }
 
 /*
@@ -154,5 +130,22 @@ fn main() {
 */
 fn partition_data(num_partitions: usize, v: &Vec<usize>) -> Vec<Vec<usize>>{
     // Remove the following line which has been added to remove a compiler error
-    partition_data_in_two(v)
+    let partition_size = v.len() / num_partitions;
+    let mut xs: Vec<Vec<usize>> = Vec::new();
+
+    for j in 0..(num_partitions-1){
+        let mut x1 : Vec<usize> = Vec::new();
+        for i in j*partition_size..(j+1)*partition_size{
+            x1.push(v[i]);
+        }
+        xs.push(x1);
+    }
+
+    let mut x2 : Vec<usize> = Vec::new();
+    for i in partition_size*(num_partitions-1)..v.len(){
+        x2.push(v[i]);
+    }
+    xs.push(x2);
+
+    xs
 }
