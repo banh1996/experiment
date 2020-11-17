@@ -30,12 +30,12 @@ static int output_line_index = 0;
 //the variable to check input is stop
 static char is_stop_input = 0;
 
-// Initialize the mutex
+// mutexs
 static pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t mutex3 = PTHREAD_MUTEX_INITIALIZER;
 
-// Initialize the condition variables
+// condition variables
 static pthread_cond_t cond1 = PTHREAD_COND_INITIALIZER;
 static pthread_cond_t cond2 = PTHREAD_COND_INITIALIZER;
 static pthread_cond_t cond3 = PTHREAD_COND_INITIALIZER;
@@ -56,9 +56,12 @@ static void *read_input_t(void *args)
             pthread_cond_wait(&cond1, &mutex1);
         }
 
-        // if (output_line_index == MAX_CHARACTER_NUMBER - 1)
-        //     c = buffer1[strlen(buffer1) - 1];
-        // else
+        if (output_line_index == MAX_CHARACTER_NUMBER)
+        {
+            pthread_mutex_unlock(&mutex1);
+            continue;
+        }
+
         read(fd_in, &c, 1);
         
         buffer1[buffer1_index] = c;
