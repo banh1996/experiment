@@ -1,15 +1,26 @@
 import java.io.IOException;
 import java.util.Scanner;
+import java.util.Arrays;
 
 class Site_exploration {
-    private int N;
+    private int N, Max_dis = 0;
     private int[] site_distance;
     private int[] site_time;
+    private int[] raw_tree;
+    private int[] left_lower_tree;
+    private int[] right_upper_tree;
 
     public Site_exploration() {
         init();
-        sort(site_distance, 0, N-1);
-        System.out.println(cal_minimum_time(first_trans_time, second_trans_time));
+
+        // sort time&distance array follow time x-component
+        sort(site_time, site_distance, 0, N-1);
+
+        // create Fenwick Tree with distance array, y-component
+        FenwickTree(N);
+
+        // calculate result
+        System.out.println(cal_sites());
     }
 
     private void init() {
@@ -17,6 +28,7 @@ class Site_exploration {
         String line;
         String[] splited;
         int i = 0;
+        int[] temp_arr;
 
         // read possible site number
         if (reader.hasNextLine()) {
@@ -35,7 +47,26 @@ class Site_exploration {
             splited = line.split("\\s+");
             site_distance[i] = Integer.parseInt(splited[0]);
             site_time[i] = Integer.parseInt(splited[1]);
+            Max_dis = Math.max(site_distance[i], Max_dis);
             i++;
+        }
+
+        // init BIT
+        temp_arr = new int [Max_dis+1];
+        raw_tree = new int [N+1];
+        left_lower_tree = new int [N+1];
+        right_upper_tree = new int [N+1];
+        for (i = 0; i <= N; i++) {
+            raw_tree[i] = 0;
+            left_lower_tree[i] = 0;
+            right_upper_tree[i] = 0;
+        }
+        Arrays.fill(temp_arr, 0);
+        for (i = 0; i < N; i++) {
+            temp_arr[site_distance[i]]++;
+        }
+        for (i = 0; i < N; i++) {
+            raw_tree[i+1] = temp_arr[site_distance[i]];
         }
 
         // close scanner
@@ -60,7 +91,7 @@ class Site_exploration {
                 arr2[j] = temp;
             }
         }
-        // swap arr[i+1] and arr[high] (or pivot)
+        // swap
         temp = arr1[i+1];
         arr1[i+1] = arr1[high];
         arr1[high] = temp;
@@ -70,39 +101,61 @@ class Site_exploration {
         return i+1;
     }
 
-    /* The function that implements QuickSort() */
+    /* The function to sort arr1&arr2 based on arr1 */
     private void sort(int arr1[], int arr2[], int low, int high) {
         if (low < high) {
             /* index is partitioning index, arr[index] is
               now at right place */
             int index = partition(arr1, arr2, low, high);
-            // Recursively sort elements before
-            // partition and after partition
+            // Recursively sort elements before partition and after partition
             sort(arr1, arr2, low, index-1);
             sort(arr1, arr2, index+1, high);
         }
     }
 
-    /* The function that calculate minimum time to translate scrolls */
-    private int cal_minimum_time(int trans1[], int trans2[]) {
-        int i, timeline, extra_time = 0;
-        timeline = trans1[0];
-        for (i = 1; i < n; i++) {
-            // first translator must work all time for sure
-            timeline += trans1[i];
-            if (trans2[i-1] + extra_time > trans1[i])
-                // second translator maybe not relax if works slow
-                extra_time += trans2[i-1] - trans1[i];
-            else
-                // second translator can relax with no extra time
-                extra_time = 0;
-        }
+    private int getBIT(int arr[], int index) {
+        int sum = 0, i = index + 1;
 
-        // the final scroll that second translator must handle
-        extra_time += trans2[n-1];
-        // System.out.println("timeline:"+timeline);
-        // System.out.println("ex:"+extra_time);
-        return timeline + extra_time;
+        // Traverse ancestors of BITree[index]
+        while(i > 0) {
+            //if (site_distance[index] > site_distance[i - 1])
+                // Add current element of BITree to sum
+                sum += arr[i]; 
+                //System.out.println("test " + site_distance[i - 1]);
+            // Move index to parent node
+            i -= i & (-i); 
+        }
+        return sum; // I want to get the only points that lower index
+    }
+
+    private void updateBIT(int []arr, int n, int index, int val) {
+        // Traverse all ancestors and add 'val'
+        int i = index;
+        while(index <= n) {
+            // Add 'val' to current node of BIT Tree
+            arr[index] += val;
+
+            // Update index to that of parent in update View
+            index += index & (-index);
+        }
+    }
+
+    /* Function to construct fenwick tree from given array */
+    private void FenwickTree(int n) {
+        // Store the actual values in tree[] using update()
+        for(int i = 1; i <= N; i++)
+            updateBIT(left_lower_tree, N, i, raw_tree[i]);
+    }
+
+    private int cal_sites() {
+        int result = 0;
+        for (int i = 0; i < N; i++) {
+            //result += 
+            System.out.print(getBIT(left_lower_tree, i) + " ");
+            //System.out.print(left_lower_tree[i] + " ");
+        }
+        System.out.println();
+        return result;
     }
 
     public static void main(String[] args) {
