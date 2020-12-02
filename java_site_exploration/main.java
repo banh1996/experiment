@@ -8,7 +8,7 @@ class Site_exploration {
     private int[] site_time;
     private int[] raw_tree;
     private int[] left_lower_tree;
-    private int[] right_upper_tree;
+    private int[] down_tree;
 
     public Site_exploration() {
         init();
@@ -53,11 +53,11 @@ class Site_exploration {
         // init BIT
         raw_tree = new int [Max_dis+1];
         left_lower_tree = new int [Max_dis+1];
-        right_upper_tree = new int [Max_dis+1];
+        down_tree = new int [Max_dis+1];
         for (i = 0; i <= Max_dis; i++) {
             raw_tree[i] = 0;
             left_lower_tree[i] = 0;
-            right_upper_tree[i] = 0;
+            down_tree[i] = 0;
         }
         for (i = 0; i < N; i++) {
             raw_tree[site_distance[i]]++;
@@ -107,8 +107,9 @@ class Site_exploration {
         }
     }
 
-    private int getBIT(int arr[], int index) {
-        int sum = 0, i = site_distance[index];
+    private long getBIT(int arr[], int index) {
+        long sum = 0;
+        int i = site_distance[index];
 
         // Traverse ancestors of BITree[index]
         while(i > 0) {
@@ -135,23 +136,25 @@ class Site_exploration {
     /* Function to construct fenwick tree from given array */
     private void FenwickTree(int n) {
         // Store the actual values in tree[] using update()
-        for(int i = 1; i <= Max_dis; i++)
-            updateBIT(left_lower_tree, Max_dis, i, raw_tree[i]);
+        for(int i = 0; i < N; i++)
+            updateBIT(down_tree, Max_dis, site_distance[i], raw_tree[site_distance[i]]);
     }
 
-    private int cal_sites() {
-        int result = 0, temp;
+    private long cal_sites() {
+        long result = 0;
         for (int i = 0; i < N; i++) {
-            temp = getBIT(left_lower_tree, i);
+            long temp = getBIT(down_tree, i);
             // now, sum is the point number that its distance lower than distance[index]
-            // I calculate left lower & right upper angle by solving equalization
-            int left = i, right = N-i-1, down = temp, up = N-temp-1;
-            right_upper_tree[i] = 
-            //result += 
-            //System.out.print(getBIT(left_lower_tree, i) + " ");
-            //System.out.print(left_lower_tree[i] + " ");
+            // I'll calculate left lower & right upper angle later
+            long left = i, right = N-i-1, down = temp-1, up = N-temp-1;
+
+            updateBIT(left_lower_tree, Max_dis, site_distance[i], raw_tree[site_distance[i]]);
+            long left_down = getBIT(left_lower_tree, i) - 1; // here is the left lower tree while sweeping
+            long right_up = right - down + left_down;
+            // System.out.print(left_down + "+");
+            // System.out.print(right_up + " ");
+            result += left_down*right_up;
         }
-        System.out.println();
         return result;
     }
 
