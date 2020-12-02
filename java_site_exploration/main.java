@@ -28,7 +28,6 @@ class Site_exploration {
         String line;
         String[] splited;
         int i = 0;
-        int[] temp_arr;
 
         // read possible site number
         if (reader.hasNextLine()) {
@@ -52,21 +51,16 @@ class Site_exploration {
         }
 
         // init BIT
-        temp_arr = new int [Max_dis+1];
-        raw_tree = new int [N+1];
-        left_lower_tree = new int [N+1];
-        right_upper_tree = new int [N+1];
-        for (i = 0; i <= N; i++) {
+        raw_tree = new int [Max_dis+1];
+        left_lower_tree = new int [Max_dis+1];
+        right_upper_tree = new int [Max_dis+1];
+        for (i = 0; i <= Max_dis; i++) {
             raw_tree[i] = 0;
             left_lower_tree[i] = 0;
             right_upper_tree[i] = 0;
         }
-        Arrays.fill(temp_arr, 0);
         for (i = 0; i < N; i++) {
-            temp_arr[site_distance[i]]++;
-        }
-        for (i = 0; i < N; i++) {
-            raw_tree[i+1] = temp_arr[site_distance[i]];
+            raw_tree[site_distance[i]]++;
         }
 
         // close scanner
@@ -114,23 +108,21 @@ class Site_exploration {
     }
 
     private int getBIT(int arr[], int index) {
-        int sum = 0, i = index + 1;
+        int sum = 0, i = site_distance[index];
 
         // Traverse ancestors of BITree[index]
         while(i > 0) {
-            //if (site_distance[index] > site_distance[i - 1])
-                // Add current element of BITree to sum
-                sum += arr[i]; 
-                //System.out.println("test " + site_distance[i - 1]);
+            // Add current element of BITree to sum
+            sum += arr[i];
             // Move index to parent node
             i -= i & (-i); 
         }
+
         return sum; // I want to get the only points that lower index
     }
 
     private void updateBIT(int []arr, int n, int index, int val) {
         // Traverse all ancestors and add 'val'
-        int i = index;
         while(index <= n) {
             // Add 'val' to current node of BIT Tree
             arr[index] += val;
@@ -143,15 +135,20 @@ class Site_exploration {
     /* Function to construct fenwick tree from given array */
     private void FenwickTree(int n) {
         // Store the actual values in tree[] using update()
-        for(int i = 1; i <= N; i++)
-            updateBIT(left_lower_tree, N, i, raw_tree[i]);
+        for(int i = 1; i <= Max_dis; i++)
+            updateBIT(left_lower_tree, Max_dis, i, raw_tree[i]);
     }
 
     private int cal_sites() {
-        int result = 0;
+        int result = 0, temp;
         for (int i = 0; i < N; i++) {
+            temp = getBIT(left_lower_tree, i);
+            // now, sum is the point number that its distance lower than distance[index]
+            // I calculate left lower & right upper angle by solving equalization
+            int left = i, right = N-i-1, down = temp, up = N-temp-1;
+            right_upper_tree[i] = 
             //result += 
-            System.out.print(getBIT(left_lower_tree, i) + " ");
+            //System.out.print(getBIT(left_lower_tree, i) + " ");
             //System.out.print(left_lower_tree[i] + " ");
         }
         System.out.println();
