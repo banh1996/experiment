@@ -1,0 +1,3 @@
+Sockets:https://docs.microsoft.com/en-us/dotnet/framework/network-programming/sockets
+Microsoft Docs (Links to an external site.):https://docs.microsoft.com/en-us/dotnet/framework/network-programming/sockets
+Python:https://realpython.com/python-sockets/
