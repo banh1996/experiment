@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 """
 war card game client and server
 """
