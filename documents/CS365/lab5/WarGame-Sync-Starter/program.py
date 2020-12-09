@@ -54,7 +54,10 @@ async def client(host, port, loop):
         card_msg = await reader.readexactly(28)
         myscore = 0
         logging.info('Before loop')
-        for card in card_msg[1:]:
+        # temp = bytearray(card_msg)
+        # print binascii.hexlify(card_msg)
+        # logging.info(temp)
+        for card in card_msg[2:]:
             payload = bytes([2, Command.PLAYCARD.value, card])
             logging.info(f'Sending payload size: {len(payload)}\n Payload: {Command.PLAYCARD.value} - {card}')
             writer.write(payload)
@@ -63,7 +66,7 @@ async def client(host, port, loop):
                 myscore += 1
             elif result[2] == Result.LOSE.value:
                 myscore -= 1
-        
+
         writer.write(bytes([2, Command.QUITGAME.value, 0]))
         if myscore > 0:
             result = "won"
