@@ -74,7 +74,7 @@ async def client(host, port, loop):
             result = "lost"
         else:
             result = "drew"
-        logging.info("Game complete, I %s", result)
+        logging.info("Game complete, I %s %d", result, myscore)
         writer.close()
         return 1
     except ConnectionResetError:

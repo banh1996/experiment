@@ -14,28 +14,8 @@ from program import Result
 
 
 class ClientContext:
-    def __init__(self):
-        self.ready_new_game = 0
-        self.client_total_num = 0
-        self.client_quit_num = 0
-        self.mutex_client_center = Lock()
-    def get_client_num(self):
-        self.mutex_client_center.acquire()
-        self.client_total_num += 1
-        if self.client_total_num%2 == 1
-            self.ready_new_game = 1
-        else
-            self.ready_new_game = 0
-        self.mutex_client_center.release()
-    def quit_game(self, client_num):
-        self.mutex_client_center.acquire()
-        self.client_quit_num += 1
-        # if self.client_quit_num%2 == 0
-        #     self.ready_new_game = 0
-        self.mutex_client_center.release()
-        await writer.drain()
-        logging.info("Quit game")
-        writer.close()
+    # def __init__(self):
+    #     self.mutex_client_center = Lock()
     def init_deck(self, deck):
         for i in range (0, 52):
             deck.append(i)
@@ -64,7 +44,6 @@ class ClientContext:
     async def handle_client(self, reader, writer):
         deck = []
         self.init_deck(deck)
-        client_num = self.get_client_num()
         data = await reader.readexactly(3)
         # message = data.decode()
         # addr = writer.get_extra_info('peername')
