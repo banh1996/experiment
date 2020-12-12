@@ -1,0 +1,101 @@
+Q4.
+int findCeilIndex(int A[], int l, int r, int key) 
+{
+    while( r - l > 1 ) 
+    {
+        int mid = l + (r - l)/2;
+        if (A[mid] >= key)
+            r = mid;
+        else
+            l = mid;
+    }
+    return r;
+}
+
+int findMaxIncreaseArray(int A[], int N) 
+{
+    if (N <= 1)
+        return N;
+ 
+    int subseqTails[] = new int[N];
+    int misLen = 1;
+
+    subseqTails[0] = A[0];
+
+    for( int i = 1; i < N; i++ )
+    {
+        if( A[i] < subseqTails[0] )
+            subseqTails[0] = A[i]; 
+        else if ( A[i] > subseqTails[misLen-1] )
+            subseqTails[misLen++] = A[i]; 
+        else
+        {
+            int ceilIndex = findCeilIndex (subseqTails, -1, misLen-1, A[i]);
+            subseqTails[ceilIndex] = A[i];
+        }
+    }
+
+    return misLen;
+}
+
+Q1.
+Red black tree is a balanced binary tree.
+
+Q3.
+visit A, queue B,F,G
+visit B, queue F,G,C 
+visit F, queue G,C,D
+visit G, queue C,D
+visit C, queue D
+visit D queue E 
+visit E, queue H,I 
+visit H, queue I
+visit I
+
+A B F G C D E H I
+
+Q5.
+Tarjan's SCC algorithm uses DFS, so the Big-Oh runtime 
+
+Q7.
+the graph array should init with the same source-dest = 0, like graph[1][1] = 0
+The code doesn't check if the edge is available.
+k is numEdges while k must be node.
+The result print is not effective, the code print all non-exist nodes (then result of non-exist nodes pair is 987654321).
+
+Q6. O(N*C). 
+
+Q5.
+O(|V|+|E|).
+
+Q8.
+The time to query/range update is O(logN).
+it may not be generalized because the node in BIT contain the sum of lower nodes, and these nodes can be out of range.
+So to use a Fenwick Tree efficiently for range query/range update, We need to update BIT in range then get the query, maybe it takes O(logN).
+
+Q9.
+Dynamic planning. Let S (N) be the number of ways to Mr.Frog jums all N segments.
+Based on the first jump, we divide all of the toad's jumps into k non-intersecting groups.
+So, Group 1 will include options that begin with a jump of length b1, that is, options of form (b1, ...). After the first jump to segment b1, the remaining segment will be N - 1, so the total number of options for this group will be in range 2 segments around current position = S(bi).
+The next jump must be valid (in range 2 segments around)
+Then jump until jumped all N segments and increase count by 1 each time jump all.
+
+Q10.
+A solution is to remove the smallest edge, check if graph remains connect after removal or not,
+finally add the edge back. We can always find if an undirected is connected or not by finding all reachable vertices from any vertex. 
+If count of reachable vertices is equal to number of vertices in graph, then the graph is connected else not.
+We can find all reachable vertices either using BFS or DFS.
+Step 1: Try Remove the smallest edge which never remove before
+Step 2: Find all reachable vertices from any vertex. We have chosen first vertex in below implementation
+Step 3: If count of reachable nodes is V, then return false [given is not Bridge], add the edge back, if tried remove all 1 edge,
+then try remove 2 smallest edge. Else return yes, done.
+
+Q12.
+Use a loop all string index. Each time the loop go into an character index, use an inner loop to scan character to 2 sides in string (before and after) until the before or after character reach to limit or the before and after character is distinct.
+If the before and after characters are the same, then save the string from before character to after character and continue scan the next before and after character.
+Else if the before and after characters are distinct, continue the main loop.
+The time complexity is O(N^2)
+
+Q1. pq should not add all edges in the first.
+No any check if node is visited.
+No sort the edge weight.
