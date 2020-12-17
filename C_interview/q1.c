@@ -21,7 +21,7 @@ static int compare_substrings(char *a1, char *a2, int len)
 
 static char *swap_substrings(char *a, int first, int index, int last, int len)
 {
-    static char *buf;
+    char *buf;
     buf = (char*)malloc(len*sizeof(char*));
     memcpy(buf, a, len);
     for (int i = index; i >= first; i--)
@@ -40,9 +40,8 @@ static char *swap_substrings(char *a, int first, int index, int last, int len)
 static char *get_max_number_substring(char *a, int index, int len)
 {
     int i, j, count1 = 0, count0 = 0, first = index, last = index+1;
-    static char *p_result;
+    char *p_result, *ptr;
     p_result = (char*)malloc(len*sizeof(char*));
-    char *ptr = NULL;
     memset(p_result, 0, len);
     memcpy(p_result, a, len);
     while (first != 0 || last != len-1)
