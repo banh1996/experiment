@@ -10,6 +10,7 @@ typedef struct buffer_t {
 } buffer_t;
 
 buffer_t g_buf;
+char g_is_done_interrupt = 1;
 
 int is_full() {
 	/* TODO */
@@ -39,12 +40,16 @@ int dequeue() {
 void read_interrupt(int c) {
 	/* TODO */
 	enqueue(c);
+	if (g_is_done_interrupt) {
+		write_device(g_buf.data[g_buf.head]);
+		g_is_done_interrupt = 0;
+	}
 }
 
 void write_done_interrupt() {
 	/* TODO */
-	write_device(g_buf.data[g_buf.head]);
 	dequeue();
+	g_is_done_interrupt = 1;
 }
 
 int main(int argc, char* argv[]) {
@@ -53,16 +58,8 @@ int main(int argc, char* argv[]) {
 		printf("argument must be at less 1\n");
 		return 1;
 	}
-	printf("log\n");
-	if (!isdigit(argv[1])) {
-		printf("argument must be a digit\n");
-		return 1;
-	}
-	printf("log1\n");
 	g_buf.size = atoi(argv[1]);
-	printf("log2\n");
 	g_buf.data = malloc(sizeof(char*)*g_buf.size);
-	printf("log3\n");
 	start();
 	return 0;
 }
