@@ -7,7 +7,7 @@ all: device-controller-simulator.o echo-driver.o
 device-controller-simulator.o: device-controller-simulator.c device-controller.h
 	$(CC) $(CFLAGS) -c device-controller-simulator.c
 
-echo-driver.o:
+echo-driver.o: echo-driver.c
 	$(CC) $(CFLAGS) -c echo-driver.c
 
 clean:
