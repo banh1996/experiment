@@ -34,7 +34,9 @@ int dequeue() {
 	/* TODO */
 	if (!is_empty()) {
 		g_buf.head = (g_buf.head+1)%g_buf.size;
+		return 1;
 	}
+	return 0;
 }
 
 void read_interrupt(int c) {
@@ -61,5 +63,6 @@ int main(int argc, char* argv[]) {
 	g_buf.size = atoi(argv[1]);
 	g_buf.data = malloc(sizeof(char*)*g_buf.size);
 	start();
+	free(g_buf.data);
 	return 0;
 }
