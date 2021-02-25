@@ -268,6 +268,7 @@ public class VarLangParser extends Parser {
 	public final LetexpContext letexp() throws RecognitionException {
 		LetexpContext _localctx = new LetexpContext(_ctx, getState());
 		enterRule(_localctx, 4, RULE_letexp);
+		 ((LetexpContext)_localctx).names =  new ArrayList<String>(); ((LetexpContext)_localctx).value_exps =  new ArrayList<Exp>(); 
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
@@ -321,8 +322,8 @@ public class VarLangParser extends Parser {
 
 	public static class LetuexpContext extends ParserRuleContext {
 		public LetuExp ast;
-		public ArrayList<String> names;
-		public ArrayList<Exp> value_exps;
+		public ArrayList<String> names =  new ArrayList<String>();
+		public ArrayList<Exp> value_exps =  new ArrayList<Exp>();
 		public Token id;
 		public ExpContext e;
 		public ExpContext body;
@@ -346,7 +347,6 @@ public class VarLangParser extends Parser {
 	public final LetuexpContext letuexp() throws RecognitionException {
 		LetuexpContext _localctx = new LetuexpContext(_ctx, getState());
 		enterRule(_localctx, 6, RULE_letuexp);
-		 ((LetuexpContext)_localctx).names =  new ArrayList<String>(); ((LetuexpContext)_localctx).value_exps =  new ArrayList<Exp>(); 
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);

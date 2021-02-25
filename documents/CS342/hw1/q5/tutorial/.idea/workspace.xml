@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="70240c3f-2de6-45b4-95fd-c49823b0dcef" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/.gradle/4.6/fileChanges/last-build.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/.gradle/4.6/fileHashes/fileHashes.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/.gradle/4.6/fileHashes/fileHashes.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/.gradle/4.6/fileHashes/resourceHashesCache.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/.gradle/4.6/taskHistory/taskHistory.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/.gradle/4.6/taskHistory/taskHistory.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/.gradle/4.8/fileChanges/last-build.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/.gradle/4.8/fileContent/annotation-processors.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/.gradle/4.8/fileContent/fileContent.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/.gradle/4.8/fileHashes/fileHashes.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/.gradle/4.8/fileHashes/fileHashes.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/.gradle/4.8/fileHashes/resourceHashesCache.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/.gradle/4.8/taskHistory/taskHistory.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/.gradle/4.8/taskHistory/taskHistory.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/.gradle/vcsWorkingDirs/gc.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/.idea/compiler.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/.idea/gradle.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/.idea/jarRepositories.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/build.gradle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/gradlew" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/gradlew.bat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/grammars/ArithLang.g" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/settings.gradle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/.settings/org.eclipse.buildship.core.prefs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/.settings/org.eclipse.jdt.core.prefs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/bin/main/varlang/examples/Readme.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/bin/main/varlang/examples/test1.scm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/bin/main/varlang/parser/VarLang.g" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/bin/main/varlang/parser/VarLang.tokens" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/bin/main/varlang/parser/VarLangLexer.tokens" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/build.gradle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/build/generated-src/antlr/main/varlang/parser/VarLang.tokens" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/build/generated-src/antlr/main/varlang/parser/VarLangLexer.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/build/generated-src/antlr/main/varlang/parser/VarLangLexer.tokens" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/build/generated-src/antlr/main/varlang/parser/VarLangParser.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/build/scripts/varlang" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/build/scripts/varlang.bat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/build/tmp/jar/MANIFEST.MF" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/src/main/antlr/varlang/parser/VarLang.g" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/src/main/java/varlang/AST.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/src/main/java/varlang/Env.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/src/main/java/varlang/Evaluator.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/src/main/java/varlang/Interpreter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/src/main/java/varlang/Printer.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/src/main/java/varlang/Reader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/src/main/java/varlang/Value.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/src/main/java/varlang/examples/Readme.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../HW3/q5 (copy)/varlang/src/main/java/varlang/examples/test1.scm" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../../../.." />
+  </component>
+  <component name="ProjectId" id="1ogZL5oCt68MkeiK51rdKzoAnlV" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../HW3/q4" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
+  </component>
+  <component name="RunManager">
+    <configuration name="Interpreter" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="arithlang.Interpreter" />
+      <module name="tutorial.arithlang.main" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="arithlang.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.Interpreter" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="70240c3f-2de6-45b4-95fd-c49823b0dcef" name="Default Changelist" comment="" />
+      <created>1613710138051</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1613710138051</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/../../../.." />
+      <path value="$PROJECT_DIR$/../../../../../.." />
+    </ignored-roots>
+  </component>
+</project>

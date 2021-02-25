@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="70240c3f-2de6-45b4-95fd-c49823b0dcef" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/../../Books/Rajan-PL-CH1.pdf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../Books/Rajan-PL-CH10.pdf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../Books/Rajan-PL-CH2.pdf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../Books/Rajan-PL-CH3.pdf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../Books/Rajan-PL-CH4and5.pdf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../Books/Rajan-PL-CH7.pdf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../Books/Rajan-PL-CH8.pdf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../HW2/3.arithlang.pdf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../HW2/hw2-1.pdf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../hw1/answer" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../hw1/hw1_answer.docx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../CS352/lab2/answer.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../../vpn.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../CS352/lab2/answer" beforeDir="false" afterPath="$PROJECT_DIR$/../../../CS352/lab2/answer" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../../.." />
+  </component>
+  <component name="ProjectId" id="1ogZL5oCt68MkeiK51rdKzoAnlV" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.project.gradle" />
+  </component>
+  <component name="RunManager" selected="Application.Interpreter">
+    <configuration name="Interpreter" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="arithlang.Interpreter" />
+      <module name="tutorial.arithlang.main" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="arithlang.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Tests in 'tutorial.arithlang'" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list />
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.Interpreter" />
+        <item itemvalue="Gradle.Tests in 'tutorial.arithlang'" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="70240c3f-2de6-45b4-95fd-c49823b0dcef" name="Default Changelist" comment="" />
+      <created>1613710138051</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1613710138051</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/../../../../../.." />
+    </ignored-roots>
+  </component>
+</project>

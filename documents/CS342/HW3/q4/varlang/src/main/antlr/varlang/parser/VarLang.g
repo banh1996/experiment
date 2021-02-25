@@ -30,9 +30,8 @@ import ArithLang; //Import all rules from Arithlang grammar.
  		;
 
  letuexp  returns [LetuExp ast]
-        locals [ArrayList<String> names, ArrayList<Exp> value_exps]
- 		@init { $names = new ArrayList<String>(); $value_exps = new ArrayList<Exp>(); } :
- 		'(' Letu
+ 		locals [ArrayList<String> names = new ArrayList<String>(), ArrayList<Exp> value_exps = new ArrayList<Exp>()] :
+		'(' Letu
  			'(' ( '(' id=Identifier e=exp ')' { $names.add($id.text); $value_exps.add($e.ast); } )+  ')'
  			body=exp 
  			')' { $ast = new LetuExp($names, $value_exps, $body.ast); }
