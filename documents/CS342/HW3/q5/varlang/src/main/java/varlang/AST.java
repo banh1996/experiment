@@ -233,6 +233,25 @@ public interface AST {
 		public Exp body() { return _body; }
 
 	}
+
+	public static class DeExp extends Exp {
+		VarExp _var;
+		NumExp _val;
+		
+		public DeExp(VarExp var, NumExp val) {
+			_var = var;
+			_val = val;
+		}
+		
+		public Object accept(Visitor visitor, Env env) {
+			return visitor.visit(this, env);
+		}
+		
+		public VarExp var() { return _var; }
+		
+		public NumExp val() { return _val; }
+
+	}
 	
 	public interface Visitor <T> {
 		// This interface should contain a signature for each concrete AST node.
@@ -244,5 +263,6 @@ public interface AST {
 		public T visit(AST.SubExp e, Env env);
 		public T visit(AST.VarExp e, Env env);
 		public T visit(AST.LetExp e, Env env); // New for the varlang
+		public T visit(AST.DeExp e, Env env);
 	}	
 }

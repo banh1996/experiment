@@ -337,6 +337,7 @@ public class VarLangParser extends Parser {
 		public LeteExp ast;
 		public ArrayList<String> names =  new ArrayList<String>();
 		public ArrayList<Exp> value_exps =  new ArrayList<Exp>();
+		public ArrayList<NumExp> key_exps =  new ArrayList<NumExp>();
 		public Token id;
 		public ExpContext e;
 		public NumexpContext key;
@@ -390,10 +391,10 @@ public class VarLangParser extends Parser {
 				setState(77);
 				((LeteexpContext)_localctx).e = exp();
 				setState(78);
-				match(T__1);
-				 _localctx.names.add((((LeteexpContext)_localctx).id!=null?((LeteexpContext)_localctx).id.getText():null)); _localctx.value_exps.add(((LeteexpContext)_localctx).e.ast); 
-				setState(80);
 				((LeteexpContext)_localctx).key = numexp();
+				setState(79);
+				match(T__1);
+				 _localctx.names.add((((LeteexpContext)_localctx).id!=null?((LeteexpContext)_localctx).id.getText():null)); _localctx.value_exps.add(((LeteexpContext)_localctx).e.ast); _localctx.key_exps.add(((LeteexpContext)_localctx).key.ast); 
 				}
 				}
 				setState(84); 
@@ -406,7 +407,7 @@ public class VarLangParser extends Parser {
 			((LeteexpContext)_localctx).body = exp();
 			setState(88);
 			match(T__1);
-			 ((LeteexpContext)_localctx).ast =  new LeteExp(_localctx.names, _localctx.value_exps, ((LeteexpContext)_localctx).body.ast, ((LeteexpContext)_localctx).key.ast); 
+			 ((LeteexpContext)_localctx).ast =  new LeteExp(_localctx.names, _localctx.value_exps, ((LeteexpContext)_localctx).body.ast, _localctx.key_exps); 
 			}
 		}
 		catch (RecognitionException re) {
@@ -851,7 +852,7 @@ public class VarLangParser extends Parser {
 		"\3\2\29:\7\n\2\2:A\7\3\2\2;<\7\3\2\2<=\7\17\2\2=>\5\2\2\2>?\7\4\2\2?@"+
 		"\b\4\1\2@B\3\2\2\2A;\3\2\2\2BC\3\2\2\2CA\3\2\2\2CD\3\2\2\2DE\3\2\2\2E"+
 		"F\7\4\2\2FG\5\2\2\2GH\7\4\2\2HI\b\4\1\2I\7\3\2\2\2JK\7\3\2\2KL\7\f\2\2"+
-		"LT\7\3\2\2MN\7\3\2\2NO\7\17\2\2OP\5\2\2\2PQ\7\4\2\2QR\b\5\1\2RS\5\16\b"+
+		"LT\7\3\2\2MN\7\3\2\2NO\7\17\2\2OP\5\2\2\2PQ\5\16\b\2QR\7\4\2\2RS\b\5\1"+
 		"\2SU\3\2\2\2TM\3\2\2\2UV\3\2\2\2VT\3\2\2\2VW\3\2\2\2WX\3\2\2\2XY\7\4\2"+
 		"\2YZ\5\2\2\2Z[\7\4\2\2[\\\b\5\1\2\\\t\3\2\2\2]^\7\3\2\2^_\7\r\2\2_`\5"+
 		"\16\b\2`a\7\17\2\2ab\7\4\2\2bc\b\6\1\2c\13\3\2\2\2de\5\2\2\2ef\b\7\1\2"+

@@ -107,14 +107,14 @@ public class Evaluator implements Visitor<Value> {
 		List<String> names = e.names() ;
 		List<Exp> value_exps = e.value_exps() ;
 		List<Value> values = new ArrayList<Value>(value_exps.size());
-		NumVal key = (NumVal)e.key().accept(this, env);
-		for (Exp exp : value_exps)
+		for (Exp exp : value_exps) {
 			values.add((Value)exp.accept(this, env));
+		}
 		Env new_env = env;
 		for (int i = 0; i < names.size(); i++) {
 			Value val=values.get(i);
 			if (val instanceof NumVal){
-				val= new NumVal(((NumVal)val).v() + key.v()) ;
+				val= new NumVal(((NumVal)val).v() + e.key(i).v());
 			}
 				new_env = new ExtendEnv(new_env, names.get(i), (val));
 		}
@@ -125,7 +125,7 @@ public class Evaluator implements Visitor<Value> {
 	public Value visit(DecExp e, Env env) {
 		Value val = env.get(e.name());
 		if (val instanceof NumVal){
-			NumVal key= (NumVal)e.key().accept(this, env);
+			NumVal key = (NumVal)e.key().accept(this, env);
 			return new NumVal(((NumVal)val).v() - key.v());
 		}
 		return val;

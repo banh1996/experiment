@@ -101,5 +101,22 @@ public class Evaluator implements Visitor<Value> {
 
 		return (Value) e.body().accept(this, new_env);		
 	}	
+
+	@Override
+	//TODO
+	public Value visit(DeExp e, Env env) { // New for varlang.
+		VarExp var_exp = e.var();
+		NumExp value_exp = e.val();
+		//List<Value> values = new ArrayList<Value>(value_exps.size());
+		
+		for(Exp exp : value_exps) 
+			values.add((Value)exp.accept(this, env));
+		
+		Env new_env = env;
+		for (int i = 0; i < names.size(); i++)
+			new_env = new ExtendEnv(new_env, names.get(i), values.get(i));
+
+		return (Value) e.body().accept(this, new_env);		
+	}
 	
 }

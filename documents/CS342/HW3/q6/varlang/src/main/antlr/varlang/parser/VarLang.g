@@ -31,11 +31,11 @@ import ArithLang; //Import all rules from Arithlang grammar.
  		;
 
  leteexp  returns [LeteExp ast] 
-        locals [ArrayList<String> names = new ArrayList<String>(), ArrayList<Exp> value_exps = new ArrayList<Exp>()] :
+        locals [ArrayList<String> names = new ArrayList<String>(), ArrayList<Exp> value_exps = new ArrayList<Exp>(), ArrayList<NumExp> key_exps = new ArrayList<NumExp>()] :
         '(' Lete
-        '(' ( '(' id=Identifier e=exp ')' { $names.add($id.text); $value_exps.add($e.ast); } key=numexp )+ ')'
+        '(' ( '(' id=Identifier e=exp key=numexp')' { $names.add($id.text); $value_exps.add($e.ast); $key_exps.add($key.ast); } )+ ')'
         body=exp
-        ')' { $ast = new LeteExp($names, $value_exps, $body.ast, $key.ast); }
+        ')' { $ast = new LeteExp($names, $value_exps, $body.ast, $key_exps); }
         ;
 
  decexp returns [DecExp ast]:

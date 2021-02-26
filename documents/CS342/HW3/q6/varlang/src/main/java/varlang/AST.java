@@ -235,13 +235,13 @@ public interface AST {
 	}
 
     public static class LeteExp extends LetExp {
-        NumExp _key;
-        public LeteExp(List<String> names, List<Exp> value_exps, Exp body, NumExp key) {
+        List<NumExp> _keys;
+        public LeteExp(List<String> names, List<Exp> value_exps, Exp body, List<NumExp> keys) {
             super(names, value_exps, body);
-            _key = key;
+            _keys = keys;
         }
-        public NumExp key() {
-            return _key;
+        public NumExp key(int i) {
+            return _keys.get(i);
         }
         public Object accept(Visitor visitor, Env env) {
             return visitor.visit(this, env);
@@ -259,9 +259,6 @@ public interface AST {
         }
         public Object accept(Visitor visitor, Env env) {
             return visitor.visit (this, env);
-        }
-        public boolean isBound(String variableName) {
-            return this.key().isBound(variableName);
         }
     }
 	
