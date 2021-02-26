@@ -67,5 +67,27 @@ public class Printer {
 			return result + ")";
 		}
 		
+		public String visit(AST.LeteExp e, Env env) {
+			String result = "(lete (";
+			List<String> names = e.names();
+			List<AST.Exp> value_exps = e.value_exps();
+			int num_decls = names.size();
+			for (int i = 0; i < num_decls ; i++) {
+				result += " (";
+				result += names.get(i) + " ";
+				result += value_exps.get(i).accept(this, env) + ")";
+			}
+            result += e.key();
+			result += ") ";
+			result += e.body().accept(this, env) + " ";
+			return result + ")";
+		}
+
+		public String visit (DecExp e, Env env) {
+			String result = "(dec ";
+			result += e.key( ) + " ";
+			result += e.name( ) + " )";
+			return result ;
+		}
 	}
 }

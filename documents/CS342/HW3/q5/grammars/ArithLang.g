@@ -64,6 +64,7 @@ grammar ArithLang;
  Define : 'define' ;
  Let : 'let' ;
  Dot : '.' ;
+ Define : 'define' ;
 
  Number : DIGIT+ ;
 

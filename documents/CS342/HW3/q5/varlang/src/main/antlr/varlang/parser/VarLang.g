@@ -13,6 +13,7 @@ import ArithLang; //Import all rules from Arithlang grammar.
         | m=multexp { $ast = $m.ast; }
         | d=divexp { $ast = $d.ast; }
         | l=letexp { $ast = $l.ast; }
+		| de=defineexp { $ast = $de.ast; }
         ;
 
  varexp returns [VarExp ast]: 
@@ -26,6 +27,15 @@ import ArithLang; //Import all rules from Arithlang grammar.
  			'(' ( '(' id=Identifier e=exp ')' { $names.add($id.text); $value_exps.add($e.ast); } )+  ')'
  			body=exp 
  			')' { $ast = new LetExp($names, $value_exps, $body.ast); }
+ 		;
+
+ defineexp  returns [DefineExp ast] 
+        locals [ArrayList<String> names, ArrayList<Exp> value_exps]
+ 		@init { $names = new ArrayList<String>(); $value_exps = new ArrayList<Exp>(); } :
+ 		'(' Define 
+ 			'(' ( '(' id=Identifier e=exp ')' { $names.add($id.text); $value_exps.add($e.ast); } )+  ')'
+ 			body=exp 
+ 			')' { $ast = new DefineExp($names, $value_exps, $body.ast); }
  		;
 
  // Lexical Specification of this Programming Language
