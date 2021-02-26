@@ -53,3 +53,5 @@ dkms.conf
 *.code-workspace
 *.class
 cscope.*
+
+*.swp
