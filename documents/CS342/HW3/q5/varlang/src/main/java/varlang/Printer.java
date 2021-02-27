@@ -66,6 +66,15 @@ public class Printer {
 			result += e.body().accept(this, env) + " ";
 			return result + ")";
 		}
+
+		public String visit(AST.DeExp e, Env env) {
+			String result = "(define ";
+
+			result += e.var().name() + " ";
+			result += e.val().v();
+
+			return result + ")";
+		}
 		
 	}
 }

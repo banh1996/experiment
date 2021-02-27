@@ -17,7 +17,6 @@ import varlang.Env.EmptyEnv;
 import varlang.Env.ExtendEnv;
 
 public class Evaluator implements Visitor<Value> {
-	
 	Value valueOf(Program p) {
 		Env env = new EmptyEnv();
 		// Value of a program in this language is the value of the expression
@@ -100,23 +99,18 @@ public class Evaluator implements Visitor<Value> {
 			new_env = new ExtendEnv(new_env, names.get(i), values.get(i));
 
 		return (Value) e.body().accept(this, new_env);		
-	}	
+	}
 
 	@Override
 	//TODO
 	public Value visit(DeExp e, Env env) { // New for varlang.
 		VarExp var_exp = e.var();
-		NumExp value_exp = e.val();
-		//List<Value> values = new ArrayList<Value>(value_exps.size());
-		
-		for(Exp exp : value_exps) 
-			values.add((Value)exp.accept(this, env));
-		
-		Env new_env = env;
-		for (int i = 0; i < names.size(); i++)
-			new_env = new ExtendEnv(new_env, names.get(i), values.get(i));
+		NumExp val_exp = e.val();
 
-		return (Value) e.body().accept(this, new_env);		
+		Env new_env = env;
+		new_env = new ExtendEnv(new_env, var_exp.name(), new NumVal(val_exp.v()));
+
+		return (Value) e.accept(this, new_env);
 	}
 	
 }

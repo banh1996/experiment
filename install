@@ -1,0 +1,82 @@
+#!/bin/bash
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+BLUE='\033[0;34m'
+YELLOW='\033[0;33m'
+if readlink /proc/$$/exe | grep -qs "dash"; then
+echo -e "${YELLOW}This script needs to be run with ${RED}bash, ${YELLOW}not sh"
+exit 1
+fi
+if [[ "$EUID" -ne 0 ]]; then
+echo -e "${YELLOW}Sorry, you need to run this as ${RED}root${YELLOW}, try ${BLUE}sudo ./install"
+exit 2
+fi
+if [[ -e /etc/debian_version ]]; then
+OS=debian
+GROUPNAME=nogroup
+RCLOCAL='/etc/rc.local'
+elif [[ -e /etc/redhat-release ]]; then
+OS=redhat
+GROUPNAME=nogroup
+RCLOCAL='/etc/rc.local'
+else
+echo -e "${RED}Looks like you are not running this installer on a Debian, or RHL based system"
+exit 2
+fi
+rm -rf /etc/outbyte
+mkdir /etc/outbyte
+chmod +x /etc/outbyte
+if [ $OS == "debian" ]; then
+apt-get install openvpn curl libgconf-2-4 libcanberra-gtk-module -y
+fi
+if [ $OS == "redhat" ]; then
+xhost si:localuser:root
+yum install curl openvpn -y
+fi
+echo -e "${YELLOW}Do you want to setup DNS Leak fix script, This may ${RED}break ${YELLOW}your DNS depending on your other settings We setup and install ${BLUE}resolvconf ${YELLOW}- in most cases you will not have any issues"
+echo ""
+echo -e "${BLUE}What do you want to do?"
+echo -e "   ${RED}1) Add resolvconf support"
+echo -e "   ${BLUE}2) Skip ${NC}"
+read -p "Select an option [1-2]: " option
+case $option in
+1)
+if [ $OS == "debian" ]; then
+PKG_OK=$(dpkg-query -W resolvconf|grep 'resolvconf')
+echo -e "${YELLOW}Checking for resolvconf: $PKG_OK"
+if [ "" == "$PKG_OK" ]; then
+echo -e "${YELLOW}No resolvconf found. Setting up resolvconf."
+apt-get -o Dpkg::Options::=\--force-confmiss\ install --reinstall resolvconf
+sudo bash -c 'echo "nameserver 1.1.1.1" >> /etc/resolvconf/resolv.conf.d/base'
+sudo bash -c 'echo "nameserver 1.0.0.1" >> /etc/resolvconf/resolv.conf.d/base'
+sudo resolvconf -u
+sudo ifdown -a ; sudo ifup -a
+fi
+elif [ $OS == "redhat" ]; then
+PKG_OK=$(rpm -qa|grep 'resolvconf')
+echo -e "${YELLOW}Checking for resolvconf: $PKG_OK"
+if [ "" == "$PKG_OK" ]; then
+echo "No resolvconf found. Setting up resolvconf."
+sudo bash -c 'echo "nameserver 1.1.1.1" > /etc/resolv.conf'
+sudo bash -c 'echo "nameserver 1.0.0.1" >> /etc/resolv.conf'
+fi
+fi
+;;
+2)
+echo -e "${BLUE}skipping resolvconf installation"
+esac
+cd /etc/outbyte
+echo -e "${YELLOW}downloading vpn application.."
+curl -L -G -H Expect: -S -o outbyte-vpn-2.1.7.tar.gz http://downloads.outbyte.com/en/outbyte-vpn/outbyte-vpn-2.1.7.tar.gz
+tar -xvzf outbyte-vpn-2.1.7.tar.gz --strip-components 1
+sed -i 's/replace/outbyte/g' lib/bin/linux/org.freedesktop.policykit.pkexec.policy
+cp lib/bin/linux/org.freedesktop.policykit.pkexec.policy /usr/share/polkit-1/actions/org.freedesktop.policykit.pkexec.outbyte.policy
+cp outbyte.desktop /usr/share/applications/outbyte.desktop
+if openvpn --version | grep -qw "2.3.*"; then
+sed -i '/ncp-ciphers AES-128-CBC:AES-256-CBC:AES-128-GCM:AES-256-GCM/d' /etc/outbyte/lib/config/default.ovpn
+sed -i '/remote-cert-tls server/d' /etc/outbyte/lib/config/default.ovpn
+fi
+chmod +x /etc/outbyte/outbyte
+echo -e "${YELLOW}Installation finished, You can open from the $brand shortcut in the menu, otherwise goto ${BLUE}/etc/${brand} and type sudo ./${brand}"
+pkexec /etc/outbyte/outbyte
+exit 0

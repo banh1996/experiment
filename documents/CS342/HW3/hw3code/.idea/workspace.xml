@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="f276147d-eee1-4067-b418-40b8ae10bd33" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/../q5/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../q5/.idea/q5.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../q6/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../q6/.idea/q6.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q4/.gradle/4.8/fileContent/fileContent.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../q4/.gradle/4.8/fileContent/fileContent.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q4/.gradle/4.8/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/../q4/.gradle/4.8/fileHashes/fileHashes.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q4/.gradle/4.8/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../q4/.gradle/4.8/fileHashes/fileHashes.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q4/.gradle/4.8/taskHistory/taskHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../q4/.gradle/4.8/taskHistory/taskHistory.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q4/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../q4/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q5/.gradle/4.8/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/../q5/.gradle/4.8/fileHashes/fileHashes.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q5/.gradle/4.8/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../q5/.gradle/4.8/fileHashes/fileHashes.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q5/.gradle/4.8/taskHistory/taskHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/../q5/.gradle/4.8/taskHistory/taskHistory.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q5/.gradle/4.8/taskHistory/taskHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../q5/.gradle/4.8/taskHistory/taskHistory.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q5/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../q5/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q5/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/../q5/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q5/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../q5/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q5/grammars/ArithLang.g" beforeDir="false" afterPath="$PROJECT_DIR$/../q5/grammars/ArithLang.g" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q5/varlang/build/generated-src/antlr/main/varlang/parser/VarLangParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/../q5/varlang/build/generated-src/antlr/main/varlang/parser/VarLangParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q5/varlang/src/main/antlr/varlang/parser/VarLang.g" beforeDir="false" afterPath="$PROJECT_DIR$/../q5/varlang/src/main/antlr/varlang/parser/VarLang.g" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q6/.gradle/4.8/fileContent/fileContent.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../q6/.gradle/4.8/fileContent/fileContent.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q6/.gradle/4.8/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/../q6/.gradle/4.8/fileHashes/fileHashes.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q6/.gradle/4.8/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../q6/.gradle/4.8/fileHashes/fileHashes.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q6/.gradle/4.8/taskHistory/taskHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/../q6/.gradle/4.8/taskHistory/taskHistory.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q6/.gradle/4.8/taskHistory/taskHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../q6/.gradle/4.8/taskHistory/taskHistory.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q6/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../q6/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q6/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/../q6/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q6/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../q6/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q6/grammars/ArithLang.g" beforeDir="false" afterPath="$PROJECT_DIR$/../q6/grammars/ArithLang.g" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q6/varlang/build/generated-src/antlr/main/varlang/parser/VarLang.tokens" beforeDir="false" afterPath="$PROJECT_DIR$/../q6/varlang/build/generated-src/antlr/main/varlang/parser/VarLang.tokens" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q6/varlang/build/generated-src/antlr/main/varlang/parser/VarLangLexer.java" beforeDir="false" afterPath="$PROJECT_DIR$/../q6/varlang/build/generated-src/antlr/main/varlang/parser/VarLangLexer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q6/varlang/build/generated-src/antlr/main/varlang/parser/VarLangLexer.tokens" beforeDir="false" afterPath="$PROJECT_DIR$/../q6/varlang/build/generated-src/antlr/main/varlang/parser/VarLangLexer.tokens" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q6/varlang/build/generated-src/antlr/main/varlang/parser/VarLangParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/../q6/varlang/build/generated-src/antlr/main/varlang/parser/VarLangParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q6/varlang/src/main/antlr/varlang/parser/VarLang.g" beforeDir="false" afterPath="$PROJECT_DIR$/../q6/varlang/src/main/antlr/varlang/parser/VarLang.g" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q6/varlang/src/main/java/varlang/AST.java" beforeDir="false" afterPath="$PROJECT_DIR$/../q6/varlang/src/main/java/varlang/AST.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q6/varlang/src/main/java/varlang/Evaluator.java" beforeDir="false" afterPath="$PROJECT_DIR$/../q6/varlang/src/main/java/varlang/Evaluator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../q6/varlang/src/main/java/varlang/Printer.java" beforeDir="false" afterPath="$PROJECT_DIR$/../q6/varlang/src/main/java/varlang/Printer.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../../.." />
+  </component>
+  <component name="ProjectId" id="1p16QNmSgNyKl6I2TUo7eu6Akbj" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="f276147d-eee1-4067-b418-40b8ae10bd33" name="Default Changelist" comment="" />
+      <created>1614338232189</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1614338232189</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+</project>
