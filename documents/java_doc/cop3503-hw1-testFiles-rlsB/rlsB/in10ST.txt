@@ -1,0 +1,5 @@
+65 77 90 120 450 500 888 990 7000 7900 
+left children: 6
+left depth: 5
+right children: 3
+right depth: 3

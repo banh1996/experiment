@@ -1,0 +1,32 @@
+d 49385: integer 49385 NOT found - NOT deleted
+d 2525: integer 2525 NOT found - NOT deleted
+d 5413: integer 5413 NOT found - NOT deleted
+d 26681: integer 26681 NOT found - NOT deleted
+d 15435: integer 15435 NOT found - NOT deleted
+d 46546: integer 46546 NOT found - NOT deleted
+d 44556: integer 44556 NOT found - NOT deleted
+d 31473: integer 31473 NOT found - NOT deleted
+d 40689: integer 40689 NOT found - NOT deleted
+d 4154: integer 4154 NOT found - NOT deleted
+d 36950: integer 36950 NOT found - NOT deleted
+d 40731: integer 40731 NOT found - NOT deleted
+d 4305: integer 4305 NOT found - NOT deleted
+d 47791: integer 47791 NOT found - NOT deleted
+d 32106: integer 32106 NOT found - NOT deleted
+d 11842: integer 11842 NOT found - NOT deleted
+d 32197: integer 32197 NOT found - NOT deleted
+d 27011: integer 27011 NOT found - NOT deleted
+d 36430: integer 36430 NOT found - NOT deleted
+d 10714: integer 10714 NOT found - NOT deleted
+d 18001: integer 18001 NOT found - NOT deleted
+d 40247: integer 40247 NOT found - NOT deleted
+d 15285: integer 15285 NOT found - NOT deleted
+d 9644: integer 9644 NOT found - NOT deleted
+d 47065: integer 47065 NOT found - NOT deleted
+d 41041: integer 41041 NOT found - NOT deleted
+d 23111: integer 23111 NOT found - NOT deleted
+d 17527: integer 17527 NOT found - NOT deleted
+left children: 43
+left depth: 11
+right children: 28
+right depth: 8

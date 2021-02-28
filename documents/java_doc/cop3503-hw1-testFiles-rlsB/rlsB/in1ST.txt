@@ -1,0 +1,5 @@
+505 
+left children: 0
+left depth: 0
+right children: 0
+right depth: 0

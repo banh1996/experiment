@@ -1,0 +1,18 @@
+in5del1srch1.txt contains:
+i 999
+i 10
+i 9
+i 4000
+i 12
+d 10
+s 4000
+s 10
+p
+q
+4000: found
+s 10: integer 10 NOT found
+ 9 12 999 4000
+left children:          2
+left depth:             2
+right children:         1
+right depth:            1

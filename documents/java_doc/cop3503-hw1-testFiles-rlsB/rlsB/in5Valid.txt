@@ -1,0 +1,13 @@
+in5.txt contains:
+i 9
+i 24
+i 3
+i 4
+i 11
+p
+q
+ 3 4 9 11 24
+left children:          2
+left depth:             2
+right children:         2
+right depth:            2

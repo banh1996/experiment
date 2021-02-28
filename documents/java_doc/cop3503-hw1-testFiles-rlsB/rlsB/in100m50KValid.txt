@@ -1,0 +1,134 @@
+in100m50K.txt contains:
+i 24564
+i 23500
+d 49385
+d 2525
+d 5413
+i 39473
+i 37650
+d 26681
+i 5126
+i 24223
+i 23250
+d 15435
+d 46546
+i 47997
+i 12853
+i 20915
+d 44556
+i 37701
+i 23289
+i 16123
+i 21764
+i 33800
+d 31473
+i 3353
+i 22597
+i 34451
+i 45845
+d 40689
+i 7230
+d 4154
+i 39610
+d 36950
+d 40731
+i 4049
+i 34985
+d 4305
+d 47791
+i 34474
+i 45295
+d 32106
+i 10208
+i 43304
+i 9281
+i 16611
+i 27855
+d 11842
+i 16425
+d 32197
+i 4515
+d 27011
+i 20289
+i 11697
+i 31601
+i 13598
+i 15179
+i 18121
+i 23770
+d 36430
+d 10714
+i 48615
+d 18001
+i 39772
+i 38081
+i 34955
+d 40247
+i 26218
+i 31702
+i 36210
+d 15285
+d 9644
+i 13379
+i 46113
+i 20581
+i 1350
+d 47065
+d 41041
+i 21742
+i 19264
+i 721
+i 10949
+i 47850
+d 23111
+i 19440
+d 17527
+i 20357
+i 33613
+i 18389
+i 15888
+i 8772
+i 44704
+i 23139
+i 9254
+i 27216
+i 3624
+i 45238
+i 20751
+i 15902
+i 8666
+i 28004
+i 23844
+q
+d 49385: integer 49385 NOT found - NOT deleted
+d 2525: integer 2525 NOT found - NOT deleted
+d 5413: integer 5413 NOT found - NOT deleted
+d 26681: integer 26681 NOT found - NOT deleted
+d 15435: integer 15435 NOT found - NOT deleted
+d 46546: integer 46546 NOT found - NOT deleted
+d 44556: integer 44556 NOT found - NOT deleted
+d 31473: integer 31473 NOT found - NOT deleted
+d 40689: integer 40689 NOT found - NOT deleted
+d 4154: integer 4154 NOT found - NOT deleted
+d 36950: integer 36950 NOT found - NOT deleted
+d 40731: integer 40731 NOT found - NOT deleted
+d 4305: integer 4305 NOT found - NOT deleted
+d 47791: integer 47791 NOT found - NOT deleted
+d 32106: integer 32106 NOT found - NOT deleted
+d 11842: integer 11842 NOT found - NOT deleted
+d 32197: integer 32197 NOT found - NOT deleted
+d 27011: integer 27011 NOT found - NOT deleted
+d 36430: integer 36430 NOT found - NOT deleted
+d 10714: integer 10714 NOT found - NOT deleted
+d 18001: integer 18001 NOT found - NOT deleted
+d 40247: integer 40247 NOT found - NOT deleted
+d 15285: integer 15285 NOT found - NOT deleted
+d 9644: integer 9644 NOT found - NOT deleted
+d 47065: integer 47065 NOT found - NOT deleted
+d 41041: integer 41041 NOT found - NOT deleted
+d 23111: integer 23111 NOT found - NOT deleted
+d 17527: integer 17527 NOT found - NOT deleted
+left children:         43
+left depth:            11
+right children:        28
+right depth:            8

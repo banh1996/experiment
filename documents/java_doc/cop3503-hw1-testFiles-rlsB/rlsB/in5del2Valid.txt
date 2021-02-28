@@ -1,0 +1,16 @@
+in5del2.txt contains:
+i 2000
+i 100
+i 5000
+i 400
+i 799
+d 100
+s 100
+p
+q
+s 100: integer 100 NOT found
+ 400 799 2000 5000
+left children:          2
+left depth:             2
+right children:         1
+right depth:            1

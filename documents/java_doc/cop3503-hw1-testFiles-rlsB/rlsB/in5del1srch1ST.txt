@@ -1,0 +1,7 @@
+4000: found
+s 10: integer 10 NOT found
+9 12 999 4000 
+left children: 2
+left depth: 2
+right children: 1
+right depth: 1

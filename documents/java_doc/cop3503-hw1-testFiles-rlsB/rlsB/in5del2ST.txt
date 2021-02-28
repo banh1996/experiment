@@ -1,0 +1,6 @@
+s 100: integer 100 NOT found
+400 799 2000 5000 
+left children: 2
+left depth: 2
+right children: 1
+right depth: 1

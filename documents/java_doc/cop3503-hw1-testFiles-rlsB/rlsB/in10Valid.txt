@@ -1,0 +1,18 @@
+in10.txt contains:
+i 888
+i 77
+i 90
+i 990
+i 120
+i 450
+i 7900
+i 7000
+i 500
+i 65
+p
+q
+ 65 77 90 120 450 500 888 990 7000 7900
+left children:          6
+left depth:             5
+right children:         3
+right depth:            3
