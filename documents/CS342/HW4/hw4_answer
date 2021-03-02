@@ -1,0 +1,12 @@
+1.
+(define faraday 96454.56)
+(define n 5)
+(define coulomb (* faraday n))
+coulomb
+
+2.
+(define gcd (lambda (a b) (if (> a b) (gcd (- a b) b) (if (< a b) (gcd (- b a) a) a))))
+
+3.
+a. (define len (lambda (lst) (if (null? lst) 0 (+ 1 (len (cdr lst))))))
+b. 

@@ -4,34 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d44019b5-d52f-4020-99f3-d98a95079926" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../../HW3.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../q4/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../q4/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../q4/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../q4/.gradle/buildOutputCleanup/cache.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../q4/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../q4/varlang/bin/main/varlang/parser/VarLang.g" beforeDir="false" afterPath="$PROJECT_DIR$/../q4/varlang/bin/main/varlang/parser/VarLang.g" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/4.6/fileChanges/last-build.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/4.6/fileHashes/fileHashes.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/4.6/fileHashes/fileHashes.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/4.6/fileHashes/resourceHashesCache.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/4.6/taskHistory/taskHistory.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/4.6/taskHistory/taskHistory.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/varlang/.settings/org.eclipse.jdt.core.prefs" beforeDir="false" afterPath="$PROJECT_DIR$/varlang/.settings/org.eclipse.jdt.core.prefs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/varlang/bin/main/varlang/parser/VarLang.g" beforeDir="false" afterPath="$PROJECT_DIR$/varlang/bin/main/varlang/parser/VarLang.g" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/varlang/bin/main/varlang/parser/VarLang.tokens" beforeDir="false" afterPath="$PROJECT_DIR$/varlang/bin/main/varlang/parser/VarLang.tokens" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/varlang/bin/main/varlang/parser/VarLangLexer.tokens" beforeDir="false" afterPath="$PROJECT_DIR$/varlang/bin/main/varlang/parser/VarLangLexer.tokens" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../q6/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../q6/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../q6/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../q6/.gradle/buildOutputCleanup/cache.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../q6/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../hw0-framework-setup/tutorial/.gradle/4.8.1/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/../../hw0-framework-setup/tutorial/.gradle/4.8.1/fileHashes/fileHashes.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../hw0-framework-setup/tutorial/.gradle/4.8.1/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../../hw0-framework-setup/tutorial/.gradle/4.8.1/fileHashes/fileHashes.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../java_doc/cop3503-hw1-testData.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../java_doc/cop3503-sp21-hw01.pdf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../java_bin_tree/main.java" beforeDir="false" />
-    </list>
+    <list default="true" id="d44019b5-d52f-4020-99f3-d98a95079926" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
