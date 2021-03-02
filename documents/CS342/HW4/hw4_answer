@@ -9,4 +9,6 @@ coulomb
 
 3.
 a. (define len (lambda (lst) (if (null? lst) 0 (+ 1 (len (cdr lst))))))
-b. 
+b. (define count (lambda (n lst) ( if (null? lst) 0 ( if (= (car lst ) n) (+ 1 (count n (cdr lst))) (count n (cdr lst))))))
+
+(define unique (lambda (lst) (if (null? lst) lst (if (null? (cdr lst)) lst (if (= (count (car lst) (cdr lst)) 0) (cons (car lst) (unique (cdr lst))) (unique (cdr lst)))))))
