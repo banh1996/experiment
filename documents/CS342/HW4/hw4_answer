@@ -2,13 +2,35 @@
 (define faraday 96454.56)
 (define n 5)
 (define coulomb (* faraday n))
-coulomb
 
 2.
 (define gcd (lambda (a b) (if (> a b) (gcd (- a b) b) (if (< a b) (gcd (- b a) a) a))))
 
 3.
 a. (define len (lambda (lst) (if (null? lst) 0 (+ 1 (len (cdr lst))))))
-b. (define count (lambda (n lst) ( if (null? lst) 0 ( if (= (car lst ) n) (+ 1 (count n (cdr lst))) (count n (cdr lst))))))
 
-(define unique (lambda (lst) (if (null? lst) lst (if (null? (cdr lst)) lst (if (= (count (car lst) (cdr lst)) 0) (cons (car lst) (unique (cdr lst))) (unique (cdr lst)))))))
+b. (define count (lambda (n lst) (if (null? lst) 0 (if (= (car lst ) n) (+ 1 (count n (cdr lst))) (count n (cdr lst))))))
+   (define unique (lambda (lst) (if (null? lst) lst (if (null? (cdr lst)) lst (if (= (count (car lst) (cdr lst)) 0) (cons (car lst) (unique (cdr lst))) (unique (cdr lst)))))))
+
+c. (define setpair (lambda (lst) (if (null? (cdr (car lst))) (list (list (car (car lst)) (car (car (cdr lst))))) (cons (list (car (car lst)) (car (car (cdr lst)))) (setpair (list (cdr (car lst)) (cdr (car (cdr lst)))))))))
+   (define pairup (lambda (lst1 lst2) (if (null? lst1) (list) (if (= (len (unique lst1)) (len (unique lst2))) (setpair (list lst1 lst2)) (list)))))
+
+4.
+a. (define authorandtitle (list (cons "C. S. Lewis" "The Last Battle") (cons "Charles Dickens" "A Christmas Carol") (cons "Arthur C. Clarke" "Rama")))
+b. (define getbooks (lambda (lst) (if (null? lst) lst (cons (cdr (car lst)) (getbooks (cdr lst))))))
+
+5.
+a. apair is a pair of (2, 3), equivalent function "(lambda ( op ) (if op fst snd))"
+if pass #t parameter (apair #t), then return first value (2),
+if pass #f parameter (apair #f), then return second value (3).
+
+b. (define pair (lambda (fst snd) (lambda (op) (if (= op 0) (+ fst snd) (if (= op 1) (- fst snd) (if (= op 2) (* fst snd) (if (= op 3) (/ fst snd) 0)))))))
+
+c. (define equivalent (lambda (p) (if (= (p 1) 0) "equivalent" "NOT equivalent")))
+
+6.
+a. (define list1 (list (cons 1 3) (cons 4 2) (cons 5 6)))
+   (define list2 (list (cons 2 6) (cons 4 2) (cons 1 3)))
+
+b. (define add (lambda (p) (p 0)))
+   (define processlists (lambda (op lst1 lst2) (if (null? (cdr lst1)) (op (car lst1) (car lst2 )) (list op (processlists (cdr lst1) (cdr lst2))))))
