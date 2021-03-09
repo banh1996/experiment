@@ -55,3 +55,4 @@ dkms.conf
 cscope.*
 
 *.swp
+.gradle/*
