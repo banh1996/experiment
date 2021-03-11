@@ -94,6 +94,12 @@ public class Heap<E extends Comparable<? super E>>
   // Moves the last element up to the proper place so that the heap property holds.
   private void percolateUp()
   {
+    int parent = (list.size() - 2)/2, child = list.size() - 1;
+    while (parent >= 0 && list.get(child).compareTo(list.get(parent)) > 0) {
+      swap(parent, child);
+      child = parent;
+      parent = (parent - 1)/2;
+    }
   }
 
   // Swaps the elements at the parent and child indexes.
@@ -116,6 +122,7 @@ public class Heap<E extends Comparable<? super E>>
   // If the size of the heap is less than 2, it throws new NoSuchElementException().
   public  E getLastInternal()
   {
+    return list.get((list.size() - 2)/2);
   }
 
   public E removeMin()
@@ -135,6 +142,7 @@ public class Heap<E extends Comparable<? super E>>
   // If the size of the heap is less than 2, it throws new NoSuchElementException().
   public void trimEveryLeaf()
   {
+
   }
 
   // TODO: O(log n)
@@ -143,6 +151,12 @@ public class Heap<E extends Comparable<? super E>>
   {
     if ( start < 0 || start >= list.size() )
       throw new RuntimeException("start < 0 or >= n");
+    while (start >= (list.size() - 2)/2) {
+      int leftChild = 2*start + 1;
+      int rightChild = 2*start + 2;
+
+      if ()
+    }
   }
 
   // Shows the tree used to implement the heap with the root element at the leftmost column
