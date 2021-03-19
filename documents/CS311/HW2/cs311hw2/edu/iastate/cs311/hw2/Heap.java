@@ -95,7 +95,7 @@ public class Heap<E extends Comparable<? super E>>
   private void percolateUp()
   {
     int parent = (list.size() - 2)/2, child = list.size() - 1;
-    while (parent >= 0 && list.get(child).compareTo(list.get(parent)) > 0) {
+    while (list.size() >= 2 && parent >= 0 && list.get(child).compareTo(list.get(parent)) < 0) {
       swap(parent, child);
       child = parent;
       parent = (parent - 1)/2;
@@ -122,6 +122,8 @@ public class Heap<E extends Comparable<? super E>>
   // If the size of the heap is less than 2, it throws new NoSuchElementException().
   public  E getLastInternal()
   {
+    if ( list.size() < 2)
+      throw new NoSuchElementException();
     return list.get((list.size() - 2)/2);
   }
 
@@ -142,7 +144,14 @@ public class Heap<E extends Comparable<? super E>>
   // If the size of the heap is less than 2, it throws new NoSuchElementException().
   public void trimEveryLeaf()
   {
-
+    if ( list.size() < 2)
+      throw new NoSuchElementException();
+    int lastleaf = list.size()-1, lastinternalNode = (list.size() - 2)/2;
+    for (int i = lastleaf; i > lastinternalNode; i--)
+    {
+      //removeMin();
+      list.remove( list.size() - 1 );
+    }
   }
 
   // TODO: O(log n)
@@ -151,11 +160,39 @@ public class Heap<E extends Comparable<? super E>>
   {
     if ( start < 0 || start >= list.size() )
       throw new RuntimeException("start < 0 or >= n");
-    while (start >= (list.size() - 2)/2) {
+    while (list.size() >= 2 && start <= (list.size() - 2)/2)// start not a leaf
+    {
       int leftChild = 2*start + 1;
       int rightChild = 2*start + 2;
 
-      if ()
+      if (rightChild < list.size())//start has 2 children
+      {
+        if (list.get(start).compareTo(list.get(leftChild)) <= 0 && list.get(start).compareTo(list.get(rightChild)) <= 0)
+          break; //start in proper place
+        else
+        {
+          if (list.get(leftChild).compareTo(list.get(rightChild)) < 0)
+          {
+            swap(start, leftChild);
+            start = leftChild;
+          }
+          else
+          {
+            swap(start, rightChild);
+            start = rightChild;
+          }
+        }
+      }
+      else // start has 1 child
+      {
+        if (list.get(start).compareTo(list.get(leftChild)) <= 0)
+          break; //start in proper place
+        else
+        {
+          swap(start, leftChild);
+          start = leftChild;
+        }
+      }
     }
   }
 
