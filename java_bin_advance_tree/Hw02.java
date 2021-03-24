@@ -30,14 +30,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.FileWriter;
 import java.util.Scanner;
-import java.util.Arrays;
-import java.util.ArrayList; 
 import java.util.List;
 import java.util.LinkedList;
 import java.util.Random;
 
 class Hw02 {
-    private int is_deleted, level=0;
+    private int is_deleted, level=1;
     private Random generator;
     private Column head = null;
     private Column tail = null;
@@ -49,9 +47,6 @@ class Hw02 {
             this.value = _v;
             this.nodes = new LinkedList<>();
         }
-        // add(Node n) {
-        //     this.nodes.add(n);
-        // }
     }
 
     public class Node {
@@ -64,7 +59,7 @@ class Hw02 {
     }
 
     @SuppressWarnings("unchecked")
-    public Hw02(String input_name, char _R) {
+    public Hw02(String input_name, String _R) {
         try {
             File input_file = new File(input_name);
             Scanner reader = new Scanner(input_file);
@@ -73,10 +68,21 @@ class Hw02 {
             Node root_node = null, node = null;
             long seed = 42;
 
-            if (_R == 0x72 || _R == 0x52) {
+            System.out.println("For the input file named " + input_name);
+            if (_R == null) {
+                System.out.println("With the RNG unseeded,");
+            }
+            else if (_R.charAt(0) == 0x72 || _R.charAt(0) == 0x52) {
                 seed = System.currentTimeMillis();
             }
             generator = new Random(seed);
+
+            head = new Column(0);
+            tail = new Column(0);
+            for(int i = 0; i < level; i++) {
+                head.nodes.add(new Node(null, tail));
+                tail.nodes.add(new Node(head, null));
+            }
 
 			while (reader.hasNextLine()) {
 				line = reader.nextLine();
@@ -99,11 +105,16 @@ class Hw02 {
                     is_deleted = 0;
                     delete(Integer.parseInt(splited[1]));
                     if (is_deleted == 0) {
-                        System.out.println("d " + Integer.parseInt(splited[1]) + ": integer " + Integer.parseInt(splited[1]) + " NOT found - NOT deleted");
+                        System.out.println(Integer.parseInt(splited[1]) + " integer not found - delete not successful");
+                    }
+                    else {
+                        System.out.println(Integer.parseInt(splited[1]) + " deleted");
                     }
                 }
                 else if (splited[0].equals("p")) {
+                    System.out.println("the current Skip List is shown below:\n" + "---infinity");
                     print_skip_list(head);
+                    System.out.println("+++infinity\n" + "---End of Skip List---");
                 }
                 else if (splited[0].equals("s")) {
                     if (splited.length < 2) {
@@ -113,7 +124,7 @@ class Hw02 {
                     if(search(Integer.parseInt(splited[1])) == 1)
                         System.out.println(Integer.parseInt(splited[1]) + ": found");
                     else
-                        System.out.println("s " + Integer.parseInt(splited[1]) + ": integer " + Integer.parseInt(splited[1]) + " NOT found");
+                        System.out.println(Integer.parseInt(splited[1]) + " NOT FOUND");
                 }
                 else if (splited[0].equals("q")) {
 			        reader.close();
@@ -137,7 +148,12 @@ class Hw02 {
         Column inserted_column = new Column(value);
         inserted_column.nodes.add(new Node(null, null));
 
-        while(inserted_column.nodes.size() < level && generator.nextInt()%2 == 1) {
+        while(generator.nextInt()%2 == 1) {
+            if (inserted_column.nodes.size() == level) {
+                level++;
+                head.nodes.add(new Node(null, tail));
+                tail.nodes.add(new Node(head, null));
+            }
             inserted_column.nodes.add(new Node(null, null));
         }
 
@@ -154,7 +170,6 @@ class Hw02 {
                 inserted_column.nodes.get(_level).next_col = next_iter;
             }
         }
-        level += 1;
     }
 
     public int empty() {
@@ -165,7 +180,7 @@ class Hw02 {
         Column del_column = lower_bound(value);
         if(del_column == tail || del_column.value != value)
             return;
-
+        is_deleted = 1;
         Column iter = head;
         for(int _level = level - 1; _level >= 0; _level--) {
             while(iter.nodes.get(_level).next_col != tail && iter.nodes.get(_level).next_col.value <= value) {
@@ -217,17 +232,21 @@ class Hw02 {
     public void print_skip_list(Column iter) {
         if (iter == null)
             return;
+        if (iter != head && iter != tail) {
+            for (int i = 0; i < iter.nodes.size(); i++)
+                System.out.print(iter.value + "; ");
+            System.out.println();
+        }
         print_skip_list(iter.nodes.get(0).next_col);
-        for (int i = 0; i < iter.nodes.size(); i++)
-            System.out.print(iter.value + " ");
-        System.out.println();
+
     }
 
     public static void main(String[] args) {
         if (args[0] == null) {
             System.err.printf("error");
-            return ;
+            return;
         }
-        Hw02 g = new Hw02(args[0], (char)0);
+
+        Hw02 g = new Hw02(args[0], (args.length == 1)?null:args[1]);
     }
 }
