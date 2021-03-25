@@ -1,244 +1,266 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
+#include <sys/time.h>
+#include <signal.h>
 #include <unistd.h>
+#include <curses.h>
 #include <termios.h>
 
-void refresh(int posL, int ballPosX, int ballPosY, int moveUp, int moveDown, int moveRight, int moveLeft, int posR, int MinusY, int PlusY, int MinusX, int PlusX){
-	usleep(100000); //microseconds
-	int i,j;
-	
-	system("@cls||clear");
-	
-	for(i=0;i<=31;i++){
-		for(j=0;j<=70;j++){
-			//Add left bar
-			if(i==posL-2 || i==posL-1 || i==posL || i==posL+1 || i==posL+2){
-				if(j==0)
-					printf("*");
-			}
-			//Check if second bar is at the same row with the ball
-			if(i!=ballPosY){
-				if(i==posR-2 || i==posR-1 || i==posR || i==posR+1 || i==posR+2){
-					if(j==65){
-						printf("*");
-					}
-					else{
-						printf(" ");
-					}
-					if(i==posL-2 || i==posL-1 || i==posL || i==posL+1 || i==posL+2){
-						if(j==2)
-							printf("\b");
-					}
-				}
-			}
-			else if(i==ballPosY){
-				if(i==posR-2 || i==posR-1 || i==posR || i==posR+1 || i==posR+2){
-					if(j<ballPosX){
-						printf(" ");
-					}
-					else if(j>ballPosX){
-						if(j<65)
-							printf(" ");
-						else if(j==65)
-							printf("*");
-					}
-					else if(j==ballPosX){
-						printf("*");
-					}
-					if(i==posL-2 || i==posL-1 || i==posL || i==posL+1 || i==posL+2){
-						if(j==ballPosX+1)
-							printf("\b");
-					}
-				}
-				else{
-					if(j==ballPosX)
-						printf("*");
-					else
-						printf(" ");
-				}
-			}
-			
-			if(i==31){
-				printf("-");
-			}
-/*			if(i==ballPosY && j==ballPosX){
-				if(i==posL-1 || i==posL || i==posL+1)
-					printf("\b%c",'*');
-				else
-					printf("%c",'*');
-			}
-			else
-				printf("%c", ' ');
-*/		}
-		printf("\n");
-	}
-	if(ballPosX<=0)
-		printf("Left Player Lost.");
-	else if(ballPosX>=65)
-		printf("Right Player Lost.");
-	//MOVEMENT
-	if(moveUp){
-		ballPosY=ballPosY-MinusY;
-	}
-	else if(moveDown){
-		ballPosY=ballPosY+PlusY;
-	}
-	if(moveRight){
-		ballPosX=ballPosX+PlusX;
-	}
-	else if(moveLeft){
-		ballPosX=ballPosX-MinusX;
-	}
-	
-	if(ballPosY==0 || ballPosY==1){
-		moveUp=0;
-		moveDown=1;
-	}
-	else if(ballPosY==28 || ballPosY == 29){
-		moveUp=1;
-		moveDown=0;
-	}
-	
-	if(ballPosX<=2 && (posL==ballPosY-2 || posL==ballPosY-1 || posL==ballPosY || posL==ballPosY+1 || posL==ballPosY+2)){
-		moveLeft = 0;
-		moveRight = 1;
-		if(posL==ballPosY-2){
-			MinusY = 2;
-			PlusY = 2;
-			
-			moveUp = 0;
-			moveDown = 1;
-		}
-		else if(posL==ballPosY-1){
-			MinusY = 1;
-			PlusY = 1;
-			
-			moveUp = 0;
-			moveDown = 1;
-		}
-		else if(posL==ballPosY){
-			MinusY = 0;
-			PlusY = 0;
-			
-			moveUp = 0;
-			moveDown = 0;
-		}
-		else if(posL==ballPosY+1){
-			MinusY = 1;
-			PlusY = 1;
-			
-			moveUp = 1;
-			moveDown = 0;
-		}
-		else if(posL==ballPosY+2){
-			MinusY = 2;
-			PlusY = 2;
-			
-			moveUp = 1;
-			moveDown = 0;
-		}
-	}
-	if(ballPosX>=62 && (posR==ballPosY-2 || posR==ballPosY-1 || posR==ballPosY || posR==ballPosY+1 || posR==ballPosY+2)){
-		moveLeft = 1;
-		moveRight = 0;
-		if(posR==ballPosY-2){
-			MinusY = 2;
-			PlusY = 2;
-			
-			moveUp = 0;
-			moveDown = 1;
-		}
-		else if(posR==ballPosY-1){
-			MinusY = 1;
-			PlusY = 1;
-			
-			moveUp = 0;
-			moveDown = 1;
-		}
-		else if(posR==ballPosY){
-			MinusY = 0;
-			PlusY = 0;
-			
-			moveUp = 0;
-			moveDown = 0;
-		}
-		else if(posR==ballPosY+1){
-			MinusY = 1;
-			PlusY = 1;
-			
-			moveUp = 1;
-			moveDown = 0;
-		}
-		else if(posR==ballPosY+2){
-			MinusY = 2;
-			PlusY = 2;
-			
-			moveUp = 1;
-			moveDown = 0;
-		}
-	}
-	printf("%d %d", ballPosX, ballPosY);
-	//END OF MOVEMENT
-	while(!kbhit()){
-		refresh(posL, ballPosX, ballPosY, moveUp, moveDown, moveRight, moveLeft, posR, MinusY, PlusY, MinusX, PlusX);
-	}
-	int ch = getch();
-	if(ch==97){
-		if(posL>2)
-			posL-=1;
-	}
-	else if(ch==115){
-		if(posL>2)
-			posL-=2;
-	}
-	else if(ch==122){
-		if(posL<27)
-			posL+=1;
-	}
-	else if(ch==120){
-		if(posL<27)
-			posL+=2;
-	}
-	if(ch==39){
-		if(posR>2)
-			posR-=1;
-	}
-	else if(ch==59){
-		if(posR>2)
-			posR-=2;
-	}
-	else if(ch==46){
-		if(posR<27)
-			posR+=2;
-	}
-	else if(ch==47){
-		if(posR<27)
-			posR+=1;
-	}
-//	printf("%d",ch);
-	refresh(posL, ballPosX, ballPosY, moveUp, moveDown, moveRight, moveLeft, posR, MinusY, PlusY, MinusX, PlusX);
+#define MAX_NUM_BALL_DIR 	4
+#define OFFSET_X 			3
+#define OFFSET_Y 			6
+#define PADDEL_LEN 			4
+#define BALL_SYM			"O"
+#define PADDLE_SYM			"#"
+
+typedef enum eDir
+{
+	STOP = 0,
+	UPLEFT = 1,
+	DOWNLEFT = 2,
+	UPRIGHT = 3,
+	DOWNRIGHT = 4,
+	LEFT = 5,
+	RIGHT = 6,
+	DOWN = 7,
+	UP = 8
+} eDir;
+
+typedef struct ball_t
+{
+	eDir dir;
+	int x, y;
+} ball_t;
+
+typedef struct paddle_t
+{
+	eDir dir;
+	int x, y;
+} paddle_t;
+
+typedef struct wall_t
+{
+	int offset_x, offset_y, len_x, len_y;
+	uint64_t clk;
+} wall_t;
+
+static ball_t g_ball;
+static paddle_t g_paddle;
+static wall_t g_wall;
+static int g_ball_left = 3;
+
+static uint64_t get_time_stamp()
+{
+    struct timeval tv;
+    gettimeofday(&tv,NULL);
+    return tv.tv_sec*(uint64_t)1000000+tv.tv_usec;
 }
 
-int main(int argc, char** argv){
-	char pixels[30][70];
-	int posL; //2-27
-	int posR; //2-27
-	int ballPosX;
-	int ballPosY;
-	
-	posL = 2;
-	posR = 2;
-	ballPosX = 16;
-	ballPosY = 26;
-	
-	char c;
-	printf("Type s and press enter to begin.\n\n\n");
-	printf("Controls:\n\n");
-	printf("Left Player:\t\tRight Player:\n");
-	printf("Up: a, Down: z\t\tUp: \', Down: /\n\n");
-	while((c=getchar())!='s'){
-		
+static eDir random_direction(void)
+{
+	return (eDir)((rand()%MAX_NUM_BALL_DIR) + 1);
+}
+
+static void move_paddle(paddle_t *p_paddle)
+{
+	switch (p_paddle->dir)
+	{
+		case DOWN:
+			if (p_paddle->x+PADDEL_LEN < g_wall.offset_x + g_wall.len_x)
+			{
+				mvprintw(p_paddle->x, p_paddle->y, " ");
+				p_paddle->x++;
+				mvprintw(p_paddle->x+PADDEL_LEN-1, p_paddle->y, PADDLE_SYM);
+			}
+			break;
+		case UP:
+			if (p_paddle->x > g_wall.offset_x+1)
+			{
+				mvprintw(p_paddle->x+PADDEL_LEN-1, p_paddle->y, " ");
+				p_paddle->x--;
+				mvprintw(p_paddle->x, p_paddle->y, PADDLE_SYM);
+			}
+			break;
+		default:
+			break;
 	}
-	refresh(posL, ballPosX, ballPosY, 1,0,0,1, posR, 1, 1, 1, 1);
+	p_paddle->dir = STOP;
+	refresh();
+}
+
+static void move_ball(ball_t *p_ball)
+{
+	mvprintw(p_ball->x, p_ball->y, " ");
+	/* for hide the input key */
+	if (p_ball->y+2 == g_wall.offset_y + g_wall.len_y)
+		mvprintw(p_ball->x, p_ball->y+1, PADDLE_SYM);
+	else
+		mvprintw(p_ball->x, p_ball->y+1, " ");
+	switch (p_ball->dir)
+	{
+		case STOP:
+			break;
+		case UPLEFT:
+			p_ball->y--; p_ball->x--;
+			break;
+		case DOWNLEFT:
+			p_ball->y--; p_ball->x++;
+			break;
+		case UPRIGHT:
+			p_ball->y++; p_ball->x--;
+			break;
+		case DOWNRIGHT:
+			p_ball->y++; p_ball->x++;
+			break;
+		default:
+			break;
+	}
+	mvprintw(p_ball->x, p_ball->y, BALL_SYM);
+	refresh();
+}
+
+static void draw_map(int x, int y)
+{
+	/* draw status */
+	char temp_str[50];
+	move(OFFSET_X, OFFSET_Y);
+	memset(temp_str, 0 ,sizeof(temp_str));
+	sprintf(temp_str, "BALLS LEFT: %d", g_ball_left);
+	addstr(temp_str);
+	move(OFFSET_X, OFFSET_Y + 15);
+	memset(temp_str, 0 ,sizeof(temp_str));
+	sprintf(temp_str, "TOTAL TIME: %ld", (get_time_stamp()-g_wall.clk)/1000000);
+	addstr(temp_str);
+
+	/* draw map */
+	g_wall.offset_x = OFFSET_X+1;
+	g_wall.offset_y = OFFSET_Y;
+	g_wall.len_x = x;
+	g_wall.len_y = y;
+	move(OFFSET_X+1, OFFSET_Y);
+	for (int i = 0; i < y; i++)
+		addstr("-");
+	for (int i = 1; i <= x; i++)
+	{
+		move(OFFSET_X+1+i, OFFSET_Y);
+		addstr("|");
+	}
+	move(OFFSET_X+1+x, OFFSET_Y);
+	for (int i = 0; i < y; i++)
+		addstr("-");
+	//mvprintw(g_wall.offset_x + g_wall.len_x, g_wall.offset_y + g_wall.len_y, "&");
+
+	/* draw paddle */
+	g_paddle.x = OFFSET_X+x/2;
+	g_paddle.y = OFFSET_Y+y-1;
+	g_paddle.dir = STOP;
+	for (int i = 0; i < PADDEL_LEN; i++)
+	{
+		move(g_paddle.x+i, g_paddle.y);
+		addstr(PADDLE_SYM);
+	}
+
+	/* draw ball */
+	g_ball.x = OFFSET_X+1+x/2;
+	g_ball.y = OFFSET_Y+y/2;
+	g_ball.dir = random_direction();
+	mvprintw(g_ball.x, g_ball.y, BALL_SYM);
+	refresh();
+}
+
+static int game_rules(ball_t *p_ball,
+					  paddle_t *p_paddle,
+					  wall_t *p_wall)
+{
+	/* ball reaches to bottom wall */
+	if (p_ball->x+1 >= p_wall->offset_x + p_wall->len_x)
+	{
+		if (p_ball->dir == DOWNLEFT)
+			p_ball->dir = UPLEFT;
+		if (p_ball->dir == DOWNRIGHT)
+			p_ball->dir = UPRIGHT;
+	}
+
+	/* ball reaches to top wall */
+	if (p_ball->x-1 <= p_wall->offset_x)
+	{
+		if (p_ball->dir == UPLEFT)
+			p_ball->dir = DOWNLEFT;
+		if (p_ball->dir == UPRIGHT)
+			p_ball->dir = DOWNRIGHT;
+	}
+
+	/* ball reaches to left wall */
+	if (p_ball->y-1 <= p_wall->offset_y)
+	{
+		if (p_ball->dir == UPLEFT)
+			p_ball->dir = UPRIGHT;
+		if (p_ball->dir == DOWNLEFT)
+			p_ball->dir = DOWNRIGHT;
+	}
+
+	/* ball reaches to paddle */
+	if (p_ball->y+2 >= p_wall->offset_y + p_wall->len_y)
+	{
+		if (p_ball->x >= p_paddle->x && p_ball->x < p_paddle->x + PADDEL_LEN)
+		{
+			if (p_ball->dir == DOWNRIGHT)
+				p_ball->dir = DOWNLEFT;
+			if (p_ball->dir == UPRIGHT)
+				p_ball->dir = UPLEFT;
+		}
+		//p_ball->dir = STOP;
+	}
+
+	/* ball out of court */
+	if (p_ball->y >= p_wall->offset_y + p_wall->len_y)
+		return 0;
+	return 1;
+}
+
+void main()
+{
+	srand(getpid());
+	initscr();
+	timeout(0);
+	clear();
+	g_wall.clk = get_time_stamp();
+	draw_map(20, 60);
+	while (1) {
+		if (!game_rules(&g_ball, &g_paddle, &g_wall))
+		{
+			g_ball_left--;
+			if (g_ball_left == 0)
+				break;
+			clear();
+			draw_map(20, 60);
+		}
+		move_ball(&g_ball);
+		char c = getch();
+		if (c == 'k')
+		{
+			g_paddle.dir = UP;
+			move_paddle(&g_paddle);
+		}
+		else if (c == 'm')
+		{
+			g_paddle.dir = DOWN;
+			move_paddle(&g_paddle);
+		}
+
+		char temp_str[10];
+		move(OFFSET_X, OFFSET_Y + 27);
+		addstr("        ");
+		move(OFFSET_X, OFFSET_Y + 27);
+		memset(temp_str, 0, sizeof(temp_str));
+		uint64_t temp_time = (get_time_stamp()-g_wall.clk)/1000000;
+		sprintf(temp_str, "%ld:%ld", temp_time/60, temp_time%60);
+		addstr(temp_str);
+
+		usleep(70000);
+	}
+	mvprintw(g_wall.offset_x + g_wall.len_x/2, g_wall.offset_y + g_wall.len_y/2, "YOU LOSE");
+ 	endwin();
 }
