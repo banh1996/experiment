@@ -1,0 +1,8 @@
+1.
+a. (define find_help (lambda (n lst) (if (null? lst) 0 (if (= (car lst) n) 1 (find_help (n (cdr lst)))))
+   (define find (lambda (n lst) (if (null? lst) list (if (= (find_help (n (car lst))) 1) (find (n (cdr lst))) (cons (car lst) (find (n (cdr lst))))))
+
+b. (define appendtwostring (lambda (lst1 lst2) (if (null? lst1) lst2 (if (null? lst2) lst1 (cons (car lst1) (append (cdr lst1) lst2))))))
+   (define append (lambda (lst) (if (null? lst) list (append (cons (appendtwostring (car lst) (car (cdr lst)))))
+   
+2. 
