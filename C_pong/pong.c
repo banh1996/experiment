@@ -8,12 +8,14 @@
 #include <curses.h>
 #include <termios.h>
 
+#define LIFE_NUM			3
 #define MAX_NUM_BALL_DIR 	4
 #define OFFSET_X 			3
 #define OFFSET_Y 			6
 #define PADDEL_LEN 			4
 #define BALL_SYM			"O"
 #define PADDLE_SYM			"#"
+#define MIN_SPEED			1000
 
 typedef enum eDir
 {
@@ -49,7 +51,6 @@ typedef struct wall_t
 static ball_t g_ball;
 static paddle_t g_paddle;
 static wall_t g_wall;
-static int g_ball_left = 3;
 
 static uint64_t get_time_stamp()
 {
@@ -93,7 +94,7 @@ static void move_paddle(paddle_t *p_paddle)
 static void move_ball(ball_t *p_ball)
 {
 	mvprintw(p_ball->x, p_ball->y, " ");
-	/* for hide the input key */
+	/* hide the input key */
 	if (p_ball->y+2 == g_wall.offset_y + g_wall.len_y)
 		mvprintw(p_ball->x, p_ball->y+1, PADDLE_SYM);
 	else
@@ -121,13 +122,13 @@ static void move_ball(ball_t *p_ball)
 	refresh();
 }
 
-static void draw_map(int x, int y)
+static void draw_map(int x, int y, int ball_left)
 {
 	/* draw status */
 	char temp_str[50];
 	move(OFFSET_X, OFFSET_Y);
 	memset(temp_str, 0 ,sizeof(temp_str));
-	sprintf(temp_str, "BALLS LEFT: %d", g_ball_left);
+	sprintf(temp_str, "BALLS LEFT: %d", ball_left);
 	addstr(temp_str);
 	move(OFFSET_X, OFFSET_Y + 15);
 	memset(temp_str, 0 ,sizeof(temp_str));
@@ -167,12 +168,13 @@ static void draw_map(int x, int y)
 	g_ball.y = OFFSET_Y+y/2;
 	g_ball.dir = random_direction();
 	mvprintw(g_ball.x, g_ball.y, BALL_SYM);
-	refresh();
+	//refresh();
 }
 
 static int game_rules(ball_t *p_ball,
 					  paddle_t *p_paddle,
-					  wall_t *p_wall)
+					  wall_t *p_wall,
+					  int is_reached_paddle)
 {
 	/* ball reaches to bottom wall */
 	if (p_ball->x+1 >= p_wall->offset_x + p_wall->len_x)
@@ -202,7 +204,8 @@ static int game_rules(ball_t *p_ball,
 	}
 
 	/* ball reaches to paddle */
-	if (p_ball->y+2 >= p_wall->offset_y + p_wall->len_y)
+	if (p_ball->y+2 >= p_wall->offset_y + p_wall->len_y &&
+		is_reached_paddle == 0)
 	{
 		if (p_ball->x >= p_paddle->x && p_ball->x < p_paddle->x + PADDEL_LEN)
 		{
@@ -211,6 +214,7 @@ static int game_rules(ball_t *p_ball,
 			if (p_ball->dir == UPRIGHT)
 				p_ball->dir = UPLEFT;
 		}
+		return 2;
 		//p_ball->dir = STOP;
 	}
 
@@ -220,25 +224,45 @@ static int game_rules(ball_t *p_ball,
 	return 1;
 }
 
-void main()
+int main(void)
 {
+	int ball_left = LIFE_NUM, ret = 0, is_reached_paddle = 0;
+	uint32_t speed, count = 0;
+	char temp_str[10], c;
+
 	srand(getpid());
+	speed = rand()%100 + MIN_SPEED;
 	initscr();
 	timeout(0);
 	clear();
 	g_wall.clk = get_time_stamp();
-	draw_map(20, 60);
-	while (1) {
-		if (!game_rules(&g_ball, &g_paddle, &g_wall))
+	draw_map(20, 60, ball_left);
+	while (1)
+	{
+		ret = game_rules(&g_ball, &g_paddle, &g_wall, is_reached_paddle);
+		if (ret == 0)
 		{
-			g_ball_left--;
-			if (g_ball_left == 0)
+			ball_left--;
+			if (ball_left == 0)
 				break;
 			clear();
-			draw_map(20, 60);
+			draw_map(20, 60, ball_left);
+			speed = rand()%100 + MIN_SPEED;
 		}
-		move_ball(&g_ball);
-		char c = getch();
+		else if (ret == 2)
+		{
+			if (speed > 10)
+				speed -= rand()%10;
+			is_reached_paddle = 1;
+		}
+
+		if (count >= speed)
+		{
+			move_ball(&g_ball);
+			count = 0;
+			is_reached_paddle = 0;
+		}
+		c = getch();
 		if (c == 'k')
 		{
 			g_paddle.dir = UP;
@@ -249,8 +273,10 @@ void main()
 			g_paddle.dir = DOWN;
 			move_paddle(&g_paddle);
 		}
+		else if (c == 'Q')
+			break;
 
-		char temp_str[10];
+		/* show time status */
 		move(OFFSET_X, OFFSET_Y + 27);
 		addstr("        ");
 		move(OFFSET_X, OFFSET_Y + 27);
@@ -259,8 +285,10 @@ void main()
 		sprintf(temp_str, "%ld:%ld", temp_time/60, temp_time%60);
 		addstr(temp_str);
 
-		usleep(70000);
+		count++;
+		usleep(10);
 	}
 	mvprintw(g_wall.offset_x + g_wall.len_x/2, g_wall.offset_y + g_wall.len_y/2, "YOU LOSE");
  	endwin();
+	return 0;
 }

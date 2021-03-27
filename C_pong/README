@@ -1,0 +1,14 @@
+Dependencies: curses library
+    sudo apt-get install libncurses5-dev
+
+build:
+    make
+
+Special Topic: Race Condition
+    To draw ball, paddle or time at the same time, I used count variable as speed.
+    In my source code, delay 10us and count (about 1000-1200), so the speed is 10*count (us),
+    time clock in my code is 10us. each clock, program executes functions such as move_paddle, check keyboard input, print,....
+    And after 10*count clock, program executes move_ball funtion and resets count.
+
+Special Topic: Elaspsed Time Clock
+    every clock, program prints the time, be sure clock tick is less than 1s.
