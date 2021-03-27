@@ -396,8 +396,8 @@ public interface AST {
 			_case_exp = case_exp; 
 			_default_exp = default_exp; 
 		}
-		public Exp case_exp() { return _then_exp; }
-		public Exp default_exp() { return _else_exp; }
+		public Exp case_exp() { return _case_exp; }
+		public Exp default_exp() { return _default_exp; }
 		public String name() { return _name; }
 		
 		public Object accept(Visitor visitor, Env env) {
@@ -408,7 +408,7 @@ public interface AST {
 	public static class CaseExp extends Exp {
 		double _val;
 		Exp _result;
-		public CaseExp(double val, Exp _result){
+		public CaseExp(double val, Exp result){
 			_result = result;
 			_val = val;
 		}

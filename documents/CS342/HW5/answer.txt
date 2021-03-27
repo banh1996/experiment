@@ -10,4 +10,5 @@ b. (define appendtwostring (lambda (lst1 lst2) (if (null? lst1) lst2 (if (null? 
    (define findx (lambda (n lst) (if (null? lst) (list) (if (= (find_help n (car lst)) 1) (cons (delete_help n (car lst)) (cdr lst)) (cons (delete_help n (car lst)) (findx n (cdr lst)))))))
    (define sort (lambda (lst) (if (null? (cdr (car lst))) (car (car lst)) (cons (sort (findx (max (append lst)) lst)) (max (append lst))))))
    
-2. 
+2. (define triangle_help (lambda (n) (if (= 0 n) (list) (cons 0 (triangle_help (- n 1))))))
+   (define triangle (lambda (n) (if (= 0 n) (list) (cons (triangle_help n) (triangle (-n 1))))))

@@ -21,7 +21,7 @@ import ArithLang; //Import all rules from Arithlang grammar.
  		id=Identifier { $ast = new VarExp($id.text); }
  		;
 
- letexp  returns [LetExp ast] 
+ letexp  returns [LetExp ast]
         locals [ArrayList<String> names, ArrayList<Exp> value_exps]
  		@init { $names = new ArrayList<String>(); $value_exps = new ArrayList<Exp>(); } :
  		'(' Let 

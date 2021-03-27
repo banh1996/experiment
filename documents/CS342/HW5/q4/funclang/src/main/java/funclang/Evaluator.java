@@ -170,38 +170,34 @@ public class Evaluator implements Visitor<Value> {
 
 	@Override
 	public Value visit(SwitchExp e, Env env) {
-		Object result = e.case_exp().accept(this, env);
-		if(!(result instanceof Value.BoolVal))
+		Object result_obj = e.case_exp().accept(this, env);
+		Object default_obj = e.default_exp().accept(this, env);
+		if(!(result_obj instanceof Value.PairVal))
 			return new Value.DynamicError("error");
-		Value.BoolVal condition = (Value.BoolVal) result; //Dynamic checking
+		if(!(default_obj instanceof Value.PairVal))
+			return new Value.DynamicError("error");
 
-		if(condition.v())
-			return (Value) e.case_exp().accept(this, env);
-		else return (Value) e.default_exp().accept(this, env);
+		// Value.PairVal case_v = (Value.PairVal) result_obj;
+		// Value.NumVal fst_val = (Value.NumVal)case_v.fst();
+		// Value.NumVal snd_val = (Value.NumVal)case_v.snd();
+		// if((Value.NumVal)case_v.fst())
+		// 	return (Value) e.case_exp().accept(this, env);
+		// else return (Value) e.default_exp().accept(this, env);
 
+		Value.NumVal df =  (Value.NumVal) default_obj;
 
-
-		String name = e.name();
-		Exp case_exp = e.case_exp();
-		Exp default_exp = e.default_exp();
-
-		if (e.body().accept())
-
-		return (Value) e.body().accept(this, new_env);
+		return (Value) df;
 	}
 
 	@Override
 	public Value visit(CaseExp e, Env env) {
-		double value = e.val();
-		Exp result = e.result();
-		for(Exp exp : value_exps)
-			values.add((Value)exp.accept(this, env));
+		// Value.NumVal val = (Value.NumVal) e.val();
+		// Value.NumVal result = (Value.NumVal) e.result().accept(this, env);
+		// return new Value.PairVal(val, result);
 
-		Env new_env = env;
-		for (int index = 0; index < names.size(); index++)
-			new_env = new ExtendEnv(new_env, names.get(index), values.get(index));
-
-		return (Value) e.body().accept(this, new_env);
+		// Value.NumVal first = (Value.NumVal) e.val().accept(this, env);
+		// Value.NumVal second = (Value.NumVal) e.result().accept(this, env);
+		return (Value) e.result().accept(this, env);
 	}
 
 	@Override

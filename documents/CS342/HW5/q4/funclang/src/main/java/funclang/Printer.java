@@ -175,6 +175,18 @@ public class Printer {
 			result += e.arg().accept(this, env);
 			return result + ")";
 		}
+
+		public String visit(AST.CaseExp e, Env env) {
+			String result = "(case ";
+			result += e.result().accept(this, env) + " ";
+			return result + ")";
+		}
+
+		public String visit(AST.SwitchExp e, Env env) {
+			String result = "(switch ";
+			result += e.default_exp().accept(this, env) + " ";
+			return result + ")";
+		}
 		
 	}
 }
