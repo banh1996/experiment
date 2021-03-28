@@ -173,8 +173,7 @@ static void draw_map(int x, int y, int ball_left)
 
 static int game_rules(ball_t *p_ball,
 					  paddle_t *p_paddle,
-					  wall_t *p_wall,
-					  int is_reached_paddle)
+					  wall_t *p_wall)
 {
 	/* ball reaches to bottom wall */
 	if (p_ball->x+1 >= p_wall->offset_x + p_wall->len_x)
@@ -204,8 +203,7 @@ static int game_rules(ball_t *p_ball,
 	}
 
 	/* ball reaches to paddle */
-	if (p_ball->y+2 >= p_wall->offset_y + p_wall->len_y &&
-		is_reached_paddle == 0)
+	if (p_ball->y+2 >= p_wall->offset_y + p_wall->len_y)
 	{
 		if (p_ball->x >= p_paddle->x && p_ball->x < p_paddle->x + PADDEL_LEN)
 		{
@@ -226,7 +224,7 @@ static int game_rules(ball_t *p_ball,
 
 int main(void)
 {
-	int ball_left = LIFE_NUM, ret = 0, is_reached_paddle = 0;
+	int ball_left = LIFE_NUM, ret = 0;
 	uint32_t speed, count = 0;
 	char temp_str[10], c;
 
@@ -239,28 +237,25 @@ int main(void)
 	draw_map(20, 60, ball_left);
 	while (1)
 	{
-		ret = game_rules(&g_ball, &g_paddle, &g_wall, is_reached_paddle);
-		if (ret == 0)
+		if (count >= speed) //tick to move ball and check the rules
 		{
-			ball_left--;
-			if (ball_left == 0)
-				break;
-			clear();
-			draw_map(20, 60, ball_left);
-			speed = rand()%100 + MIN_SPEED;
-		}
-		else if (ret == 2)
-		{
-			if (speed > 10)
-				speed -= rand()%10;
-			is_reached_paddle = 1;
-		}
-
-		if (count >= speed)
-		{
+			ret = game_rules(&g_ball, &g_paddle, &g_wall);
+			if (ret == 0)
+			{
+				ball_left--;
+				if (ball_left == 0)
+					break;
+				clear();
+				draw_map(20, 60, ball_left);
+				speed = rand()%100 + MIN_SPEED;
+			}
+			else if (ret == 2)
+			{
+				if (speed > 25)
+					speed -= (rand()%15 + 10);
+			}
 			move_ball(&g_ball);
 			count = 0;
-			is_reached_paddle = 0;
 		}
 		c = getch();
 		if (c == 'k')

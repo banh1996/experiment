@@ -1,0 +1,46 @@
+Struct:
+    eDir: STOP, UPLEFT, DOWNLEFT, UPRIGHT, DOWNRIGHT, DOWN, UP
+    
+    ball_t:
+    {
+        eDir dir;
+        int x, y; //coordinates
+    }
+
+    paddle_t:
+    {
+        eDir dir;
+        int x, y; //coordinates
+    }
+
+    wall_t:
+    {
+        int offset_x, offset_y, len_x, len_y; //coordinates and length of wall
+        uint64_t clk; //save the start time
+    }
+
+Flow:
+    loop:
+        if count >= speed
+            check game_rules (ball reaches wall, paddle, out of court)
+            increase speed if ball reaches paddle
+            move_ball (direct)
+        check keyboard input
+        if (input = k/m)
+            move paddle (direct)
+        if (input = Q)
+            quit
+        display current time
+        increase count by 1
+        sleep 10us
+
+Special Topic: Race Condition
+    To draw ball, paddle or time at the same time, I used count variable as speed.
+    In my source code, delay 10us and count (about 1000-1200), so the speed is 10*count (us),
+    time clock in my code is 10us. each clock, program executes functions such as move_paddle, check keyboard input, print,....
+    And after 10*count clock, program executes move_ball funtion and resets count.
+
+Special Topic: Elaspsed Time Clock
+    every clock, program prints the time, make sure clock tick is less than 1s(In my case is 10us).
+    So, the display time will be updated every 10 microsecond.
+
