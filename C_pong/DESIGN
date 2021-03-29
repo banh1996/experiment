@@ -21,9 +21,9 @@ Struct:
 
 Flow:
     loop:
+        check game_rules (ball reaches wall, paddle, out of court)
+        increase speed if ball reaches paddle
         if count >= speed
-            check game_rules (ball reaches wall, paddle, out of court)
-            increase speed if ball reaches paddle
             move_ball (direct)
         check keyboard input
         if (input = k/m)
