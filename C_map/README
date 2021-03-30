@@ -1,0 +1,3 @@
+inputfile: treasuremap.txt
+build: make
+run: ./proj5.o

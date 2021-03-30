@@ -3,97 +3,80 @@
 
 using namespace std;
 
-int main()
+TreasureMap::TreasureMap(std::ifstream &file)
 {
-    return 0;
-}
-int input()
-{
-    fstream f;
-    f.open("treasuremap.txt", ios::in);
-    string data;
-    string line;
-    while (!f.eof())
+    if (file.is_open())
     {
-        getline(f, line);
-        data += line;
-    }
-    f.close();
-    cout<< data;
-}
-int Row_Col(int row, int column)
-{
-    ifstream f1;
-    char c;
-    int numlines = 0;
-    f1.get(c);
-    while(f1)
-    {
-        while(numlines == 2)
-        {
-            numlines = numlines ++;
-            f1.get(c);
-        }
-    }
-}
-void PrintMap()
-{
-    int row=1;
-    int column=1;
-    fstream f;
-    f.open("treasuremap.txt", ios::out);
-    char b;
-    
-}
-void FindTreasure(int, int, bool&)
-{
-    int row, column;
-    bool a;
-    char c;
-    input();
-    fstream f;
-    f.get(c);
-    int numchars = 0;
-    int numlines = 0;
-    while (f)
-    {
-        while (f && c != '\n');
-        {
-            numchars = numchars + 1;
-            f.get(c);
-        }
-        numlines = numlines + 1;
-        f.get(c);
-    }
-    row = numlines;
-    column = numchars;
-    if(c == 'T')
-    printf("Treasure Found!");
-}
-void getMove(char c)
-{
-    
-}
-bool SolveTreasure(char Treasure[N][N], int x, int y, char sol[N][N]);
-void PrintSolve(char sol[N][N])
-{
-    for(int i=0;i<N;i++)
-    {
-        for(int j=0;j<N;j++)
-        printf(" %d ", sol[i][j]);
-        printf("\n");   
-    }
-}
-bool isSafe(char Treasure[N][N], int x, int y)
-{
-    if(x>=0 && x<N && y>=0 && y<N && Treasure[x][y] == 'L')
-    return true;
-    return false;
-}
-bool SolveTreasure(char Treasure[N][N])
-{
-    char sol[N][N] =
-    {input()}
-};
+        int count = 0;
+        std::getline(file, xplor);
+        std::string line;
+        std::getline(file, line,' ');
+        maxRows = std::stoi(line);
+        std::getline(file, line, '\n');
+        maxCols = std::stoi(line);
 
+        for (int i = 0; i < maxRows; i++)
+            for (int j = 0; j < maxCols; j++)
+                tmap[i][j] = 'X';
+
+        while (count < maxRows && std::getline(file, line))
+        {
+            for (int i = 0; i < maxCols; i++)
+                tmap[count + 1][i + 1] = line.at(i);
+            count++;
+        }
+        file.close();
+    }
+}
+
+void TreasureMap::PrintMap()
+{
+    cout<<"Current map:"<<endl;
+    for (int i = 0; i < maxRows; i++)
+    {
+        for (int j = 0; j < maxCols; j++)
+            cout<<" "<<tmap[i+1][j+1];
+        cout<<endl;
+    }
+}
+
+void TreasureMap::FindTreasure(int x, int y, bool &is_treasure)
+{
+    if (tmap[x][y] == 'L') //right move
+    {
+        cout<<"Searching "<<x<<","<<y<<endl;
+        tmap[x][y] = '*';
+        TreasureMap::PrintMap();
+        is_treasure = false;
+        for (int i = 0; i < 4; i++)
+        {
+            FindTreasure(x + getMove(xplor.at(i)).first,
+                         y + getMove(xplor.at(i)).second,
+                         is_treasure);
+        }
+    }
+    else if (tmap[x][y] == 'T') //found treasure
+    {
+        cout<<"Searching "<<x<<","<<y<<endl;
+        is_treasure = true;
+    }
+}
+
+std::pair<int,int> TreasureMap::getMove(char c)
+{
+    switch (c)
+    {
+        case '1':
+            return std::make_pair(-1, -1);
+        case '2':
+            return std::make_pair(-1, 1);
+        case '3':
+            return std::make_pair(1, 1);
+        case '4':
+            return std::make_pair(1, -1);
+        default:
+            break;
+    }
+    return std::make_pair(0, 0);
+}
 
