@@ -1,0 +1,28 @@
+1.
+Input: n: number of floors
+       b1...bk: interger values - b array, set k is the length of b
+       i, j: travel from i to j => need to move (j-i) floors - set a is (j - i)
+
+Solve:
+
+call elevator(j - i)
+
+function elevator(int a):
+    shortest_values[i] = infinity
+    shortest_values[0] = 0
+
+    if a < 0
+        a = -a
+        values[0..k] = -b[0..k]
+    else
+        values[0..k] = b[0..k]
+
+    For i = 1 to a
+        For j = 0 to k
+            if (values[j] <= i and shortest_values[i-values[j]]+1 < shortest_values[i])
+                shortest_values[i] = shortest_values[i-values[j]]+1
+
+    return shortest_values[a]
+
+
+2.
