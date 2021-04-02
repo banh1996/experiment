@@ -8,7 +8,7 @@ Solve:
 call elevator(j - i)
 
 function elevator(int a):
-    shortest_values[i] = infinity
+    shortest_values[1..a] = infinity
     shortest_values[0] = 0
 
     if a < 0
@@ -26,3 +26,10 @@ function elevator(int a):
 
 
 2.
+Input: n: green cookies
+       m: red cookies
+
+Solve:
+
+function cookie_game:
+/* check if red cookies can win */

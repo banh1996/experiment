@@ -20,10 +20,52 @@ c. (((λ(x)(x x))(λ(y) y)) x)
   (((λ(x)(x x)) g) x)
 = ((g g) x)
 = (((λ(y) y) (λ(y) y)) x)
-= (x x)
+= ((λ(y) y) x)
+= x
 
 2. ((λ(x) p)((λ(y)(y y))(λ(z)(z z))))
   Let (λ(y)(y y)) = g and (λ(z)(z z)) = v
   ((λ(x) p)(g v))
+= (g v)
+= ((λ(y)(y y)) v)
+= (v v)
+= ((λ(z)(z z)) (λ(z)(z z)))
+= ((λ(z)(z z)) (λ(z)(z z)))
+= ...
 
+3.
+a. ((ite (not a)) false ((ite (not b)) false true))
+b. ((ite (not a)) true ((ite b) true false))
 
+4.
+a. ((λ(z)((one f) z)) (succ zero))
+= ((one f) (succ zero))
+= ((one f) one)
+= (f one)
+
+b. unknown: (λ(x)(λ(y)(λ(z) z))) and g: (λ(n)((n unknown) true))
+  i. (g zero)
+     = (λ(n)((n unknown) true) zero)
+     = ((zero unknown) true)
+     = true
+  ii. (g one)
+     = (λ(n)((n unknown) true) one)
+     = ((one unknown) true)
+     = (unknown true)
+     = ((λ(x)(λ(y)(λ(z) z))) true)
+     = (λ(y)(λ(z) z))
+  iii. (g two)
+     = (λ(n)((n unknown) true) two)
+     = ((two unknown) true)
+     = (unknown (unknown true))
+     = (unknown (λ(y)(λ(z) z)))
+     = ((λ(x)(λ(y)(λ(z) z))) (λ(y)(λ(z) z)))
+     = (λ(y)(λ(z) z))
+  iv. (λ(y)(λ(z) z))
+
+5.
+a. (op1 ((data a) b))
+   = (λ(p) (p (λ(x) (λ(y) x))))
+
+   (data a) = ((λ(x) (λ(y) (λ(z) ((z x) y)))) a)
+            = (λ(y) (λ(z) ((z a) y)))
