@@ -1,9 +1,10 @@
 1.
 Input: n: number of floors
        b1...bk: interger values - b array, set k is the length of b
-       i, j: travel from i to j => need to move (j-i) floors - set a is (j - i)
+       i, j: travel from i to j => need to move (j-i) floors.
 
 Solve:
+The problem becomes to find the shortest sequence of numbers in array b that sums equal to number j-i.
 
 call elevator(j - i)
 
@@ -22,14 +23,67 @@ function elevator(int a):
             if (values[j] <= i and shortest_values[i-values[j]]+1 < shortest_values[i])
                 shortest_values[i] = shortest_values[i-values[j]]+1
 
-    return shortest_values[a]
+    if shortest_values[a] != infinity
+        return shortest_values[a]
+    return "NO"
 
+time complexity is O(n*k)
 
 2.
 Input: n: green cookies
        m: red cookies
+move1: eat 1 green, 2 red.
+move2: eat 2 green, 1 red.
 
 Solve:
+init array L to log every step is the best move.
+There are green and red cookies, so let L is 2-dimension array.
 
-function cookie_game:
-/* check if red cookies can win */
+function cookie_game(int gc, int rc): //gc: green cookies, rc: red cookies
+    init L[0..gc][0..rc]
+    L[0][..] = 0
+    L[..][0] = 0 // 0 is right move, 1 is bad move
+    L[1][1] = 0
+    /* check if red cookies can win */
+    for i = 1..gc
+        for j = 1..rc
+            if i == 1 and j > 1
+                L[i][j] = 1 //bad move
+            else if i > 1 and j == 1
+                L[i][j] = 1 //bad move
+            else if (i > 1 and j > 1)
+                L[i][j] = !(L[i-1][j-2] and L[i-2][j-1]) //if step i-1,j-2 or i-2,j-1 is right move, then step i,j is bad move
+    return L[gc][rc] // 0 Riley can lose, 1 Riley absolutely wins if make right move (to stage 0)
+
+Now, find the best move
+function best_move(int gc, int rc)
+
+Example: player will try to reach the stage 0 to make a right move.
+right/bad move table for 6x6: (1 is bad, 0 is right)
+
+         green
+      0 1 2 3 4 5 6
+    0 0 0 0 0 0 0 0
+    1 0 0 1 1 1 1 1
+red 2 0 1 1 1 1 1 1
+    3 0 1 1 0 0 0 0
+    4 0 1 1 0 0 1 1
+    5 0 1 1 0 1 1 1
+    6 0 1 1 0 1 1 0
+
+Runtime: O(n*m)
+
+
+3.
+input sequences: X[0..m-1] and Y[0..n-1].
+let L be the length of longest common subsequence of X and Y
+Let X[i0..i1], Y[j0..j1] is substring of X&Y, where X[i0],X[i1],Y[j0],Y[j1] is the character belongs Γ-constrained or 0 or m-1, n-1.
+To find L(X[0..m-1],Y[0..n-1]), need to find L(X[i0..i1],Y[i0..i1]), L(X[i2..i3],Y[i2..i3])
+then L(X[0..m-1],Y[0..n-1]) = sum(L(X[i0..i1],Y[i0..i1]), L(X[i2..i3],Y[i2..i3]), ...)
+So, The problem has optimal substructure properties.
+
+4.
+it's true that an edge incident to v with the least weight always belongs to some minimum spanning tree of G.
+Consider a circle that has vertex v in the tree, there are many ways to build a spanning tree by removing the circle,
+To make the tree's minimum, we should remove the largest weight edge but still keep the tree is connected,
+so continue removing like that, the minimun weight edge incidents to v can't be removed.

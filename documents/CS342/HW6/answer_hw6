@@ -1,37 +1,31 @@
 1.
 a. (((λ(x)(λ(y)(x y)))((λ(a) a) a))((λ(b) b) b))
-  Let ((λ(a) a) a) = g and ((λ(b) b) b) = v
-  (((λ(x)(λ(y)(x y))) g) v)
-= ((λ(y)(g y)) v)
-= (g v)
-= (((λ(a) a) a) v)
-= (v a)
-= (((λ(b) b) b) a)
-= (a b)
+  = (((λ(x)(λ(y)(x y))) a) b)
+  = ((λ(y)(a y)) b)
+  = (a b)
 
 b. (((λ(x)(λ(y)(y)))((λ(z) z) a)) b)
-  Let ((λ(z) z) a) = g
-  (((λ(x)(λ(y)(y))) g) b)
-= ((λ(y)(y)) b)
-= b
+  = (((λ(x)(λ(y)(y))) a) b)
+  = ((λ(y)(y)) b)
+  = b
 
 c. (((λ(x)(x x))(λ(y) y)) x)
   Let (λ(y) y) = g
   (((λ(x)(x x)) g) x)
-= ((g g) x)
-= (((λ(y) y) (λ(y) y)) x)
-= ((λ(y) y) x)
-= x
+  = ((g g) x)
+  = (((λ(y) y) (λ(y) y)) x)
+  = ((λ(y) y) x)
+  = x
 
 2. ((λ(x) p)((λ(y)(y y))(λ(z)(z z))))
   Let (λ(y)(y y)) = g and (λ(z)(z z)) = v
   ((λ(x) p)(g v))
-= (g v)
-= ((λ(y)(y y)) v)
-= (v v)
-= ((λ(z)(z z)) (λ(z)(z z)))
-= ((λ(z)(z z)) (λ(z)(z z)))
-= ...
+  = (g v)
+  = ((λ(y)(y y)) v)
+  = (v v)
+  = ((λ(z)(z z)) (λ(z)(z z)))
+  = ((λ(z)(z z)) (λ(z)(z z)))
+  = ...
 
 3.
 a. ((ite (not a)) false ((ite (not b)) false true))
@@ -39,9 +33,10 @@ b. ((ite (not a)) true ((ite b) true false))
 
 4.
 a. ((λ(z)((one f) z)) (succ zero))
-= ((one f) (succ zero))
-= ((one f) one)
-= (f one)
+  = ((one f) (succ zero))
+  = ((one f) one)
+  = (f one)
+This function will apply f on one.
 
 b. unknown: (λ(x)(λ(y)(λ(z) z))) and g: (λ(n)((n unknown) true))
   i. (g zero)
@@ -54,6 +49,7 @@ b. unknown: (λ(x)(λ(y)(λ(z) z))) and g: (λ(n)((n unknown) true))
      = (unknown true)
      = ((λ(x)(λ(y)(λ(z) z))) true)
      = (λ(y)(λ(z) z))
+     => It will be always false
   iii. (g two)
      = (λ(n)((n unknown) true) two)
      = ((two unknown) true)
@@ -61,11 +57,26 @@ b. unknown: (λ(x)(λ(y)(λ(z) z))) and g: (λ(n)((n unknown) true))
      = (unknown (λ(y)(λ(z) z)))
      = ((λ(x)(λ(y)(λ(z) z))) (λ(y)(λ(z) z)))
      = (λ(y)(λ(z) z))
-  iv. (λ(y)(λ(z) z))
+     => the same result above, false.
+  iv. (= n zero)
 
 5.
 a. (op1 ((data a) b))
-   = (λ(p) (p (λ(x) (λ(y) x))))
 
-   (data a) = ((λ(x) (λ(y) (λ(z) ((z x) y)))) a)
-            = (λ(y) (λ(z) ((z a) y)))
+  ((data a) b) = (((λ(x) (λ(y) (λ(z) ((z x) y)))) a) b)
+               = ((λ(y) (λ(z) ((z x) y))) b)
+               = (λ(z) ((z x) b))
+
+  (op1 ((data a) b)) = ((λ(p) (p (λ(x) (λ(y) x)))) (λ(z) ((z x) b)))
+                     = ((λ(z) ((z x) b)) (λ(x) (λ(y) x)))
+                     = (((λ(x) (λ(y) x)) x) b)
+                     = ((λ(y) x) b)
+
+b. (op2 ((data a) b)) = ((λ(p) (p (λ(x) (λ(y) y)))) (λ(z) ((z x) b)))
+                      = ((λ(z) ((z x) b)) (λ(x) (λ(y) y)))
+                      = (((λ(x) (λ(y) y)) x) b)
+                      = ((λ(y) y) b)
+                      = b
+
+c. op1 check if y=b then return true, else return false
+   op2 return b
