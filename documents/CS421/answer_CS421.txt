@@ -1,0 +1,90 @@
+1.
+a. The completion time and arrival time processes can impact to on average turnaround time.
+   Typically, RR achieves higher average turnaround time than SJF, but better response time.
+   With MLFQ: MLFQ runs a process for a time quantum and then it can change its priority.
+   time quantum impacts to turnaround time.
+   MLFQ tries to run shorter process first thus optimizing turnaround time.
+   With SRTF: The burst and arrival time can impact to average turnaround time.
+
+b. With MLFQ: it can be low average waiting time when job lengths vary widely or have similar lengths.
+   With SRTF: it can minimize average waiting time better, the worst case occurs when some processes burst time is too long.
+
+c. NO. In the MLFQ process can move between the queues.
+   MLFQ keeps analyzing the behavior (time of execution) of processes and according to which it changes its priority.
+   But with SRTF, it's difficult to predict burst time, so I can't implement SRTF succesfully.
+
+2. 
+a. No process can win, Process A and B will be executed alternately, so variable i can't increase to 2 or decrease to -2.
+   Then No process can win.
+b. Process B can't win because no signal in B, so two processes will wait forever.
+c. In this case, maybe process B can win because it doesn't take time to execute wait&signal systemcall like process A,
+   So process can execute i=i-1 pretty quicky than process A.
+d.
+Process B:
+wait(mutex);
+while (i > -10)
+{
+    i = i - 1;
+}
+signal(mutex);
+printf("B wins");
+
+With code above, process B absolutely wins because process A can't continue until process B out of the loop.
+
+3.
+a. available_resources
+b. race condition occurs at line "if (available_resources < count)", "available_resources -= count;" and "available_resources += count;"
+   For example, if decrease_count function is called, process executed line "if (available_resources < count)" and going to execute "available_resources -= count;"
+   But at that time, in another process call increase_count function, then change available_resources variable before executing "available_resources -= count;", so the race condition occurred.
+c. 
+/* decrease available resources by count resources */
+/* return 0 if sufficient resources available, */
+/* otherwise return -1 */
+int decrease_count(int count) {
+    wait(semaphore);
+    if (available_resources < count) {
+        signal(semaphore);
+        return -1;
+    }
+    else {
+        available_resources -= count;
+        signal(semaphore);
+        return 0;
+    }
+}
+
+/* increase available_resources by count */
+int increase_count(int count) {
+    wait(semaphore);
+    available_resources += count;
+    signal(semaphore);
+    return 0;
+}
+
+Init the semaphore with count 1, then the available_resources variable can't be access by multiple processes at the same time.
+
+4.
+a. mutual exclusion: holds as only one car can occupy a space in the roadway.
+   hold and wait: car holds onto their place in the roadway while they wait to advance in the roadway.
+   no preemption: car cannot be removed from its position in the roadway.
+   bridge wait: easily to see, cars in the opposite direction waiting for each other on the bridge.
+
+b. A simple rule for avoiding deadlocks is set up a traffic jar in SectionLeft and SectionRight.
+   At the same time, only allow cars from one Section on bridge.
+
+5.
+a. matrix Need:
+   P0: 0 0 0 0
+   P1: 0 7 5 0
+   P2: 1 0 0 2
+   P3: 0 0 2 0
+   P4: 0 6 4 2
+
+b. Yes, with Available (1 5 2 0), P0 and P3 can run.
+   If P3 runs, it releases resources that allow all remain processes can run.
+   Total resources: 3 14 10 3
+   a safe sequence:
+   P0 -> P3 -> P1 -> P2 -> P4
+
+c. Yes, it can. Available(1 5 2 0) - P1(0 4 2 0) = Available(1 1 0 0)
+   the safe sequence can be: P1 -> P0 -> P3 -> P2 -> P4
