@@ -230,15 +230,16 @@ class Hw02 {
     }
 
     public void print_skip_list(Column iter) {
-        if (iter == null)
-            return;
-        if (iter != head && iter != tail) {
-            for (int i = 0; i < iter.nodes.size(); i++)
-                System.out.print(iter.value + "; ");
-            System.out.println();
+        while (true) {
+            if (iter == null)
+                return;
+            if (iter != head && iter != tail) {
+                for (int i = 0; i < iter.nodes.size(); i++)
+                    System.out.print(iter.value + "; ");
+                System.out.println();
+            }
+            iter = iter.nodes.get(0).next_col;
         }
-        print_skip_list(iter.nodes.get(0).next_col);
-
     }
 
     public static void main(String[] args) {
