@@ -1,14 +1,11 @@
 1.
 a. (let ((class ( ref 342))) (let ((course class)) (deref course)))
     342
-
-b. (define pairNode (lambda (fst snd) (lambda (op) (if op fst snd))))
-   (define node (lambda (x) (pairNode x (ref (list)))))
-   (define getFst (lambda (p) (p #t)))
-   (define getSnd (lambda (p) (p #f)))
+b.
    i.
    A. (define treeNode (lambda (fst snd) (lambda (op) (if op fst snd))))
-   B. (define node (lambda (x) (treeNode x (ref (list)))))
-   C. (define getFst (lambda (p) (p #t)))
-      (define getSnd (lambda (p) (p #f)))
-      (define value (lambda (x) ()
+   B. (define node (lambda (x) (treeNode x (treeNode (ref (list)) (ref (list))))))
+   C. (define value (lambda (p) (p #t)))
+   D. (define left (lambda (p) ((p #f) #t)))
+      (define right (lambda (p) ((p #f) #f)))
+   ii. (define add (lambda (p op c) (if op (set! (left p) c) (set! (right p) c))))

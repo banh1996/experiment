@@ -114,8 +114,10 @@ public class Evaluator implements Visitor<Value> {
 			values.add((Value)exp.accept(this, env));
 
 		Env new_env = env;
-		for (int index = 0; index < names.size(); index++)
+		for (int index = 0; index < names.size(); index++) {
+			System.out.println("Alias created : " + names.get(index) + " class ref value " + values.get(index).tostring());
 			new_env = new ExtendEnv(new_env, names.get(index), values.get(index));
+		}
 
 		return (Value) e.body().accept(this, new_env);
 	}
@@ -126,6 +128,7 @@ public class Evaluator implements Visitor<Value> {
 		Exp value_exp = e.value_exp();
 		Value value = (Value) value_exp.accept(this, env);
 		((GlobalEnv) initEnv).extend(name, value);
+		System.out.println("Alias created : " + e.name() + " class ref value " + value.tostring());
 		return new Value.UnitVal();
 	}
 
