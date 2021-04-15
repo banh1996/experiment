@@ -1,0 +1,64 @@
+1.
+
+
+
+2. Prove that P is closed under the star operation by dynamic programming.
+
+    Let A ∈ P. We want to show that A* ∈ P. Since A ∈ P there exists a deterministic Turing machine MA
+with time complexity O(n^k) for some k ≥ 0.
+    We now build, using MA, a deterministic decider for A* and show that its time complexity is bounded
+by a polynomial. The central observation in our construction is that w ∈ A* if and only if one of the
+following conditions is true
+• w = ε, or
+• w ∈ A, or
+• ∃u, v : w = uv and u ∈ A* and v ∈ A*
+
+    In the decider described below we let wi,j denote the substring of w = w1w2 . . . wn starting with wi
+and ending with wj . The decider builds a table where table(i, j) = true if wi,j ∈ A*. We do this by considering
+all substrings of w starting with substrings of length 1 and ending with the substring of length n.
+
+On input w = w1, w2 . . . wn:
+1. If w = ε then accept, else
+2. For l := 1 to n
+3.    For i := 1 to n − (l − 1)
+4.       j := i + l − 1
+5.       Run MA on wi,j
+6.          If MA accepts wi,j then table(i, j) := true
+7.          Else
+8.             For k := i to j − 1
+9.                If table(i, k) = true and table(k + 1, j) = true
+10.               then table(i, j) := true
+11. If table(1, n) = true then accept, else reject
+
+    We now analyze the complexity of our decider. The algorithm uses three nested loops, each of which
+can be traversed at most O(n) times. In the second loop we run MA on an input of length at most n, so the
+total time is at most O(n).O(n).(O(n^k) + O(n)) = O(n^(2+(max(k,1)))) steps, which is polynomial in n.
+
+
+3. A triangle in an undirected graph G is defined to be a 3-clique (i.e., three vertices in G
+that are pairwise connected by edges) and 3-ANGLE := {<G> | G contains a triangle .
+Prove that 3-ANGLE ∈ P.
+
+    Let G = (V, E) be a graph with a set V of vertices and a set E of edges.
+We enumerate all triples (u, v, w) with vertices u, v, w ∈ V and u < v < w, and then
+check whether or not all three edges (u, v), (v, w) and (u, w) exist in E. Enumeration
+of all triples requires O(|V|^3) time. Checking whether or not all three edges belong
+to E takes O(|E|) time. Thus, the overall time is O(|V|^3 |E|), which is polynomial
+in the length of the input hGi. Therefore, TRIANGLE ∈ P
+
+4. Prove that if P = NP, then we can factor integers in polynomial time.
+
+Consider the language:
+    L = {<n, a, b>|n has a factor p in the range a <= p <= b}
+• L is obviously in NP, since the factor can serve as the certificate.
+• Since we’re assuming P=NP, there is a polynomial algorithm that decides
+the above language.
+• Repeated applications of the algorithm allow us to divide our search space
+in half each time by asking "Is there a factor in the range (a, a + b/2)?"
+If there isn’t we know there is a factor in the other range.
+• The total number of times we have to apply the algorithm is equal to lg n,
+or in other words O(k) if k is the number of bits of n. So a polynomial
+number of applications of this algorithm allows us to isolate one factor.
+• Since there are at most O(k) factors as well (the maximum number of
+factors occuring when n is simply a product of 2s), we can find all the
+factors in polynomial time.
