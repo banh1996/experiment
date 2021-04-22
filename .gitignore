@@ -56,3 +56,5 @@ cscope.*
 
 *.swp
 .gradle/*
+
+.vscode/
