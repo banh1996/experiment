@@ -1,8 +1,8 @@
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.FileWriter;
-import java.util.Scanner;
+// import java.io.File;
+// import java.io.FileNotFoundException;
+// import java.io.IOException;
+// import java.io.FileWriter;
+// import java.util.Scanner;
 
 class MergeSort {
     void merge(int arr[], int l, int m, int r) {
@@ -48,14 +48,14 @@ class MergeSort {
         }
     }
 
-    int find_subarray(int arr[], int l, int r) {
-        int m = l;
-        if (l < r) {
-            if (arr[l] <= arr[l+1]) {
+    int find_subarray(int arr[], int left, int right) {
+        int medium = left;
+        if (left < right) {
+            if (arr[left] <= arr[left+1]) {
                 /* non-decreasing */
-                for (int i = l; i < r; i++) {
+                for (int i = left; i < right; i++) {
                     if (arr[i] <= arr[i+1]) {
-                        m = i+1;
+                        medium = i+1;
                     }
                     else
                         break;
@@ -63,23 +63,23 @@ class MergeSort {
             }
             else {
                 /* decreasing */
-                for (int i = l; i < r; i++) {
+                for (int i = left; i < right; i++) {
                     if (arr[i] > arr[i+1]) {
-                        m = i+1;
+                        medium = i+1;
                     }
                     else
                         break;
                 }
 
                 /* Reverse */
-                for (int i = l; i < l + (m-l+1)/2; i++) {
+                for (int i = left; i < left + (medium-left+1)/2; i++) {
                     int temp = arr[i];
-                    arr[i] = arr[m-i+l];
-                    arr[m-i+l] = temp;
+                    arr[i] = arr[medium-i+left];
+                    arr[medium-i+left] = temp;
                 }
             }
         }
-        return m;
+        return medium;
     }
 
     void sort(int arr[], int first, int last) {
@@ -104,7 +104,6 @@ class MergeSort {
     }
 
     public static void main(String args[]) {
-        //int arr[] = { 12, 11, 13, 5, 6, 7 };
         int arr[] = { 2, 3, 6, 1, 9, 7, 5, 4 };
  
         System.out.println("Given Array");
