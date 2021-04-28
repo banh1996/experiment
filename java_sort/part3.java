@@ -12,37 +12,41 @@ class BinSearch {
     }
 
     public void binary_search(int arr[], int ind[], int range[]) {
-        int startIndex = 0, midIndex, tempIndex;
-        int endIndex = arr.length - 1;
+        int start = 0, mid, tempIndex;
+        int end = arr.length - 1;
         int first, last;
 
         first = (range[0] < range[1])?range[0]:range[1];
         last = (range[0] > range[1])?range[0]:range[1];
             
-        while (startIndex < endIndex) {
-            midIndex = (startIndex + endIndex)/2;
-            if (first < arr[midIndex])
-                endIndex = midIndex;
+        while (start < end) {
+            mid = (start + end)/2;
+            if (first < arr[mid])
+                end = mid;
             else
-                startIndex = midIndex + 1;
+                start = mid + 1;
         }
 
-        tempIndex = startIndex;
+        tempIndex = start;
 
-        startIndex = 0;
-        endIndex = arr.length - 1;
-        while (startIndex < endIndex) {
-            midIndex = (startIndex + endIndex)/2 + 1;
-            if (last < arr[midIndex])
-                endIndex = midIndex - 1;
+        start = 0;
+        end = arr.length - 1;
+        while (start < end) {
+            mid = (start + end)/2 + 1;
+            if (last < arr[mid])
+                end = mid - 1;
             else 
-                startIndex = midIndex;
+                start = mid;
         }
 
-        //System.out.println(endIndex);
-        for (int i = tempIndex; i <= endIndex; i++)
-            System.out.print(ind[i] + " ");
+        //System.out.println(end);
+        if (tempIndex < end) {
+            for (int i = tempIndex; i <= end; i++)
+                System.out.print(ind[i] + " ");
             System.out.println();
+        }
+        else
+        System.out.println("-1");
     }
 
     public void sort(int arr[], int ind[], int left, int right) {

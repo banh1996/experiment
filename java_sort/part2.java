@@ -4,6 +4,15 @@
 // import java.io.FileWriter;
 // import java.util.Scanner;
 
+/*
+ *   I tested with many cases and realize:
+ *  With nearly sorted or reverse sorted or on sequences with 
+ * many identical elements, modified quicksort algorithm is
+ * pretty faster than original algorithm. Because modified
+ * algorithm chooses median pivot, so number of loops less than
+ * original algorithm.
+ */
+
 class QuickSort {
     public void swap(int arr[], int a, int b) {
         int temp = arr[a];
@@ -70,6 +79,7 @@ class QuickSort {
 
             pivot = arr[index];
             swap(arr, index, right);
+            //pivot = arr[right];
 
             //System.out.println(" pivot " + pivot + " " + left + " " + right );
             partition_num = partition(arr, left, right, pivot);
@@ -97,6 +107,7 @@ class QuickSort {
  
     public static void main(String[] args) {
         int arr[] = { 4, 2, 1, 8, 5 ,0, 9, 6, 7, 3 };
+        //int arr[] = { 0, 1, 1, 2, 3,5, 4, 6, 7,6, 8 ,9 };
         System.out.println("Given Array: ");
         showarr(arr);
 
