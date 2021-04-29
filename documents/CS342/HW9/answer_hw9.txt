@@ -1,9 +1,0 @@
-1.
-Z is Dtail
-
-2.
-# mystery([],[]).
-# mystery([H|Tail],[H,H|DTail]):-
-# mystery(Tail,Dtail).
-
-# mystery([1,4,6],Z).
