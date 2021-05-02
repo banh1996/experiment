@@ -3,10 +3,11 @@
 :- set_prolog_stack(global, limit(8 000 000)).  % limit term space (8Mb)
 :- set_prolog_stack(local,  limit(2 000 000)).  % limit environment space
 
-% Your program goes here
+% program goes here
 %q1
 mystery([], []).
 mystery([H|Tail], [H,H|DTail]) :- mystery(Tail,DTail).
+%Z =  [1, 1, 4, 4, 6, 6]
 
 %q2a
 gcd(A,B,X) :- A=B, X=A.
@@ -90,5 +91,24 @@ q4_solve(X) :- A = 0, B is A+1, C is A-1, D is B-1, E is D+1,
     		(Index4==4 -> (write('E'))))))).
 
 %q5
+%a.
+sentence --> f.
+sentence --> t, n, t.
+t --> [x].
+t --> [y].
+t --> [z].
+t --> [1].
+t --> [0].
+n --> [+].
+n --> [-].
+n --> [=].
+f --> [if], b, [then], [begin], sentence, [end].
+f --> [if], b, [then], [begin], sentence, [end], [else], [begin], sentence, [end].
+b --> t, e, t.
+e --> ['|'].
+e --> ['<'].
+e --> ['>'].
 
+%b.
 
+%c. yes

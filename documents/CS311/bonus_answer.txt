@@ -1,0 +1,18 @@
+Array A: 10 30 20 50 70 55 65 25 45 85 15 90 75 60 35 80 95 40
+Index:   1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18
+Array B: 10 20 65 35 40
+Index:   1  2  3  4  5
+
+It's easy to see the last node of height k is at index 2^k - 1 (if it exists),
+So the algorithm:
+
+binary_search_tree(int A[], int n)
+    h = floor(log(n)) + 1 //find the height by solving equalty "2^(h-1) + C = n"
+    for k = 1..h
+        if A[2^k - 1] exists then
+            B[k] = A[2^k - 1] // largest index of height k
+        else
+            B[k] = A[n] // the last node of A
+
+Since h=floor(log(n)) + 1, the loop 1..h, so the runtime complexity is O(logn)
+

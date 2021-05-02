@@ -42,7 +42,7 @@ class BinSearch {
         //System.out.println(end);
         if (tempIndex < end) {
             for (int i = tempIndex; i <= end; i++)
-                System.out.print(ind[i] + " ");
+                System.out.print((ind[i]+1) + " ");
             System.out.println();
         }
         else
@@ -61,8 +61,8 @@ class BinSearch {
     }
 
     public static void main(String[] args) {
-        int arr[] = {1,5,4,0,9,9,6,7,8,1,1,3,5,0,9,7,3,0,8,6};
-        int range[] = {5, 10};
+        int arr[] = {10, 30, 20, 50, 70, 55, 65, 25, 45, 85, 15, 90, 75, 60, 35, 80, 95, 40};
+        int range[] = {1, 100};
         int ind[];
         ind = new int[arr.length];
         for (int i = 0; i < arr.length; i++)
@@ -70,7 +70,11 @@ class BinSearch {
 
         BinSearch t = new BinSearch();
         t.sort(arr, ind, 0, arr.length - 1);
+
+        for (int i = 0; i < arr.length; i++)
+            System.out.print(arr[i] + " ");
         System.out.println();
+
         t.binary_search(arr, ind, range);
     }
 }
