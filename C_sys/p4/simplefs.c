@@ -128,23 +128,33 @@ int sfs_close(int fd){
 int sfs_getsize (int fd)
 {
     struct stat st;
-    int ret = stat(fd, &st);
+    int ret = fstat(fd, &st);
     if (ret == 0)
         return st.st_size;
     return ret;
 }
 
 int sfs_read(int fd, void *buf, int n){
-    return (0); 
+    struct stat st;
+    int ret = fstat(fd, &st);
+    if (ret == 0)
+    {
+        int size = read(fd, buf, n);
+        return size;
+    }
+    return ret;
 }
 
 
 int sfs_append(int fd, void *buf, int n)
 {
-    return (0); 
+    int size = write(fd, buf, n);
+    return size;
 }
 
 int sfs_delete(char *filename)
 {
-    return (0); 
+    if (remove(filename) == 0)
+        return (0);
+    return (-1);
 }
