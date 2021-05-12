@@ -7,14 +7,57 @@
 #include <fcntl.h>
 #include "simplefs.h"
 
-
+#define MAX_FILES_NUMBER 16
+#define MAX_FILENAME_BYTE 110
 // Global Variables =======================================
 int vdisk_fd; // Global virtual disk file descriptor. Global within the library.
               // Will be assigned with the vsfs_mount call.
               // Any function in this file can use this.
               // Applications will not use  this directly. 
+typedef enum filemode_t {
+    NOTHING = 0,
+    APPENDING,
+    READING
+} filemode_t;
+
+typedef struct filestatus_t {
+    char name[MAX_FILENAME_BYTE];
+    int fd;
+    filemode_t mode;
+} filestatus_t;
+
+typedef struct filetable_t {
+    filestatus_t files[MAX_FILES_NUMBER];
+    int cur_num;
+} filetable_t;
+
+filetable_t g_filetable;
 // ========================================================
 
+int find_file_mode_by_name (char *name) {
+    for (int i = 0; i < MAX_FILES_NUMBER; i++) {
+        if (memcmp(g_filetable.files[i].name, name, strlen(name)) == 0)
+            return i;
+    }
+    return MAX_FILES_NUMBER;
+}
+
+int find_file_mode_by_fd (int fd) {
+    for (int i = 0; i < MAX_FILES_NUMBER; i++)
+    {
+        if (g_filetable.files[i].fd == fd)
+            return i;
+    }
+    return MAX_FILES_NUMBER;
+}
+
+int get_empty_index_file_table (void) {
+    for (int i = 0; i < MAX_FILES_NUMBER; i++) {
+        if (g_filetable.files[i].mode == NOTHING)
+            return i;
+    }
+    return MAX_FILES_NUMBER;
+}
 
 // read block k from disk (virtual disk) into buffer block.
 // size of the block is BLOCKSIZE.
@@ -98,31 +141,59 @@ int sfs_umount ()
 }
 
 
-int sfs_create(char *filename)
-{
+int sfs_create(char *filename) {
+    read_block(&block, k);
+    write_block(block, k);
     int ret = open(filename, O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
-    if (ret == 0)
+    if (ret != -1)
         ret = close (vdisk_fd);
     return ret;
 }
 
 int sfs_open(char *file, int mode)
 {
-    int ret = -1;
+    int ret = -1, empty_index = MAX_FILES_NUMBER;
+    int file_index = find_file_mode_by_name(file);
+    
+    if (file_index == MAX_FILES_NUMBER)
+        return -1;
     //need to check if the file is appending
     if (mode == MODE_APPEND)
     {
-        ret = open(file, O_APPEND, S_IRUSR | S_IRGRP | S_IROTH);
+        if (g_filetable.files[file_index].mode == NOTHING)
+        {
+            ret = open(file, O_APPEND, S_IRUSR | S_IRGRP | S_IROTH);
+            empty_index = get_empty_index_file_table();
+            g_filetable.files[empty_index].fd = ret;
+            g_filetable.files[empty_index].mode = APPENDING;
+            memcpy(g_filetable.files[empty_index].name, file, strlen(file));
+        }
     }
     else
     {
-        ret = open(file, O_RDONLY, S_IRUSR | S_IRGRP | S_IROTH);
+        if (g_filetable.files[file_index].mode == NOTHING || g_filetable.files[file_index].mode == READING)
+        {
+            ret = open(file, O_RDONLY, S_IRUSR | S_IRGRP | S_IROTH);
+            empty_index = get_empty_index_file_table();
+            g_filetable.files[empty_index].fd = ret;
+            g_filetable.files[empty_index].mode = READING;
+            memcpy(g_filetable.files[empty_index].name, file, strlen(file));
+        }
     }
     return ret; 
 }
 
 int sfs_close(int fd){
-    return (0); 
+    int file_index = find_file_mode_by_fd(fd);
+    if (file_index == MAX_FILES_NUMBER)
+        return -1;
+    if (g_filetable.files[file_index].mode != NOTHING) {
+        g_filetable.files[file_index].fd = 0;
+        g_filetable.files[file_index].mode = NOTHING;
+        memset(g_filetable.files[file_index].name, 0, sizeof(g_filetable.files[file_index].name));
+    }
+    int ret = close (vdisk_fd);
+    return ret;
 }
 
 int sfs_getsize (int fd)
@@ -135,6 +206,10 @@ int sfs_getsize (int fd)
 }
 
 int sfs_read(int fd, void *buf, int n){
+    int file_index = find_file_mode_by_fd(fd);
+    if (file_index == MAX_FILES_NUMBER)
+        return -1;
+
     struct stat st;
     int ret = fstat(fd, &st);
     if (ret == 0)
@@ -146,14 +221,17 @@ int sfs_read(int fd, void *buf, int n){
 }
 
 
-int sfs_append(int fd, void *buf, int n)
-{
+int sfs_append(int fd, void *buf, int n) {
+    int file_index = find_file_mode_by_fd(fd);
+    if (file_index == MAX_FILES_NUMBER)
+        return -1;
+
+    filemode_t cur_mode = check_file_mode(fd);
     int size = write(fd, buf, n);
     return size;
 }
 
-int sfs_delete(char *filename)
-{
+int sfs_delete(char *filename) {
     if (remove(filename) == 0)
         return (0);
     return (-1);
