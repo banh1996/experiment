@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <math.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -7,57 +8,28 @@
 #include <fcntl.h>
 #include "simplefs.h"
 
-#define MAX_FILES_NUMBER 16
+#define ROOT_BLOCK_START 5
 #define MAX_FILENAME_BYTE 110
 // Global Variables =======================================
 int vdisk_fd; // Global virtual disk file descriptor. Global within the library.
               // Will be assigned with the vsfs_mount call.
               // Any function in this file can use this.
               // Applications will not use  this directly. 
-typedef enum filemode_t {
-    NOTHING = 0,
-    APPENDING,
-    READING
-} filemode_t;
+
+#define NOTHING_MODE 0
+#define APPENDING_MODE 1
+#define READING_MODE 2
 
 typedef struct filestatus_t {
     char name[MAX_FILENAME_BYTE];
-    int fd;
-    filemode_t mode;
-} filestatus_t;
+    int inode;
+    int mode;
+    int size;
+    int index_in_block;
+} filestatus_t; //128 bytes
 
-typedef struct filetable_t {
-    filestatus_t files[MAX_FILES_NUMBER];
-    int cur_num;
-} filetable_t;
 
-filetable_t g_filetable;
 // ========================================================
-
-int find_file_mode_by_name (char *name) {
-    for (int i = 0; i < MAX_FILES_NUMBER; i++) {
-        if (memcmp(g_filetable.files[i].name, name, strlen(name)) == 0)
-            return i;
-    }
-    return MAX_FILES_NUMBER;
-}
-
-int find_file_mode_by_fd (int fd) {
-    for (int i = 0; i < MAX_FILES_NUMBER; i++)
-    {
-        if (g_filetable.files[i].fd == fd)
-            return i;
-    }
-    return MAX_FILES_NUMBER;
-}
-
-int get_empty_index_file_table (void) {
-    for (int i = 0; i < MAX_FILES_NUMBER; i++) {
-        if (g_filetable.files[i].mode == NOTHING)
-            return i;
-    }
-    return MAX_FILES_NUMBER;
-}
 
 // read block k from disk (virtual disk) into buffer block.
 // size of the block is BLOCKSIZE.
@@ -94,6 +66,53 @@ int write_block (void *block, int k)
     return 0; 
 }
 
+int find_empty_section (void *sec, int *block_num) {
+    *block_num = ROOT_BLOCK_START;
+    while (*block_num < ROOT_BLOCK_START + 4) {
+        read_block(sec, *block_num);
+        for (int i = 0; i < 32; i++) {
+            if (*((uint32_t*)sec + i*128) == 0) {
+                return i;
+            }
+        }
+        *block_num++;
+    }
+    return -1; //no found empty
+}
+
+filestatus_t find_file_block_byname (char *name, void *sec, int *block_num) {
+    filestatus_t file_status;
+    *block_num = ROOT_BLOCK_START;
+    while (*block_num < ROOT_BLOCK_START + 4) {
+        read_block(sec, *block_num);
+        for (int i = 0; i < 32; i++) {
+            if (memcmp((char*)((uint32_t*)sec + i*128), name, strlen(name)) == 0) {
+                memcpy(&file_status, ((uint32_t*)sec + i*128), sizeof(file_status));
+                return file_status;
+            }
+        }
+        *block_num++;
+    }
+    file_status.inode = -1;
+    return file_status; //no found
+}
+
+filestatus_t find_file_block_byinode (int fd, void *sec, int *block_num) {
+    filestatus_t file_status;
+    *block_num = ROOT_BLOCK_START;
+    while (*block_num < ROOT_BLOCK_START + 4) {
+        read_block(sec, *block_num);
+        for (int i = 0; i < 32; i++) {
+            memcpy(&file_status, ((uint32_t*)sec + i*128), sizeof(file_status));
+            if (file_status.inode == fd) {
+                return file_status;
+            }
+        }
+        *block_num++;
+    }
+    file_status.inode = -1;
+    return file_status; //no found
+}
 
 /**********************************************************************
    The following functions are to be called by applications directly. 
@@ -142,97 +161,148 @@ int sfs_umount ()
 
 
 int sfs_create(char *filename) {
-    read_block(&block, k);
-    write_block(block, k);
-    int ret = open(filename, O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
-    if (ret != -1)
-        ret = close (vdisk_fd);
-    return ret;
+    void *sec = malloc(BLOCKSIZE);
+    int block_num = -1;
+    int index = find_empty_section (sec, &block_num);
+    filestatus_t file_status;
+    if (index != -1 && block_num < ROOT_BLOCK_START + 4 && strlen(filename) < MAX_FILENAME_BYTE) {
+        memset(&file_status, 0, sizeof(file_status));
+        memcpy(file_status.name, filename, strlen(filename)); //name
+        file_status.index_in_block = index;
+        file_status.inode = (block_num+4)*BLOCKSIZE/128 + index;
+        memcpy((void*)((uint32_t*)sec + index*128), &file_status, sizeof(file_status)); //write to block
+        write_block(sec, block_num);
+        free(sec);
+        return 0;
+    }
+    free(sec);
+    return -1;
 }
 
-int sfs_open(char *file, int mode)
-{
-    int ret = -1, empty_index = MAX_FILES_NUMBER;
-    int file_index = find_file_mode_by_name(file);
-    
-    if (file_index == MAX_FILES_NUMBER)
-        return -1;
+int sfs_open(char *file, int mode) {
+    int block_num = -1;
+    void *sec = malloc(BLOCKSIZE);
+    filestatus_t file_status = find_file_block_byname(file, sec, &block_num);
+
     //need to check if the file is appending
-    if (mode == MODE_APPEND)
-    {
-        if (g_filetable.files[file_index].mode == NOTHING)
-        {
-            ret = open(file, O_APPEND, S_IRUSR | S_IRGRP | S_IROTH);
-            empty_index = get_empty_index_file_table();
-            g_filetable.files[empty_index].fd = ret;
-            g_filetable.files[empty_index].mode = APPENDING;
-            memcpy(g_filetable.files[empty_index].name, file, strlen(file));
+    if (block_num < ROOT_BLOCK_START + 4) {
+        if (mode == MODE_APPEND) {
+            if (file_status.mode == NOTHING_MODE) {
+                file_status.inode = APPENDING_MODE;
+                memcpy((void*)((uint32_t*)sec + file_status.index_in_block*128), &file_status, sizeof(file_status)); //write to block
+                write_block(sec, block_num);
+                free(sec);
+                return file_status.inode;
+            }
+        }
+        else {
+            if (file_status.mode == NOTHING_MODE) {
+                file_status.inode = READING_MODE;
+                memcpy((void*)((uint32_t*)sec + file_status.index_in_block*128), &file_status, sizeof(file_status)); //write to block
+                write_block(sec, block_num);
+                free(sec);
+                return file_status.inode;
+            }
+            else if (file_status.mode == READING_MODE) {
+                free(sec);
+                return file_status.inode;
+            }
         }
     }
-    else
-    {
-        if (g_filetable.files[file_index].mode == NOTHING || g_filetable.files[file_index].mode == READING)
-        {
-            ret = open(file, O_RDONLY, S_IRUSR | S_IRGRP | S_IROTH);
-            empty_index = get_empty_index_file_table();
-            g_filetable.files[empty_index].fd = ret;
-            g_filetable.files[empty_index].mode = READING;
-            memcpy(g_filetable.files[empty_index].name, file, strlen(file));
-        }
-    }
-    return ret; 
+
+    free(sec);
+    return -1;
 }
 
-int sfs_close(int fd){
-    int file_index = find_file_mode_by_fd(fd);
-    if (file_index == MAX_FILES_NUMBER)
-        return -1;
-    if (g_filetable.files[file_index].mode != NOTHING) {
-        g_filetable.files[file_index].fd = 0;
-        g_filetable.files[file_index].mode = NOTHING;
-        memset(g_filetable.files[file_index].name, 0, sizeof(g_filetable.files[file_index].name));
+int sfs_close(int fd) {
+    int block_num = -1;
+    void *sec = malloc(BLOCKSIZE);
+    filestatus_t file_status = find_file_block_byinode(fd, sec, &block_num);
+
+    if (block_num < ROOT_BLOCK_START + 4) {
+        file_status.mode = NOTHING_MODE;
+        memcpy((void*)((uint32_t*)sec + file_status.index_in_block*128), &file_status, sizeof(file_status)); //write to block
+        write_block(sec, block_num);
+        free(sec);
+        return 1;
     }
-    int ret = close (vdisk_fd);
-    return ret;
+
+    free(sec);
+    return -1;
 }
 
-int sfs_getsize (int fd)
-{
-    struct stat st;
-    int ret = fstat(fd, &st);
-    if (ret == 0)
-        return st.st_size;
-    return ret;
+int sfs_getsize (int fd) {
+    int block_num = -1;
+    void *sec = malloc(BLOCKSIZE);
+    filestatus_t file_status = find_file_block_byinode(fd, sec, &block_num);
+
+    free(sec);
+    return file_status.size;
 }
 
 int sfs_read(int fd, void *buf, int n){
-    int file_index = find_file_mode_by_fd(fd);
-    if (file_index == MAX_FILES_NUMBER)
-        return -1;
+    int block_num = -1;
+    void *sec = malloc(BLOCKSIZE);
+    filestatus_t file_status = find_file_block_byinode(fd, sec, &block_num);
+    char fcb[128];
 
-    struct stat st;
-    int ret = fstat(fd, &st);
-    if (ret == 0)
-    {
-        int size = read(fd, buf, n);
-        return size;
+    //need to check if the file is reading
+    if (block_num < ROOT_BLOCK_START + 4) {
+        if (file_status.mode == READING_MODE) {
+            read_block(sec, block_num + 4);
+            memcpy(fcb, (void*)((uint32_t*)sec + file_status.index_in_block*128), 128);
+            memcpy(buf, fcb, n);
+            free(sec);
+            return file_status.inode;
+        }
     }
-    return ret;
+
+    free(sec);
+    return -1;
 }
 
 
 int sfs_append(int fd, void *buf, int n) {
-    int file_index = find_file_mode_by_fd(fd);
-    if (file_index == MAX_FILES_NUMBER)
-        return -1;
+    int block_num = -1;
+    void *sec = malloc(BLOCKSIZE);
+    filestatus_t file_status = find_file_block_byinode(fd, sec, &block_num);
+    char fcb[128];
 
-    filemode_t cur_mode = check_file_mode(fd);
-    int size = write(fd, buf, n);
-    return size;
+    //need to check if the file is appending
+    if (block_num < ROOT_BLOCK_START + 4) {
+        if (file_status.mode == APPENDING_MODE) {
+            read_block(sec, block_num + 4);
+            memcpy(fcb, buf, n);
+            file_status.size += n;
+            memcpy((void*)((uint32_t*)sec + file_status.index_in_block*128), fcb, 128);
+            write_block(sec, block_num + 4);
+            free(sec);
+            return file_status.inode;
+        }
+    }
+
+    free(sec);
+    return -1;
 }
 
 int sfs_delete(char *filename) {
-    if (remove(filename) == 0)
-        return (0);
-    return (-1);
+    int block_num = -1;
+    void *sec = malloc(BLOCKSIZE);
+    filestatus_t file_status = find_file_block_byname(file, sec, &block_num);
+
+    if (block_num < ROOT_BLOCK_START + 4) {
+        read_block(sec, block_num + 4);
+        memset((void*)((uint32_t*)sec + file_status.index_in_block*128), 0, 128);
+        write_block(sec, block_num + 4);
+
+        read_block(sec, block_num);
+        memset((void*)((uint32_t*)sec + file_status.index_in_block*128), 0, 128);
+        write_block(sec, block_num);
+        
+        free(sec);
+        return file_status.inode;
+    }
+
+    free(sec);
+    return -1;
 }

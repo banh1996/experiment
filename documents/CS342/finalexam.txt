@@ -1,0 +1,118 @@
+1. B
+2. AD
+3. BCD
+4. BCD
+
+
+two = (λ(f) (λ(x)(f (f x))))
+false = (λ(x) (λ(y) y))
+true = (λ(f) (λ(x) x))
+unknown = (λ(x) ((false ((λ(z)(z z)) x))))
+ = (λ(x) ((false ((λ(z)(z z)) x))))
+ = (λ(x) (((λ(x) (λ(y) y)) (x x))))
+ = (λ(x) (x x))
+
+5. 
+false = (λ(x) (λ(y) y))
+true = (λ(f) (λ(x) x))
+unknown = (λ(x) ((false ((λ(z)(z z)) x))))
+    = (λ(x) (((λ(x) (λ(y) y)) (x x))))
+    = (λ(x) (λ(y) y))
+two = (λ(f) (λ(x)(f (f x))))
+
+(unknown two)
+ = ((λ(x) (λ(y) y)) two)
+ = (λ(y) y)
+-> true
+
+6.
+(unknown true)
+= ((λ(x) (λ(y) y)) true)
+= (λ(y) y)
+-> true
+
+7.
+unknown performs true.
+
+8. 
+stores value 5 at some location in memory, creates a reference value
+to encapsulate (and remember) that location, and stores that reference
+value in variable x
+
+previous value ref x is 5 is overwritten by 2, let reference y to new location.
+
+Calculate ref x + ref y.
+result = 2 + 2 = 4
+
+
+10.
+
+pow(_,0,1).
+
+pow(X,Y,Z) :- Y1 is Y - 1,
+              pow(X,Y1,Z1), Z is Z1*X.
+
+isvalidy(X, Y, Z) :- Y>0, Y<100-X.
+yvalue(X, Y) :- pow(X,2,X2), Y is X2 - 1, isvalidy(X, Y, Z).
+
+?- yvalue(10, Y).
+
+11.
+split(L,Result) :- 
+   splitacc(L, [], Result).
+splitacc([], Acc, Result) :- 
+   Result=Acc.
+splitacc([H|T], Acc, Result) :- 
+   append(Acc, [[H]], NewAcc), 
+   splitacc(T, NewAcc, Result). 
+
+
+findsubstring(L, R) :-
+    split(L, L1), member(X1, L1), length(X1, A), A==5,
+    split(L, L2), member(X2, L2), length(X2, B), B==4,
+    nth0(3, X1, E1), nth0(2, X1, E2), E1==E2, append(X1, X2, R).
+
+
+?- findsubstring(L, R).
+
+
+12.
+substringexp returns [SubStringExp ast] :
+        locals [<String> str]
+        '(' substringExp 
+            str=Identifier 
+            n0=Number
+            n1=Number
+        ')' { $ast = new SubStringExp($str,Integer.parseInt($n0.text),Integer.parseInt($n1.text)); }
+        ;
+
+public static class SubStringExp extends Exp {
+		String _str;
+        int _index0, _index1;
+		Exp _body;
+		
+		public SubStringExp(String str, int n0, int n1) {
+			_str = str;
+			_index0 = n0;
+			_index1 = n1;
+		}
+
+		public Object accept(Visitor visitor, Object env) {
+			return visitor.visit(this, env);
+		}
+
+		public String str() { return _str; }
+
+		public int index0() { return _index0; }
+
+		public int index1() { return _index1; }
+	}
+
+@Override
+public Value visit(SubStringExp e, Env<Value> env) { // New for funclang.
+    String str = e.str();
+    int n0 = e.index0();
+    int n1 = e.index1();
+
+    return (Value) e.body().accept(this, new_env);	
+}
