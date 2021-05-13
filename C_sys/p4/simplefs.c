@@ -6,7 +6,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <string.h>
 #include "simplefs.h"
+
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
 
 #define ROOT_BLOCK_START 5
 #define MAX_FILENAME_BYTE 110
@@ -66,7 +70,52 @@ int write_block (void *block, int k)
     return 0; 
 }
 
-int find_empty_section (void *sec, int *block_num) {
+void set_bit_map(int index) {
+    void *sec = malloc(BLOCKSIZE);
+    int block_num = index/BLOCKSIZE + 1;
+    read_block(sec, block_num); //read bitmap
+    *((uint32_t*)sec + index/32) |= 1 << (index%32);
+    write_block(sec, block_num);
+    free(sec);
+}
+
+void clear_bit_map(int index) {
+    void *sec = malloc(BLOCKSIZE);
+    int block_num = index/BLOCKSIZE + 1;
+    read_block(sec, block_num); //read bitmap
+    *((uint32_t*)sec + index/32) &= ~(1 << (index%32));
+    write_block(sec, block_num);
+    free(sec);
+}
+
+int find_empty_bit(void *sec) {
+    for (uint32_t i = 0; i < BLOCKSIZE/32; i++) {
+        int temp = *(int*)((uint32_t*)sec + i);
+        temp = ~temp;
+        int cnt = 0;
+        if (temp)
+            while (!(temp & (1 << cnt++)));
+        if (cnt != 0)
+            return (i*32 + cnt - 1);
+    }
+    return -1;
+}
+
+int find_empty_block() {
+    void *sec = malloc(BLOCKSIZE);
+    for (int i = 1; i <= 4; i++) {
+        read_block(sec, i); //read bitmap 1
+        int index = find_empty_bit(sec);
+        if (index != -1) {
+            free(sec);
+            return (index + (i-1)*BLOCKSIZE);
+        }
+    }
+    free(sec);
+    return -1;
+}
+
+int find_empty_section_in_block (void *sec, int *block_num) {
     *block_num = ROOT_BLOCK_START;
     while (*block_num < ROOT_BLOCK_START + 4) {
         read_block(sec, *block_num);
@@ -75,8 +124,9 @@ int find_empty_section (void *sec, int *block_num) {
                 return i;
             }
         }
-        *block_num++;
+        (*block_num)++;
     }
+    *block_num = ROOT_BLOCK_START + 4;
     return -1; //no found empty
 }
 
@@ -91,7 +141,7 @@ filestatus_t find_file_block_byname (char *name, void *sec, int *block_num) {
                 return file_status;
             }
         }
-        *block_num++;
+        (*block_num)++;
     }
     file_status.inode = -1;
     return file_status; //no found
@@ -108,7 +158,7 @@ filestatus_t find_file_block_byinode (int fd, void *sec, int *block_num) {
                 return file_status;
             }
         }
-        *block_num++;
+        (*block_num)++;
     }
     file_status.inode = -1;
     return file_status; //no found
@@ -135,8 +185,12 @@ int create_format_vdisk (char *vdiskname, unsigned int m)
 
     // now write the code to format the disk below.
     // .. your code...
+    sfs_mount (vdiskname);
+    for (int i = 0; i <= 9; i++)
+        set_bit_map(i);
+    sfs_umount();
     
-    return (0); 
+    return (0);
 }
 
 
@@ -163,13 +217,19 @@ int sfs_umount ()
 int sfs_create(char *filename) {
     void *sec = malloc(BLOCKSIZE);
     int block_num = -1;
-    int index = find_empty_section (sec, &block_num);
-    filestatus_t file_status;
+    filestatus_t file_status = find_file_block_byname(filename, sec, &block_num);
+    if (block_num < ROOT_BLOCK_START + 4)
+        return -1;
+    int index = find_empty_section_in_block (sec, &block_num);
+    //filestatus_t file_status;
     if (index != -1 && block_num < ROOT_BLOCK_START + 4 && strlen(filename) < MAX_FILENAME_BYTE) {
         memset(&file_status, 0, sizeof(file_status));
         memcpy(file_status.name, filename, strlen(filename)); //name
         file_status.index_in_block = index;
-        file_status.inode = (block_num+4)*BLOCKSIZE/128 + index;
+        //file_status.inode = (block_num+4)*BLOCKSIZE/128 + index;
+        file_status.inode = find_empty_block();
+        set_bit_map(file_status.inode);
+        printf("create %d\n", file_status.inode);
         memcpy((void*)((uint32_t*)sec + index*128), &file_status, sizeof(file_status)); //write to block
         write_block(sec, block_num);
         free(sec);
@@ -188,7 +248,7 @@ int sfs_open(char *file, int mode) {
     if (block_num < ROOT_BLOCK_START + 4) {
         if (mode == MODE_APPEND) {
             if (file_status.mode == NOTHING_MODE) {
-                file_status.inode = APPENDING_MODE;
+                file_status.mode = APPENDING_MODE;
                 memcpy((void*)((uint32_t*)sec + file_status.index_in_block*128), &file_status, sizeof(file_status)); //write to block
                 write_block(sec, block_num);
                 free(sec);
@@ -197,7 +257,7 @@ int sfs_open(char *file, int mode) {
         }
         else {
             if (file_status.mode == NOTHING_MODE) {
-                file_status.inode = READING_MODE;
+                file_status.mode = READING_MODE;
                 memcpy((void*)((uint32_t*)sec + file_status.index_in_block*128), &file_status, sizeof(file_status)); //write to block
                 write_block(sec, block_num);
                 free(sec);
@@ -235,7 +295,7 @@ int sfs_getsize (int fd) {
     int block_num = -1;
     void *sec = malloc(BLOCKSIZE);
     filestatus_t file_status = find_file_block_byinode(fd, sec, &block_num);
-
+// printf("size %d %d %d\n", fd, block_num, file_status.size);
     free(sec);
     return file_status.size;
 }
@@ -244,14 +304,30 @@ int sfs_read(int fd, void *buf, int n){
     int block_num = -1;
     void *sec = malloc(BLOCKSIZE);
     filestatus_t file_status = find_file_block_byinode(fd, sec, &block_num);
-    char fcb[128];
+    int fcb_index[1024];
 
-    //need to check if the file is reading
+    //need to check if the file is appending
     if (block_num < ROOT_BLOCK_START + 4) {
-        if (file_status.mode == READING_MODE) {
-            read_block(sec, block_num + 4);
-            memcpy(fcb, (void*)((uint32_t*)sec + file_status.index_in_block*128), 128);
-            memcpy(buf, fcb, n);
+        if (file_status.mode != NOTHING_MODE) {
+            read_block(sec, file_status.inode);
+            memcpy((void*)fcb_index, sec, BLOCKSIZE);
+
+            //read data
+            int remain_len = n, i = 0;
+            while(i < 1024 && remain_len > 0) {
+                if (fcb_index[i] != 0) {
+                    read_block(sec, fcb_index[i]);
+                    if (strlen(sec) < BLOCKSIZE) {
+                        memcpy((char*)&buf + strlen(buf), (void*)((uint8_t*)sec + strlen(sec)), MIN(remain_len, BLOCKSIZE - strlen(sec)));
+                        remain_len = remain_len - MIN(remain_len, BLOCKSIZE - strlen(sec));
+                    }
+                }
+                else
+                    break;
+                write_block(sec, fcb_index[i]);
+                i++;
+            }
+
             free(sec);
             return file_status.inode;
         }
@@ -266,16 +342,42 @@ int sfs_append(int fd, void *buf, int n) {
     int block_num = -1;
     void *sec = malloc(BLOCKSIZE);
     filestatus_t file_status = find_file_block_byinode(fd, sec, &block_num);
-    char fcb[128];
+    int fcb_index[1024];
 
     //need to check if the file is appending
     if (block_num < ROOT_BLOCK_START + 4) {
         if (file_status.mode == APPENDING_MODE) {
-            read_block(sec, block_num + 4);
-            memcpy(fcb, buf, n);
+            read_block(sec, file_status.inode);
+            memcpy((void*)fcb_index, sec, BLOCKSIZE);
             file_status.size += n;
-            memcpy((void*)((uint32_t*)sec + file_status.index_in_block*128), fcb, 128);
-            write_block(sec, block_num + 4);
+            read_block(sec, block_num);
+            memcpy((void*)((uint32_t*)sec + file_status.index_in_block*128), &file_status, sizeof(file_status)); //write to block
+            write_block(sec, block_num);
+
+            //write data
+            int remain_len = n, i = 0;
+            while(i < 1024 && remain_len > 0) {
+                if (fcb_index[i] != 0) {
+                    read_block(sec, fcb_index[i]);
+                    if (strlen(sec) < BLOCKSIZE) {
+                        memcpy((void*)((uint8_t*)sec + strlen(sec)), buf, MIN(remain_len, BLOCKSIZE - strlen(sec)));
+                        remain_len = remain_len - MIN(remain_len, BLOCKSIZE - strlen(sec));
+                    }
+                }
+                else { //index for new block
+                    fcb_index[i] = find_empty_block();
+                    set_bit_map(fcb_index[i]);
+                    read_block(sec, fcb_index[i]);
+                    memcpy((void*)((uint8_t*)sec), buf, MIN(remain_len, BLOCKSIZE));
+                    remain_len = remain_len - MIN(remain_len, BLOCKSIZE);
+                }
+                write_block(sec, fcb_index[i]);
+                i++;
+            }
+
+            //write fcb table
+            memcpy(sec, fcb_index, BLOCKSIZE);
+            write_block(sec, file_status.inode);
             free(sec);
             return file_status.inode;
         }
@@ -288,17 +390,29 @@ int sfs_append(int fd, void *buf, int n) {
 int sfs_delete(char *filename) {
     int block_num = -1;
     void *sec = malloc(BLOCKSIZE);
-    filestatus_t file_status = find_file_block_byname(file, sec, &block_num);
+    filestatus_t file_status = find_file_block_byname(filename, sec, &block_num);
+    int fcb_index[1024];
 
     if (block_num < ROOT_BLOCK_START + 4) {
-        read_block(sec, block_num + 4);
-        memset((void*)((uint32_t*)sec + file_status.index_in_block*128), 0, 128);
-        write_block(sec, block_num + 4);
+        read_block(sec, file_status.inode);
+        memcpy((void*)fcb_index, sec, BLOCKSIZE);
+
+        int i = 0;
+        memset(sec, 0, BLOCKSIZE);
+        while(i < 1024) {
+            if (fcb_index[i] != 0) {
+                write_block(sec, fcb_index[i]);
+            }
+            else
+                break;
+            i++;
+        }
+        write_block(sec, file_status.inode);
 
         read_block(sec, block_num);
         memset((void*)((uint32_t*)sec + file_status.index_in_block*128), 0, 128);
         write_block(sec, block_num);
-        
+
         free(sec);
         return file_status.inode;
     }

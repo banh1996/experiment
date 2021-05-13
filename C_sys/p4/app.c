@@ -60,6 +60,7 @@ int main(int argc, char **argv)
     sfs_close (fd);
 
     fd = sfs_open("file3.bin", MODE_READ);
+    printf("size open %d\n", fd);
     size = sfs_getsize (fd);
     for (i = 0; i < size; ++i) {
         sfs_read (fd, (void *) buffer, 1);
