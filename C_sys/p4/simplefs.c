@@ -70,6 +70,7 @@ int write_block (void *block, int k)
     return 0; 
 }
 
+// set bit in bitmap blocks
 void set_bit_map(int index) {
     void *sec = malloc(BLOCKSIZE);
     int block_num = index/BLOCKSIZE + 1;
@@ -79,6 +80,8 @@ void set_bit_map(int index) {
     free(sec);
 }
 
+
+// clear bit in bitmap blocks
 void clear_bit_map(int index) {
     void *sec = malloc(BLOCKSIZE);
     int block_num = index/BLOCKSIZE + 1;
@@ -88,6 +91,7 @@ void clear_bit_map(int index) {
     free(sec);
 }
 
+//find bit 0 in bitmap
 int find_empty_bit(void *sec) {
     for (uint32_t i = 0; i < BLOCKSIZE/32; i++) {
         int temp = *(int*)((uint32_t*)sec + i);
@@ -101,6 +105,7 @@ int find_empty_bit(void *sec) {
     return -1;
 }
 
+//find empty block
 int find_empty_block() {
     void *sec = malloc(BLOCKSIZE);
     for (int i = 1; i <= 4; i++) {
@@ -115,6 +120,7 @@ int find_empty_block() {
     return -1;
 }
 
+//find empty section(128bytes) in block
 int find_empty_section_in_block (void *sec, int *block_num) {
     *block_num = ROOT_BLOCK_START;
     while (*block_num < ROOT_BLOCK_START + 4) {
@@ -130,6 +136,7 @@ int find_empty_section_in_block (void *sec, int *block_num) {
     return -1; //no found empty
 }
 
+//find filestatus in root directory by its name
 filestatus_t find_file_block_byname (char *name, void *sec, int *block_num) {
     filestatus_t file_status;
     *block_num = ROOT_BLOCK_START;
@@ -147,6 +154,7 @@ filestatus_t find_file_block_byname (char *name, void *sec, int *block_num) {
     return file_status; //no found
 }
 
+//find filestatus in root directory by its fd
 filestatus_t find_file_block_byinode (int fd, void *sec, int *block_num) {
     filestatus_t file_status;
     *block_num = ROOT_BLOCK_START;
@@ -401,6 +409,7 @@ int sfs_delete(char *filename) {
         memset(sec, 0, BLOCKSIZE);
         while(i < 1024) {
             if (fcb_index[i] != 0) {
+                clear_bit_map(fcb_index[i]);
                 write_block(sec, fcb_index[i]);
             }
             else
@@ -411,6 +420,7 @@ int sfs_delete(char *filename) {
 
         read_block(sec, block_num);
         memset((void*)((uint32_t*)sec + file_status.index_in_block*128), 0, 128);
+        clear_bit_map(block_num);
         write_block(sec, block_num);
 
         free(sec);
