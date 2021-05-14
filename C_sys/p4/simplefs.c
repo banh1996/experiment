@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
+#include <time.h>
 #include "simplefs.h"
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
@@ -228,6 +229,7 @@ int sfs_create(char *filename) {
     filestatus_t file_status = find_file_block_byname(filename, sec, &block_num);
     if (block_num < ROOT_BLOCK_START + 4)
         return -1;
+long start_time = clock();
     int index = find_empty_section_in_block (sec, &block_num);
     //filestatus_t file_status;
     if (index != -1 && block_num < ROOT_BLOCK_START + 4 && strlen(filename) < MAX_FILENAME_BYTE) {
@@ -241,6 +243,7 @@ int sfs_create(char *filename) {
         memcpy((void*)((uint32_t*)sec + index*128), &file_status, sizeof(file_status)); //write to block
         write_block(sec, block_num);
         free(sec);
+printf("create take time %ld\n", clock() - start_time);
         return 0;
     }
     free(sec);
@@ -314,6 +317,7 @@ int sfs_read(int fd, void *buf, int n){
     filestatus_t file_status = find_file_block_byinode(fd, sec, &block_num);
     int fcb_index[1024];
 
+//long start_time = clock();
     //need to check if the file is appending
     if (block_num < ROOT_BLOCK_START + 4) {
         if (file_status.mode != NOTHING_MODE) {
@@ -337,6 +341,7 @@ int sfs_read(int fd, void *buf, int n){
             }
 
             free(sec);
+//printf("read take time %ld\n", clock() - start_time);
             return file_status.inode;
         }
     }
@@ -351,7 +356,7 @@ int sfs_append(int fd, void *buf, int n) {
     void *sec = malloc(BLOCKSIZE);
     filestatus_t file_status = find_file_block_byinode(fd, sec, &block_num);
     int fcb_index[1024];
-
+//long start_time = clock();
     //need to check if the file is appending
     if (block_num < ROOT_BLOCK_START + 4) {
         if (file_status.mode == APPENDING_MODE) {
@@ -387,6 +392,7 @@ int sfs_append(int fd, void *buf, int n) {
             memcpy(sec, fcb_index, BLOCKSIZE);
             write_block(sec, file_status.inode);
             free(sec);
+//printf("append take time %ld\n", clock() - start_time);
             return file_status.inode;
         }
     }
