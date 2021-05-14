@@ -76,7 +76,7 @@ void set_bit_map(int index) {
     void *sec = malloc(BLOCKSIZE);
     int block_num = index/BLOCKSIZE + 1;
     read_block(sec, block_num); //read bitmap
-    *((uint32_t*)sec + index/32) |= 1 << (index%32);
+    *((uint32_t*)sec + index/32) |= (uint32_t)(1 << (index%32));
     write_block(sec, block_num);
     free(sec);
 }
@@ -87,7 +87,7 @@ void clear_bit_map(int index) {
     void *sec = malloc(BLOCKSIZE);
     int block_num = index/BLOCKSIZE + 1;
     read_block(sec, block_num); //read bitmap
-    *((uint32_t*)sec + index/32) &= ~(1 << (index%32));
+    *((uint32_t*)sec + index/32) &= ~(uint32_t)(1 << (index%32));
     write_block(sec, block_num);
     free(sec);
 }
@@ -229,21 +229,18 @@ int sfs_create(char *filename) {
     filestatus_t file_status = find_file_block_byname(filename, sec, &block_num);
     if (block_num < ROOT_BLOCK_START + 4)
         return -1;
-long start_time = clock();
+
     int index = find_empty_section_in_block (sec, &block_num);
     //filestatus_t file_status;
     if (index != -1 && block_num < ROOT_BLOCK_START + 4 && strlen(filename) < MAX_FILENAME_BYTE) {
         memset(&file_status, 0, sizeof(file_status));
         memcpy(file_status.name, filename, strlen(filename)); //name
         file_status.index_in_block = index;
-        //file_status.inode = (block_num+4)*BLOCKSIZE/128 + index;
         file_status.inode = find_empty_block();
         set_bit_map(file_status.inode);
-        printf("create %d\n", file_status.inode);
         memcpy((void*)((uint32_t*)sec + index*128), &file_status, sizeof(file_status)); //write to block
         write_block(sec, block_num);
         free(sec);
-printf("create take time %ld\n", clock() - start_time);
         return 0;
     }
     free(sec);
@@ -295,7 +292,7 @@ int sfs_close(int fd) {
         memcpy((void*)((uint32_t*)sec + file_status.index_in_block*128), &file_status, sizeof(file_status)); //write to block
         write_block(sec, block_num);
         free(sec);
-        return 1;
+        return 0;
     }
 
     free(sec);
@@ -306,7 +303,6 @@ int sfs_getsize (int fd) {
     int block_num = -1;
     void *sec = malloc(BLOCKSIZE);
     filestatus_t file_status = find_file_block_byinode(fd, sec, &block_num);
-// printf("size %d %d %d\n", fd, block_num, file_status.size);
     free(sec);
     return file_status.size;
 }
@@ -317,10 +313,10 @@ int sfs_read(int fd, void *buf, int n){
     filestatus_t file_status = find_file_block_byinode(fd, sec, &block_num);
     int fcb_index[1024];
 
-//long start_time = clock();
     //need to check if the file is appending
+    memset(buf, 0, n);
     if (block_num < ROOT_BLOCK_START + 4) {
-        if (file_status.mode != NOTHING_MODE) {
+        if (file_status.mode == READING_MODE) {
             read_block(sec, file_status.inode);
             memcpy((void*)fcb_index, sec, BLOCKSIZE);
 
@@ -329,19 +325,18 @@ int sfs_read(int fd, void *buf, int n){
             while(i < 1024 && remain_len > 0) {
                 if (fcb_index[i] != 0) {
                     read_block(sec, fcb_index[i]);
-                    if (strlen(sec) < BLOCKSIZE) {
-                        memcpy((char*)&buf + strlen(buf), (void*)((uint8_t*)sec + strlen(sec)), MIN(remain_len, BLOCKSIZE - strlen(sec)));
-                        remain_len = remain_len - MIN(remain_len, BLOCKSIZE - strlen(sec));
+                    uint32_t sec_len = *(uint32_t*)sec;
+                    if (sec_len < BLOCKSIZE) {
+                        memcpy((char*)buf + strlen(buf), (void*)((uint8_t*)sec + 4), MIN(remain_len, sec_len - 4));
+                        remain_len = remain_len - MIN(remain_len, sec_len - 4);
                     }
                 }
                 else
                     break;
-                write_block(sec, fcb_index[i]);
                 i++;
             }
 
             free(sec);
-//printf("read take time %ld\n", clock() - start_time);
             return file_status.inode;
         }
     }
@@ -356,7 +351,6 @@ int sfs_append(int fd, void *buf, int n) {
     void *sec = malloc(BLOCKSIZE);
     filestatus_t file_status = find_file_block_byinode(fd, sec, &block_num);
     int fcb_index[1024];
-//long start_time = clock();
     //need to check if the file is appending
     if (block_num < ROOT_BLOCK_START + 4) {
         if (file_status.mode == APPENDING_MODE) {
@@ -372,16 +366,22 @@ int sfs_append(int fd, void *buf, int n) {
             while(i < 1024 && remain_len > 0) {
                 if (fcb_index[i] != 0) {
                     read_block(sec, fcb_index[i]);
-                    if (strlen(sec) < BLOCKSIZE) {
-                        memcpy((void*)((uint8_t*)sec + strlen(sec)), buf, MIN(remain_len, BLOCKSIZE - strlen(sec)));
-                        remain_len = remain_len - MIN(remain_len, BLOCKSIZE - strlen(sec));
+                    uint32_t sec_len = *(uint32_t*)sec;
+                    if (sec_len < BLOCKSIZE) {
+                        memcpy((void*)((uint8_t*)sec + sec_len), buf, MIN(remain_len, BLOCKSIZE - sec_len));
+                        sec_len += MIN(remain_len, BLOCKSIZE - sec_len);
+                        memcpy (sec, &sec_len, 4);
+                        remain_len = remain_len - MIN(remain_len, BLOCKSIZE - sec_len);
                     }
                 }
                 else { //index for new block
                     fcb_index[i] = find_empty_block();
                     set_bit_map(fcb_index[i]);
+                    uint32_t sec_len = 4;
                     read_block(sec, fcb_index[i]);
-                    memcpy((void*)((uint8_t*)sec), buf, MIN(remain_len, BLOCKSIZE));
+                    memcpy((void*)((uint8_t*)sec + sec_len), buf, MIN(remain_len, BLOCKSIZE - sec_len));
+                    sec_len += MIN(remain_len, BLOCKSIZE - 4);
+                    memcpy (sec, &sec_len, 4);
                     remain_len = remain_len - MIN(remain_len, BLOCKSIZE);
                 }
                 write_block(sec, fcb_index[i]);
@@ -392,7 +392,6 @@ int sfs_append(int fd, void *buf, int n) {
             memcpy(sec, fcb_index, BLOCKSIZE);
             write_block(sec, file_status.inode);
             free(sec);
-//printf("append take time %ld\n", clock() - start_time);
             return file_status.inode;
         }
     }

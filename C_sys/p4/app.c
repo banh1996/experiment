@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <time.h>
 #include "simplefs.h"
 
 int main(int argc, char **argv)
@@ -33,6 +34,30 @@ int main(int argc, char **argv)
     sfs_create ("file1.bin");
     sfs_create ("file2.bin");
     sfs_create ("file3.bin");
+clock_t start_time = clock();
+    sfs_create ("test.bin");
+printf("create take time %ld\n", clock() - start_time);
+    int fd_test = sfs_open ("test.bin", MODE_APPEND);
+
+start_time = clock();
+usleep(100000);
+clock_t ttt = clock() - start_time;
+printf("test clock %ld %ld %ld %ld\n", ttt, start_time, clock(), CLOCKS_PER_SEC);
+
+    sprintf(buffer, "1234567890asdfghjklzxcvbnmqwertyuiop0987654321");
+    printf("buffer write: %s\n", buffer);
+start_time = clock();
+    sfs_append (fd_test, (void *) buffer, sizeof(buffer));
+printf("write take time %ld\n", clock() - start_time);
+    sfs_close (fd_test);
+
+    fd_test = sfs_open ("test.bin", MODE_READ);
+    char buffer_read[1024];
+start_time = clock();
+    sfs_read (fd_test, (void *) buffer_read, sizeof(buffer_read));
+    printf("buffer read: %s\n", buffer_read);
+printf("read take time %ld\n", clock() - start_time);
+    sfs_close (fd_test);
 
     fd1 = sfs_open ("file1.bin", MODE_APPEND);
     fd2 = sfs_open ("file2.bin", MODE_APPEND);
