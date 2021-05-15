@@ -321,13 +321,14 @@ int sfs_read(int fd, void *buf, int n){
             memcpy((void*)fcb_index, sec, BLOCKSIZE);
 
             //read data
-            int remain_len = n, i = 0;
+            int remain_len = n, i = 0, temp_len=0;
             while(i < 1024 && remain_len > 0) {
                 if (fcb_index[i] != 0) {
                     read_block(sec, fcb_index[i]);
                     uint32_t sec_len = *(uint32_t*)sec;
-                    if (sec_len < BLOCKSIZE) {
-                        memcpy((char*)buf + strlen(buf), (void*)((uint8_t*)sec + 4), MIN(remain_len, sec_len - 4));
+                    if (sec_len <= BLOCKSIZE) {
+                        memcpy((char*)buf + temp_len, (void*)((uint8_t*)sec + 4), MIN(remain_len, sec_len - 4));
+			temp_len += MIN(remain_len, sec_len - 4);
                         remain_len = remain_len - MIN(remain_len, sec_len - 4);
                     }
                 }

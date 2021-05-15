@@ -11,7 +11,8 @@ int main(int argc, char **argv)
     int fd1, fd2, fd; 
     int i;
     char c; 
-    char buffer[1024];
+    char buffer[16384];
+    char buffer_read[16384];
     char buffer2[8] = {50, 50, 50, 50, 50, 50, 50, 50};
     int size;
     char vdiskname[200]; 
@@ -34,9 +35,19 @@ int main(int argc, char **argv)
     sfs_create ("file1.bin");
     sfs_create ("file2.bin");
     sfs_create ("file3.bin");
+
 clock_t start_time = clock();
-    sfs_create ("test.bin");
+/*
+char testbuf[24];
+memset(testbuf, 0, sizeof(testbuf));
+for (int j = 0; j < 5; j++){
+	sprintf(testbuf, "test%d.bin", j);
+	printf("ef %s\n",testbuf);
+	sfs_create (testbuf);
+}
 printf("create take time %ld\n", clock() - start_time);
+*/
+    sfs_create ("test.bin");
     int fd_test = sfs_open ("test.bin", MODE_APPEND);
 
 start_time = clock();
@@ -52,7 +63,6 @@ printf("write take time %ld\n", clock() - start_time);
     sfs_close (fd_test);
 
     fd_test = sfs_open ("test.bin", MODE_READ);
-    char buffer_read[1024];
 start_time = clock();
     sfs_read (fd_test, (void *) buffer_read, sizeof(buffer_read));
     printf("buffer read: %s\n", buffer_read);
