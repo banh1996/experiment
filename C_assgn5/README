@@ -1,0 +1,3 @@
+GFLOP is calculated by formula:
+O(n1^2) / (sample_time/ticks) = O(n2^2) / 15
+I get n2 number, set n1 in default 10000
