@@ -1,0 +1,5 @@
+Rashed Abdulla Alyammahi
+780696944
+
+Because the cat command-line is not support -n option in xv6. So, I wrote a new catn function to append the line number in first sentence like "cat -n" command-line.
+Then, I wrote code follow instructions in pdf file. fork a child process exec catn, then use pipe and dup to set catn output as grep input.
