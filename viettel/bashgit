@@ -1,0 +1,123 @@
+#!/bin/bash
+echo "GIT TRANSFER"
+source="git2"
+dest="git1"
+
+#init variable
+first_commit=$1
+last_commit=$2
+
+#log commit and reverse to file input
+input="tempp_log_reverse"
+input_temp="tempp_log"
+cd $source
+git log --shortstat > ../$input_temp
+cd ../
+tac $input_temp > $input
+
+#check if input is "HEAD" type
+counter=0
+commit_counter=0
+first_commit_index=0
+last_commit_index=0
+if [ "${first_commit:0:4}" = "HEAD" ] || [ "${last_commit:0:4}" = "HEAD" ]
+then
+    if [ ${#first_commit} -gt 4 ] && [ "${first_commit:0:4}" = "HEAD" ]
+    then
+        first_commit_index=${first_commit:5:1}
+    fi
+
+    if [ ${#last_commit} -gt 4 ] && [ "${last_commit:0:4}" = "HEAD" ]
+    then
+        last_commit_index=${last_commit:5:1}
+    fi
+
+    while IFS= read -r line
+    do
+        counter=$(( $counter + 1))
+        if [ "$counter" -eq 1 ]
+        then
+            commit_counter=$(( $commit_counter + 1))
+        fi
+        if [ "$counter" -eq 1 ] && [ "$commit_counter" -eq "$(( $last_commit_index + 1))" ]
+        then
+            last_commit=${line:7}
+        fi
+        if [ "$counter" -eq 1 ] && [ "$commit_counter" -eq "$(( $first_commit_index + 1))" ]
+        then
+            first_commit=${line:7}
+            break
+        fi 
+        if [ "$counter" -eq 8 ]
+        then
+            counter=0
+        fi
+    done < "$input_temp"
+fi
+
+#read each line of file
+counter=0
+start_git_apply=0
+while IFS= read -r line
+do
+    counter=$(( $counter + 1))
+    if [ "$counter" -eq 3 ]
+    then
+        commit_content=${line:4}
+        echo $commit_content
+    fi
+
+    if [ "$counter" -eq 6 ]
+    then
+        IFS=" "
+        set $line
+        user_name=$2
+        email=$3
+        IFS=">"
+        set $email
+        email=$1
+        email=${email:1}
+        echo $user_name
+        echo $email
+    fi
+    
+    if [ "$counter" -eq 7 ]
+    then
+        commit_hash=${line:7}
+        echo $commit_hash
+
+        if [ "$first_commit" = "$commit_hash" ]    
+        then
+            start_git_apply=1
+        fi
+
+        if [ "$start_git_apply" -eq 1 ]
+        then
+            #diff each commit
+            echo "git apply"
+            cd $source
+            git diff $commit_hash~1 $commit_hash > ../tempp_diff.path
+            cd ../$dest
+            git config --global user.name "$user_name"
+            git config --global user.email $email
+            git apply ../tempp_diff.path
+            git add .
+            git commit -m "$commit_content"
+            cd ..
+        fi
+    fi
+
+    if [ "$last_commit" = "$commit_hash" ]    
+    then
+        break
+    fi
+
+    if [ "$counter" -eq 8 ]
+    then
+        counter=0
+    fi
+
+done < "$input"
+
+#remove temp file
+rm tempp*

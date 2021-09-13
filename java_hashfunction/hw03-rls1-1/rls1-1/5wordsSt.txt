@@ -1,6 +1,0 @@
-  f24b5abb:aaaa
-  1af5fb95:bbbbbbbbb
-  25b7ea3b:ccccccccddddddeeeeffff
-  9958f1d4:bananas
-  a0c4ee18:syzygy
-Input file processed

@@ -1,0 +1,76 @@
+For the input file named in-50.txt
+With the RNG unseeded,
+1884 integer not found - delete not successful
+the current Skip List is shown below: 
+---infinity
+   597;   597;   597;   597;
+   774;   774;   774;   774;
+  1117;
+  1185;  1185;
+  1259;  1259;
+  1572;
+  2759;
+  3536;  3536;
+  4570;
++++infinity
+---End of Skip List---
+774 deleted
+the current Skip List is shown below: 
+---infinity
+   597;   597;   597;   597;
+  1117;
+  1185;  1185;
+  1259;  1259;
+  1572;
+  2759;
+  3536;  3536;
+  4570;
++++infinity
+---End of Skip List---
+3025 integer not found - delete not successful
+991 integer not found - delete not successful
+497 integer not found - delete not successful
+1229 deleted
+1711 integer not found - delete not successful
+the current Skip List is shown below: 
+---infinity
+    69;    69;
+   156;   156;   156;   156;   156;   156;
+   219;
+   252;   252;   252;
+   469;
+   576;
+   597;   597;   597;   597;
+   667;
+   851;   851;   851;   851;
+   893;
+   894;   894;
+  1117;
+  1185;  1185;
+  1225;  1225;  1225;  1225;  1225;  1225;  1225;
+  1259;  1259;
+  1356;  1356;  1356;
+  1572;
+  2148;  2148;  2148;
+  2321;
+  2442;
+  2556;
+  2590;  2590;  2590;  2590;
+  2597;  2597;
+  2759;
+  2972;
+  3073;  3073;
+  3110;
+  3423;
+  3481;  3481;
+  3536;  3536;
+  3575;  3575;  3575;  3575;
+  3630;  3630;  3630;
+  3653;  3653;  3653;  3653;  3653;
+  3971;  3971;  3971;  3971;  3971;  3971;  3971;
+  4117;
+  4161;  4161;
+  4265;
+  4570;
++++infinity
+---End of Skip List---
