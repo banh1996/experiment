@@ -1,0 +1,38 @@
+The project may be completed in pairs (2 maximum).
+
+Project description: COM-S-352-Project1-2021-Fall.pdf Download COM-S-352-Project1-2021-Fall.pdf
+
+Additional comments
+What are the rules of the MLFQ?
+
+It must follow the final set of rules 1-5 from the book. It must be preemptive (i.e., when a higher priority job arrives it preempts the lower priority job). 
+
+What is a job?
+
+The book talks about jobs. What is a job and how is it different than a process? A job (aka CPU burst) is when a process has instructions to execute. When a process gives up the CPU voluntarily (e.g., it call a blocking system call such as read(), write() or sleep()) it completes its job. A process being preempted (e.g., the timer interrupt results in the scheduler forcing it off the CPU) has not completed its job. When a job is completed, the process tick counter should be reset to zero. This means you need to find a way to determine when a process is voluntarily or involuntarily giving up the CPU. Hint: follow the chain of function calls (already done for you in the project description) when there is a timer interrupt that lead to scheduler() resuming it execution, then to the same for a system call such as sys_read(). What is different and what is the same in these chains of calls?
+
+How add the getpstat system call?
+
+A good example is fstat. In VS Code go to Edit -> Find In Files and search for fstat and sys_fstat to find all of the places that need to be changed.
+
+Passing by pointer is tricky because user memory is virtualized and can be relocated. For that reason, it is best to create a copy of the struct on the kernel side and they copy it to the user side with the function copyout(). Here is a example working version of sys_getpstat() (similar to sys_fstat) that you are allowed to use. It can be placed in sysproc.c. The function kgetpstat() has been left for you to finish (see the TODO comment).
+
+uint64
+sys_getpstat(void)
+{
+  struct proc *p = myproc();
+  uint64 upstat; // user virtual address, pointing to a struct pstat
+  struct pstat kpstat; // struct pstat in kernel memory
+
+  // get system call argument
+  if(argaddr(0, &upstat) < 0)
+    return -1;
+  
+  // TODO: define kernel side kgetpstat(struct pstat* ps), its purpose is to fill the values into pstat.
+  uint64 result = kgetpstat(&kpstat);
+
+  // copy pstat from kernel memory to user memory
+  if(copyout(p->pagetable, upstat, (char *)&kpstat, sizeof(kpstat)) < 0)
+    return -1;
+  return result;
+}

@@ -1,0 +1,508 @@
+diff --git a/Makefile b/Makefile
+index 509909b..f5b1d5e 100644
+--- a/Makefile
++++ b/Makefile
+@@ -123,6 +123,8 @@ UPROGS=\
+ 	$U/_echo\
+ 	$U/_forktest\
+ 	$U/_grep\
++	$U/_pstat\
++	$U/_schedtest\
+ 	$U/_init\
+ 	$U/_kill\
+ 	$U/_ln\
+diff --git a/kernel/defs.h b/kernel/defs.h
+index 41098f4..71d0173 100644
+--- a/kernel/defs.h
++++ b/kernel/defs.h
+@@ -7,6 +7,7 @@ struct proc;
+ struct spinlock;
+ struct sleeplock;
+ struct stat;
++struct pstat;
+ struct superblock;
+ 
+ // bio.c
+@@ -183,5 +184,8 @@ void            virtio_disk_init(void);
+ void            virtio_disk_rw(struct buf *, int);
+ void            virtio_disk_intr(void);
+ 
++// pstat.c
++int             getpstat(struct pstat*);
++
+ // number of elements in fixed-size array
+ #define NELEM(x) (sizeof(x)/sizeof((x)[0]))
+diff --git a/kernel/param.h b/kernel/param.h
+index b5fdcb2..dff22f2 100644
+--- a/kernel/param.h
++++ b/kernel/param.h
+@@ -11,3 +11,4 @@
+ #define NBUF         (MAXOPBLOCKS*3)  // size of disk block cache
+ #define FSSIZE       1000  // size of file system in blocks
+ #define MAXPATH      128   // maximum file path name
++#define NQUEUES      3 //define 3 queues for MLFQ and 1 queue for lowest priority
+\ No newline at end of file
+diff --git a/kernel/proc.c b/kernel/proc.c
+index 22e7ce4..d9e7f21 100644
+--- a/kernel/proc.c
++++ b/kernel/proc.c
+@@ -5,9 +5,21 @@
+ #include "spinlock.h"
+ #include "proc.h"
+ #include "defs.h"
++#include "pstat.h"
+ 
+ struct cpu cpus[NCPU];
+ 
++//#define PRINT_DEBUG(x, ...)  printf(x, __VA_ARGS__) //uncomment to see debug log
++#define PRINT_DEBUG(x, ...)  //enable to not show log
++#define EMPTY (-1)
++//struct for implemeting queue
++struct qentry {
++  uint64 prev; // the prev process (head process with queue)
++  uint64 next; // the next process (tail process with queue)
++};
++struct qentry qtable[NPROC + NQUEUES]; //contain all queues and processes
++uint64 quanta_tick[NQUEUES] = {1, 2, 4}; // queue0:1 tick, queue1: 2 ticks, queue2: 4 ticks
++
+ struct proc proc[NPROC];
+ 
+ struct proc *initproc;
+@@ -26,6 +38,49 @@ extern char trampoline[]; // trampoline.S
+ // must be acquired before any p->lock.
+ struct spinlock wait_lock;
+ 
++
++//function to add process to tail of queue
++void
++proc_add_queue(struct proc *p, uint64 queue_num) {
++  uint64 pindex; // process index
++  PRINT_DEBUG("add p %d to queue %d\n", p->pid, queue_num);
++  pindex = p - proc; // get index of p process
++  if (qtable[NPROC + queue_num].next != 64) {
++    qtable[pindex].prev = qtable[NPROC + queue_num].next; // set prev process of p is current tail of queue
++    qtable[qtable[NPROC + queue_num].next].next = pindex; // set next process of tail queue is p
++  }
++  qtable[pindex].next = 64; //no process behind
++  if (qtable[NPROC + queue_num].prev == 64)
++    qtable[NPROC + queue_num].prev = pindex; // add p process to head queue if p is the first process in queue
++  qtable[NPROC + queue_num].next = pindex; // add p process to tail queue
++}
++
++
++//function to delete the top process in queue
++//return 0 if deleted, return -1 if queue is empty
++int
++proc_delete_from_queue(uint64 queue_num) {
++  uint64 pindex; // process index
++  pindex = qtable[NPROC + queue_num].prev; //get index of p
++  PRINT_DEBUG("delete p %d from queue %d\n", proc[pindex].pid, queue_num);
++  if (qtable[pindex].next != 64)
++  {
++    qtable[NPROC + queue_num].prev = qtable[pindex].next; //set head of queue is the next, delete from queue
++    qtable[qtable[pindex].next].prev = 64; //the next process now is top queue, there no prev process
++  }
++  else
++  {
++    qtable[NPROC + queue_num].prev = 64; //queue is empty
++    qtable[NPROC + queue_num].next = 64; //queue is empty
++  }
++
++  qtable[pindex].prev = 64; //p is top, delete p from table
++  qtable[pindex].next = 64; //p is top, delete p from table
++  return 0;
++}
++
++
++
+ // Allocate a page for each process's kernel stack.
+ // Map it high in memory, followed by an invalid
+ // guard page.
+@@ -226,6 +281,7 @@ void
+ userinit(void)
+ {
+   struct proc *p;
++  uint64 i;
+ 
+   p = allocproc();
+   initproc = p;
+@@ -242,7 +298,18 @@ userinit(void)
+   safestrcpy(p->name, "initcode", sizeof(p->name));
+   p->cwd = namei("/");
+ 
++  PRINT_DEBUG("init %d\n", p->pid);
+   p->state = RUNNABLE;
++  p->cur_queue = 0; //set to queue 0
++  p->ticks = 0; //no ticks run
++  //init 3 queues and all process
++  for (i = 0; i < NPROC+NQUEUES; i++)
++  {
++    qtable[i].next = 64;
++    qtable[i].prev = 64;
++  }
++
++  proc_add_queue(p, 0); // add first process to head queue 0
+ 
+   release(&p->lock);
+ }
+@@ -312,7 +379,11 @@ fork(void)
+   release(&wait_lock);
+ 
+   acquire(&np->lock);
++  PRINT_DEBUG("fork %d\n", np->pid);
+   np->state = RUNNABLE;
++  np->ticks = 0; // init tick process
++  np->cur_queue = 0; //set to queue 0
++  proc_add_queue(np, 0); // add p to tail queue 0
+   release(&np->lock);
+ 
+   return pid;
+@@ -439,21 +510,25 @@ scheduler(void)
+ {
+   struct proc *p;
+   struct cpu *c = mycpu();
+-  
++  uint64 i;
++
+   c->proc = 0;
++  p = proc;
+   for(;;){
+     // Avoid deadlock by ensuring that devices can interrupt.
+     intr_on();
+-
++#if 0 //old code
+     for(p = proc; p < &proc[NPROC]; p++) {
+       acquire(&p->lock);
+       if(p->state == RUNNABLE) {
+         // Switch to chosen process.  It is the process's job
+         // to release its lock and then reacquire it
+         // before jumping back to us.
++        PRINT_DEBUG("running %d\n", p->pid);
+         p->state = RUNNING;
+         c->proc = p;
+         swtch(&c->context, &p->context);
++        //PRINT_DEBUG("test %d\n", p->pid);
+ 
+         // Process is done running for now.
+         // It should have changed its p->state before coming back.
+@@ -461,9 +536,56 @@ scheduler(void)
+       }
+       release(&p->lock);
+     }
++#endif
++
++//implement MLFQ
++#if 1
++    for (i = 0; i < NQUEUES; i++) {
++      while(qtable[NPROC + i].prev < 64){ //check queue is empty or not
++        p = &proc[qtable[NPROC + i].prev]; //get first proc in queue
++        acquire(&p->lock);
++        //PRINT_DEBUG("test: %d %d %d \n", p->pid,i, p->state);
++        if(p->state == RUNNABLE) {
++          // Switch to chosen process.  It is the process's job
++          // to release its lock and then reacquire it
++          // before jumping back to us.
++          PRINT_DEBUG("running %d\n", p->pid);
++          p->state = RUNNING;
++          c->proc = p;
++          proc_delete_from_queue(i); //delete p from queue i, should delete before call swtch because yield can add the same process
++          swtch(&c->context, &p->context);
++
++          // Process is done running for now.
++          // It should have changed its p->state before coming back.
++          c->proc = 0;
++
++          p->ticks++; //increase ticks
++          p->cur_queue = i;
++
++          //decide to move process to lower queue or reset priority
++          if (p->cur_queue < NQUEUES-1) { //check quanta to push to lower queue
++            if (p->ticks >= quanta_tick[p->cur_queue]) {
++              p->cur_queue++; // to lower queue
++            }
++          }
++          if (p->cur_queue == NQUEUES-1) {
++            if (p->ticks >= 32) {//if ticks is over 32, reset to queue 0 and tick =0
++              p->cur_queue = 0;
++              p->ticks = 0;
++            }
++          }
++
++          if (i > 0) //after running, back to highest priority queue 0 to check if any process ready
++            i = 0;
++        }
++        release(&p->lock);
++      }
++    }
++#endif
+   }
+ }
+ 
++
+ // Switch to scheduler.  Must hold only p->lock
+ // and have changed proc->state. Saves and restores
+ // intena because intena is a property of this
+@@ -497,7 +619,11 @@ yield(void)
+ {
+   struct proc *p = myproc();
+   acquire(&p->lock);
++
++  PRINT_DEBUG("yield %d %d %d\n", p->pid, p->ticks, p->cur_queue);
+   p->state = RUNNABLE;
++  proc_add_queue(p, p->cur_queue); // add p to tail queue
++
+   sched();
+   release(&p->lock);
+ }
+@@ -543,6 +669,7 @@ sleep(void *chan, struct spinlock *lk)
+   // Go to sleep.
+   p->chan = chan;
+   p->state = SLEEPING;
++  PRINT_DEBUG("sleep %d\n", p->pid);
+ 
+   sched();
+ 
+@@ -565,7 +692,10 @@ wakeup(void *chan)
+     if(p != myproc()){
+       acquire(&p->lock);
+       if(p->state == SLEEPING && p->chan == chan) {
++        //p->ticks = 0;
++        PRINT_DEBUG("wakeup %d %d\n", p->pid, p->cur_queue);
+         p->state = RUNNABLE;
++        proc_add_queue(p, p->cur_queue); // add p to tail queue
+       }
+       release(&p->lock);
+     }
+@@ -587,6 +717,8 @@ kill(int pid)
+       if(p->state == SLEEPING){
+         // Wake process from sleep().
+         p->state = RUNNABLE;
++        proc_add_queue(p, p->cur_queue); // add p to tail queue
++        PRINT_DEBUG("kill %d\n", p->pid);
+       }
+       release(&p->lock);
+       return 0;
+@@ -654,3 +786,26 @@ procdump(void)
+     printf("\n");
+   }
+ }
++
++// populates pstat with information about all processes
++// return 0 success, -1 error
++int getpstat(struct pstat *p_pstat)
++{
++  int i;
++
++  for (i = 0; i < NPROC; i++)
++  {
++    acquire(&proc[i].lock); // set lock to get current process status
++    if (proc[i].state != UNUSED)
++    {
++      p_pstat->inuse[i] = 1;
++      p_pstat->pid[i] = proc[i].pid;
++      p_pstat->ticks[i] = proc[i].ticks;
++      p_pstat->queue[i] = proc[i].cur_queue;
++    }
++    else
++      p_pstat->inuse[i] = 0;
++    release(&proc[i].lock);
++  }
++  return 0;
++}
+\ No newline at end of file
+diff --git a/kernel/proc.h b/kernel/proc.h
+index 8e90008..d22c611 100644
+--- a/kernel/proc.h
++++ b/kernel/proc.h
+@@ -105,4 +105,7 @@ struct proc {
+   struct file *ofile[NOFILE];  // Open files
+   struct inode *cwd;           // Current directory
+   char name[16];               // Process name (debugging)
+-};
++
++  uint64 ticks; //lifetime of process
++  uint64 cur_queue; //current queue of process
++};
+\ No newline at end of file
+diff --git a/kernel/pstat.h b/kernel/pstat.h
+new file mode 100644
+index 0000000..51c3064
+--- /dev/null
++++ b/kernel/pstat.h
+@@ -0,0 +1,13 @@
++#ifndef _PSTAT_H_
++#define _PSTAT_H_
++
++#include "param.h"
++
++struct pstat {
++  int inuse[NPROC];
++  int pid[NPROC];
++  int ticks[NPROC];
++  int queue[NPROC];
++ };
++
++#endif
+diff --git a/kernel/syscall.c b/kernel/syscall.c
+index c1b3670..0bfc423 100644
+--- a/kernel/syscall.c
++++ b/kernel/syscall.c
+@@ -104,6 +104,7 @@ extern uint64 sys_unlink(void);
+ extern uint64 sys_wait(void);
+ extern uint64 sys_write(void);
+ extern uint64 sys_uptime(void);
++extern uint64 sys_getpstat(void);
+ 
+ static uint64 (*syscalls[])(void) = {
+ [SYS_fork]    sys_fork,
+@@ -127,6 +128,7 @@ static uint64 (*syscalls[])(void) = {
+ [SYS_link]    sys_link,
+ [SYS_mkdir]   sys_mkdir,
+ [SYS_close]   sys_close,
++[SYS_getpstat]   sys_getpstat,
+ };
+ 
+ void
+diff --git a/kernel/syscall.h b/kernel/syscall.h
+index bc5f356..2a8330b 100644
+--- a/kernel/syscall.h
++++ b/kernel/syscall.h
+@@ -20,3 +20,4 @@
+ #define SYS_link   19
+ #define SYS_mkdir  20
+ #define SYS_close  21
++#define SYS_getpstat  22
+diff --git a/kernel/sysproc.c b/kernel/sysproc.c
+index e8bcda9..3237b0b 100644
+--- a/kernel/sysproc.c
++++ b/kernel/sysproc.c
+@@ -6,6 +6,7 @@
+ #include "memlayout.h"
+ #include "spinlock.h"
+ #include "proc.h"
++#include "pstat.h"
+ 
+ uint64
+ sys_exit(void)
+@@ -95,3 +96,28 @@ sys_uptime(void)
+   release(&tickslock);
+   return xticks;
+ }
++
++// return process statistics
++uint64
++sys_getpstat(void)
++{
++  //return 0;
++  struct pstat pstat;
++  struct proc *p = myproc(); //get process status
++
++  uint64 pst; // user pointer to struct ptat
++
++  //get address of struct pstat called in user space
++  if(argaddr(0, &pst) < 0)
++    return -1;
++
++  //get process statistics
++  if (getpstat(&pstat) < 0)
++    return -1;
++
++  //copy data from kernel(pstat) to user(pst) space
++  if(copyout(p->pagetable, pst, (char *)&pstat, sizeof(pstat)) < 0)
++    return -1;
++
++  return 0;
++}
+\ No newline at end of file
+diff --git a/user/pstat.c b/user/pstat.c
+new file mode 100644
+index 0000000..81fc67f
+--- /dev/null
++++ b/user/pstat.c
+@@ -0,0 +1,25 @@
++#include "kernel/types.h"
++#include "kernel/pstat.h"
++#include "user/user.h"
++
++int
++main(int argc, char *argv[])
++{
++    struct pstat s_pstat;
++    memset(&s_pstat, 0, sizeof(s_pstat));
++
++    //call systemcall to get processes statistics
++    getpstat(&s_pstat);
++    int i;
++
++    printf("pid    ticks    queue\n");
++    //print processes statistics
++    for (i = 0; i < NPROC; i++)
++    {
++        if (s_pstat.inuse[i] == 1)
++        {
++            printf("%d      %d       %d\n", s_pstat.pid[i], s_pstat.ticks[i], s_pstat.queue[i]);
++        }
++    }
++    exit(0);
++}
+\ No newline at end of file
+diff --git a/user/schedtest.c b/user/schedtest.c
+new file mode 100644
+index 0000000..8ecf390
+--- /dev/null
++++ b/user/schedtest.c
+@@ -0,0 +1,26 @@
++#include "kernel/types.h"
++#include "kernel/pstat.h"
++#include "user/user.h"
++
++int
++main(int argc, char *argv[])
++{
++    int ticks = 0;
++    int count = 0;
++    int i = 0;
++    if (argc != 3) {
++        printf("not enough argument number, must be 2\n");
++        exit(-1);
++    }
++
++    ticks = atoi(argv[1]);
++    count = atoi(argv[2]);
++
++    printf ("testprocess %d %d\n", ticks, count);
++    for (i = 0; i < count; i++) {
++        sleep(1);
++        fork();
++        sleep(ticks);
++    }
++    exit(0);
++}
+\ No newline at end of file
+diff --git a/user/user.h b/user/user.h
+index b71ecda..8d1601f 100644
+--- a/user/user.h
++++ b/user/user.h
+@@ -1,3 +1,4 @@
++struct pstat;
+ struct stat;
+ struct rtcdate;
+ 
+@@ -23,6 +24,7 @@ int getpid(void);
+ char* sbrk(int);
+ int sleep(int);
+ int uptime(void);
++int getpstat(struct pstat*);
+ 
+ // ulib.c
+ int stat(const char*, struct stat*);
+diff --git a/user/usys.pl b/user/usys.pl
+index 01e426e..7a0808e 100755
+--- a/user/usys.pl
++++ b/user/usys.pl
+@@ -36,3 +36,4 @@ entry("getpid");
+ entry("sbrk");
+ entry("sleep");
+ entry("uptime");
++entry("getpstat");
+\ No newline at end of file

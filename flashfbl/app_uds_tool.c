@@ -205,7 +205,7 @@ int main(int argc, char **argv)
     }
     else
         printf("Socket successfully created...\n");
-    bzero(&servaddr, sizeof(servaddr));
+    memset(&servaddr, 0, sizeof(servaddr));
 
 	// assign IP, PORT
     servaddr.sin_family = AF_INET;

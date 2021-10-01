@@ -1,0 +1,177 @@
+Rasheda - Rashed Abdulla Alyammahi
+
+In this project, For easy implementation, supposed queue 0 is the highest priority and queue 2 is the lowest priority.
+
+Add code to Makefile and user folder to build/run pstat&schedtest command line,
+just do as hw1 and the instruction of project 1.
+
+Code modify:
+- There is a diff file that contains all change between original and modified code.
+- the structure of queue is the same in the instruction, and in proc struct,
+add ticks(to save actived lifetime) and cur_queue(to save current queue it's in)
+- In every "p->state = RUNNABLE", the process is added to queue (with fork and init, add to highest priority queue. And the anothers, add to queue that it used to be in)
+- In scheduler function, check all queues and get the top process in order. Then need to delete running process from queue before call swtch (although there is spinlock in yield and scheduler, but I see 2 functions can run concurrently, maybe yaild called from trap, so it ignores all condition of lock). After yield called to release swtch, increase process tick and decide the current process move to lower queue or not or reset queue if ticks over 32.
+- Add function:
+    + proc_add_queue: Add process to queue
+    + proc_delete_from_queue: Delete top process from queue
+    + getpstat: system call get process status (called from pstat) 
+- Schedtest: The ideal is fork many processes and sleep. In code, get ticks and count from argument, then fork child process every 1s. So if the count is n, then the process number is 2^n.
+- Uncomment PRINT_DEBUG to see log (just for debugging, I don't remove this because maybe I need to review code again)
+- Here is the result, set count to 5 (mean process number is 2^5=32)
+
+Result:
+$ schedtest 40 5 &
+$ testprocess 40 5
+
+$ pstat
+pid    ticks    queue
+1      22       2
+2      14       2
+6      25       2
+5      29       2
+8      3       2
+$ pstat
+pid    ticks    queue
+1      22       2
+2      16       2
+6      7       2
+5      11       2
+9      0       0
+$ pstat
+pid    ticks    queue
+1      22       2
+2      18       2
+6      21       2
+5      25       2
+10      12       2
+11      12       2
+12      0       0
+$ pstat
+pid    ticks    queue
+1      22       2
+2      20       2
+6      2       2
+5      6       2
+10      25       2
+11      25       2
+13      0       0
+$ pstat
+pid    ticks    queue
+1      22       2
+2      22       2
+6      14       2
+5      18       2
+10      5       2
+11      5       2
+14      0       0
+$ pstat
+pid    ticks    queue
+1      22       2
+2      24       2
+6      28       2
+5      0       0
+10      19       2
+11      19       2
+15      10       2
+16      10       2
+17      10       2
+18      10       2
+19      0       0
+$ pstat
+pid    ticks    queue
+1      22       2
+2      26       2
+6      9       2
+5      13       2
+10      0       0
+11      0       0
+15      23       2
+16      23       2
+17      23       2
+18      23       2
+20      0       0
+$ pstat
+pid    ticks    queue
+1      22       2
+2      28       2
+6      28       2
+5      0       0
+10      19       2
+11      19       2
+15      10       2
+16      10       2
+17      10       2
+18      10       2
+21      1       1
+22      1       1
+23      1       1
+24      1       1
+25      1       1
+26      1       1
+27      1       1
+28      1       1
+29      0       0
+$ pstat
+pid    ticks    queue
+1      22       2
+2      30       2
+6      24       2
+5      28       2
+10      15       2
+11      15       2
+15      6       2
+16      6       2
+17      6       2
+18      6       2
+21      29       2
+22      29       2
+23      29       2
+24      29       2
+25      29       2
+26      29       2
+27      29       2
+28      29       2
+30      0       0
+$ pstat
+pid    ticks    queue
+1      22       2
+2      0       0
+6      1       1
+5      5       2
+10      24       2
+11      24       2
+15      15       2
+16      15       2
+17      15       2
+18      15       2
+21      6       2
+22      6       2
+23      6       2
+24      6       2
+25      6       2
+26      6       2
+27      6       2
+28      6       2
+31      29       2
+32      29       2
+33      29       2
+34      29       2
+35      29       2
+36      29       2
+37      29       2
+38      29       2
+39      29       2
+40      29       2
+41      29       2
+42      29       2
+43      29       2
+44      29       2
+45      29       2
+46      29       2
+47      0       0
+$ pstat
+pid    ticks    queue
+1      23       2
+2      2       2
+48      0       0
+
