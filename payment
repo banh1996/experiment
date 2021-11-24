@@ -17,3 +17,20 @@ income:
     Assignment 6(Rust): 35$
 
 payment: -20.8tr
+
+income:
+    Java: 60$
+    another: 70$
+    CS311: 300$
+payment: -9.1tr
+
+income/payment:
+    aQuan: -4tr
+
+new income:
+    assignment 5: 40$
+    support HW5 CS352 for Rashed friend: 20$
+    support CS252 for Omar(10 homeworks + 1 midterm): 200$
+    CS352: 360$
+    CS252: 320$
+    
