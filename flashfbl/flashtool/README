@@ -1,0 +1,7 @@
+Build:
+- make all
+Run:
+- ./uds_tool
+  Please read help while use tools.
+Clean:
+- make clean
