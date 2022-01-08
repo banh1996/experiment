@@ -220,8 +220,13 @@ int main(int argc, char **argv)
 	else
 		printf("connected to the server...\n");
 
-    activate_process(sockfd);
-    printf("\nActive successful.\n");
+    if (activate_process(sockfd))
+    {
+        printf("\nActive failed\n");
+        return -1;
+    }
+    else
+        printf("\nActive successful.\n");
 
     if (signal(SIGALRM, (void(*)(int))timer_handler) == SIG_ERR)
     {

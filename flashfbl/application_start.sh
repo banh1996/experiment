@@ -1,15 +1,17 @@
 #!/bin/sh
-FOTASTATEFILE=/samples/systems/fota_aurix/fotastate.txt
-if test -f "$FOTASTATEFILE"; then
-    cd /samples/systems/fota_aurix/
-    #touch newnew.txt
-    echo "$FOTASTATEFILE exists."
-    state_val="$(cat $FOTASTATEFILE)"
-    string_compare="FOTA_IN_PROGRESS"
-    if [ "$state_val" = "$string_compare" ]; then
-        #waitfor /dev/socket
-        #touch temp.txt
-        #pp="$(pwd)"; echo "$pp" >  temp.txt
-        params="/samples/systems/fota_aurix/run_fota_qnx continue /samples/systems/fota_aurix/"; $params &
-    fi  
-fi
+# put this file in /usr/local
+
+local RETRIES=0
+local MAX_RETRIES=10
+
+# Wait for eq0 interface to be up
+while [ $RETRIES -lt $MAX_RETRIES ]; do
+	if_up -p eq0
+	if [[ $? -eq 0 ]]; then
+		break;
+	fi
+	RETRIES=$(( RETRIES + 1 ))
+done
+
+sysctl -w net.inet.tcp.delack_ticks=3  #reduce delay ticks
+params="/samples/systems/fota_aurix/run_fota_manager path=/samples/systems/fota_aurix/"; $params &  # run FOTA binary
