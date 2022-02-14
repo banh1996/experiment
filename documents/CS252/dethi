@@ -1,0 +1,47 @@
+1.
+for username in $@; do
+    if [ -d "${username}" ]; then
+        cmd="chmod 750 ${username}"; $cmd
+    else
+        cmd="mkdir ${username}"; $cmd
+        cmd="chown -R ${username}:staff $username"; $cmd
+        cmd="chmod -R 755 ${username}"; $cmd
+    fi
+done
+
+2.
+utilityA
+utilityB
+if [ $? -ne 0 ]; then
+    utilityC
+fi
+
+3.
+tar -zxvf haystack.txt.gz
+grep -r haystack.txt -e needle
+
+4.
+tar -czvf vice-2.1.tar.gz Vice-2.1/
+
+5.
+df -h | awk '{print $1 "         " $2}'
+
+6.
+sed -n '1,+14p' middle.txt
+sed 21p middle.txt
+
+7.
+yum -y install gmp
+yum -y install gmp-devel
+
+8. 
+sudo rpm -i libcool2.7.1.i386.rpm
+sudo rpm -i ultracool.3.14.5.i386.rpm
+
+9. install only
+
+10. A
+
+11. 
+match: 1
+non-match: 234
