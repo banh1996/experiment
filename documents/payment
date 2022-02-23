@@ -15,7 +15,6 @@ income:
     java Site_Collections: 35$
     java Desert_Oasis: 35$
     Assignment 6(Rust): 35$
-
 payment: -20.8tr
 
 income:
@@ -34,5 +33,7 @@ new income:
     support CS252 for Omar(11 homeworks + 1 midterm): 240$
     CS352: 350$
     CS252: 320$
-total: 1110$    
-payment: 23tr
+payment: -23tr
+
+
+total: 57tr
