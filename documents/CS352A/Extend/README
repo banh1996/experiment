@@ -1,5 +1,4 @@
-buid&run in linux environment:
-build by cmd:
-    gcc -o test ISA
-run by cmd:
-    ./test
+build:
+    gcc -o test Project3.c
+run:
+    ./test in.txt

@@ -120,7 +120,7 @@ printf("\n%d %d",programMemory[i].opCode,programMemory[i].deviceOrAddress);
 
 while(decoder!=7)
 
-{
+{ 
 
 switch(decoder)
 
