@@ -1,0 +1,6 @@
+- call "make" to build program
+- For task1: run "./Task1filter source-file clean-file"
+- You may need to shuffle the source file before run Task1filter
+- For task2: run "./task2 clean-file"
+- For task3: run "./task3 clean-file"
+- For task4: run "./task4 clean-file"

@@ -1,0 +1,21 @@
+a1719741
+
+Testing the code.
+
+Compile:
+javac *.java
+
+Run AggregatorServer test:
+java AggregatorServer 4321 9876
+
+Run ContentServer test:
+java ContentServer http://localhost:4321 content.txt
+
+Run client test:
+java GETClient http://localhost:9876
+
+Kill all server running and delete temp files:
+./kill.sh
+
+Run several test cases
+./alltest.sh
